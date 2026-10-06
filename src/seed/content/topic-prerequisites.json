@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "2807c070-67d9-5cf1-bff9-f647afea3fed",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7a0e4010-9773-5b80-b096-831a5d93e9a7",
+      "prerequisiteId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3"
+    },
+    {
+      "id": "71bf9bc9-339a-5738-aa66-71140f0a202a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "10d58862-993d-5abd-9b66-b1a5c725d07d",
+      "prerequisiteId": "7a0e4010-9773-5b80-b096-831a5d93e9a7"
+    },
+    {
+      "id": "fbae3877-d92f-56ea-8ba2-2887b630eb4f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "prerequisiteId": "9d986502-f41f-5d43-9e2d-f9730c490024"
+    },
+    {
+      "id": "6bfda8b2-d908-502f-adda-2d612f1c0426",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "prerequisiteId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4"
+    },
+    {
+      "id": "8508d8d1-7493-5805-b0de-72f97c4b6638",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "245308b2-62e8-57a6-8657-458cf412724c",
+      "prerequisiteId": "35c06b60-c8dd-5452-b291-2fde61d240f5"
+    },
+    {
+      "id": "eae5ef68-d0b3-50f9-ac33-b2c8a96184bf",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e5d856a1-4ac6-51ac-82cf-4054579bf0a8",
+      "prerequisiteId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3"
+    },
+    {
+      "id": "3ebfb6dd-0e65-5c9e-bb3a-121c0140c930",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e5d856a1-4ac6-51ac-82cf-4054579bf0a8",
+      "prerequisiteId": "9d986502-f41f-5d43-9e2d-f9730c490024"
+    },
+    {
+      "id": "720555b5-8754-57ed-821d-f5270cea3301",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "prerequisiteId": "35c06b60-c8dd-5452-b291-2fde61d240f5"
+    },
+    {
+      "id": "4bdfd719-2bef-5a76-916a-b706f41c90de",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "prerequisiteId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3"
+    },
+    {
+      "id": "5071312c-c0f4-5a6e-99fe-a48a4e9d7aa8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "prerequisiteId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d"
+    },
+    {
+      "id": "d74b2a7a-7146-5fc8-9ef5-632fc7f51235",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "prerequisiteId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3"
+    },
+    {
+      "id": "05cafc42-cf2f-5c04-81e3-e45e04e0b39d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "eeca9564-f902-5685-b3ad-a9bb7b3a6504",
+      "prerequisiteId": "c650971f-20a8-51f0-91ac-3546b492074c"
+    },
+    {
+      "id": "6c3f962c-cadf-589e-9a58-526985e69b4d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "prerequisiteId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d"
+    },
+    {
+      "id": "be88255e-811c-55cd-a24a-b252563824bc",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "prerequisiteId": "c650971f-20a8-51f0-91ac-3546b492074c"
+    },
+    {
+      "id": "5349fc6c-ee10-526c-af6b-8d71eecb8aa9",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ef940a40-2ac6-5349-94a3-ce23a75446a4",
+      "prerequisiteId": "c650971f-20a8-51f0-91ac-3546b492074c"
+    },
+    {
+      "id": "23845ec9-ab03-51fa-b306-2ce276baf8d8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "53a806b4-f878-5eba-8675-baa3a3ef65e1",
+      "prerequisiteId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d"
+    },
+    {
+      "id": "ca1acdc4-2787-55db-a635-ca8436e7f89a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b198c247-5bba-5d65-9d4a-e4d8be6f0f4b",
+      "prerequisiteId": "c650971f-20a8-51f0-91ac-3546b492074c"
+    },
+    {
+      "id": "6548e62b-a5ae-5cf2-99a3-d7e2c5a8790a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "26e226c3-1ccc-50f8-9455-f724aaa209c3",
+      "prerequisiteId": "9d986502-f41f-5d43-9e2d-f9730c490024"
+    },
+    {
+      "id": "b2d9f0d1-f544-50cc-8383-5d0f4c14bcba",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "prerequisiteId": "9d986502-f41f-5d43-9e2d-f9730c490024"
+    },
+    {
+      "id": "f83f4fba-9851-51c9-b08f-a5c49ef438f6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "afe7cfb1-2b7a-5546-bef4-8fbdb725b87f",
+      "prerequisiteId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5"
+    },
+    {
+      "id": "5618251b-1b89-5863-b820-f2c47868a35a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "prerequisiteId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5"
+    },
+    {
+      "id": "cdeeb7a7-dc26-5a99-be5c-3173ec9113dc",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "prerequisiteId": "356e9acf-121d-5f66-a30b-9082246615fc"
+    },
+    {
+      "id": "de0b54b8-408c-5ecf-85b1-fd5a7fe156e7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "prerequisiteId": "e32f79da-ddb2-53c4-b6f8-26546e23fc57"
+    },
+    {
+      "id": "a6138cb6-35b7-5556-8e6a-6fd5061dd842",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "prerequisiteId": "cc12f285-01eb-5a83-a9aa-7677a421d96c"
+    },
+    {
+      "id": "c604d454-d0e1-5696-99aa-5492c4ffe445",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "46c365ff-b271-57cd-b231-c0314d0c01f6",
+      "prerequisiteId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5"
+    },
+    {
+      "id": "3bad5114-c279-5beb-96d3-0ed71e071c15",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "prerequisiteId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794"
+    },
+    {
+      "id": "91c5a2ab-960a-59e4-868c-5e8a4d326e31",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e365b7aa-b2e5-5c39-80db-88b9ffbbde79",
+      "prerequisiteId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794"
+    },
+    {
+      "id": "6a081aa9-2b17-5e31-82fb-7558c974eb74",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "prerequisiteId": "245308b2-62e8-57a6-8657-458cf412724c"
+    },
+    {
+      "id": "395101c4-40b9-5870-80ef-77e72d84d306",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "1f0dcda0-925a-5569-a0ec-f941aa4b2699",
+      "prerequisiteId": "ca45571c-5fca-564c-92cc-b51032d1c4ed"
+    },
+    {
+      "id": "c3b1f5cb-498b-52ad-b98b-b73db8f90955",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "prerequisiteId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b"
+    },
+    {
+      "id": "bee0e697-50de-5f46-8e55-42d77e1a7844",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "prerequisiteId": "b0a74263-60ac-587c-9218-5ea6e5175c21"
+    }
+  ]
+}

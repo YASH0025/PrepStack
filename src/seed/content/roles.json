@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "frontend",
+      "name": "Frontend Developer (React)",
+      "description": "Builds web interfaces with React, TypeScript and modern browser APIs."
+    },
+    {
+      "id": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "backend",
+      "name": "Backend Developer (Node.js)",
+      "description": "Builds APIs and services with Node.js, databases and cloud infrastructure."
+    },
+    {
+      "id": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "fullstack",
+      "name": "Full-Stack Developer",
+      "description": "Works across React frontends and Node.js backends, from UI to database."
+    }
+  ]
+}

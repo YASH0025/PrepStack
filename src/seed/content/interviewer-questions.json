@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "8ddcfcca-9617-5dbc-b708-0b0903d5eeab",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What does a typical week look like for someone in this role?",
+      "roundTypes": [
+        "RECRUITER_SCREEN",
+        "MANAGERIAL",
+        "HR"
+      ]
+    },
+    {
+      "id": "f267dfa1-0f0c-5bd3-9764-d9b88c4fb1a4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What would success look like in the first 90 days?",
+      "roundTypes": [
+        "MANAGERIAL",
+        "HR",
+        "RECRUITER_SCREEN"
+      ]
+    },
+    {
+      "id": "05c717dd-371f-59a5-b4da-d0fa5511099b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What are the biggest technical challenges the team is facing right now?",
+      "roundTypes": [
+        "TECHNICAL",
+        "SYSTEM_DESIGN",
+        "MANAGERIAL"
+      ]
+    },
+    {
+      "id": "b6294f12-6791-5584-94dd-b5423acfdc4f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How does the team decide what to build next?",
+      "roundTypes": [
+        "MANAGERIAL",
+        "BEHAVIORAL"
+      ]
+    },
+    {
+      "id": "d67c7559-45f2-5af3-9aac-7a2e7c74cf64",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How is code reviewed and deployed? How often do you release?",
+      "roundTypes": [
+        "TECHNICAL",
+        "CODING"
+      ]
+    },
+    {
+      "id": "38821d69-5ae9-5ee5-8759-fa035c6b1a0b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How do you handle production incidents and on-call?",
+      "roundTypes": [
+        "TECHNICAL",
+        "SYSTEM_DESIGN",
+        "MANAGERIAL"
+      ]
+    },
+    {
+      "id": "8b5ec3b1-ba68-5829-96e7-4b387bd36a71",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What does the architecture look like at a high level, and what would you change?",
+      "roundTypes": [
+        "SYSTEM_DESIGN",
+        "TECHNICAL"
+      ]
+    },
+    {
+      "id": "980ee92d-0759-54da-93fb-dff04da47670",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How do you measure engineering quality or developer experience here?",
+      "roundTypes": [
+        "TECHNICAL",
+        "MANAGERIAL"
+      ]
+    },
+    {
+      "id": "2202484e-5323-5e16-a371-15f69661c3f7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How is performance evaluated, and how do promotions work?",
+      "roundTypes": [
+        "MANAGERIAL",
+        "HR"
+      ]
+    },
+    {
+      "id": "3b33cf9f-46fb-532c-b41f-a1a183f02596",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How does the team support learning and growth?",
+      "roundTypes": [
+        "MANAGERIAL",
+        "HR",
+        "BEHAVIORAL"
+      ]
+    },
+    {
+      "id": "8a52215d-f1d4-56f5-9752-ca5ede5dddb1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What do you enjoy most about working here?",
+      "roundTypes": [
+        "TECHNICAL",
+        "CODING",
+        "BEHAVIORAL",
+        "MANAGERIAL"
+      ]
+    },
+    {
+      "id": "266c84d3-cd39-5435-bafb-d3d94a7a1cf7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What are the next steps in the process and the expected timeline?",
+      "roundTypes": [
+        "RECRUITER_SCREEN",
+        "HR",
+        "OTHER"
+      ]
+    },
+    {
+      "id": "2bd6b49f-8cda-5ab4-b4d0-ffe22a4c01a0",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What is the hybrid or remote policy for this team?",
+      "roundTypes": [
+        "RECRUITER_SCREEN",
+        "HR"
+      ]
+    },
+    {
+      "id": "f4282b7f-feb7-5666-89f8-cac59992a903",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "What would you expect a strong submission to include?",
+      "roundTypes": [
+        "TAKE_HOME"
+      ]
+    },
+    {
+      "id": "9cd5fb95-817f-5b4d-8174-8950a8e12153",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "text": "How large is the team, and how is it structured?",
+      "roundTypes": [
+        "RECRUITER_SCREEN",
+        "MANAGERIAL"
+      ]
+    }
+  ]
+}

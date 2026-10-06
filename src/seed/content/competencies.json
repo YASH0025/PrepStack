@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "ddc16e30-436a-5cd4-af3b-c8322b70d5aa",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "ownership",
+      "name": "Ownership",
+      "order": 0
+    },
+    {
+      "id": "d0cbb798-8155-5c11-90ca-d737e3ec22f5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "conflict",
+      "name": "Conflict",
+      "order": 1
+    },
+    {
+      "id": "2d197f9c-53d4-55ea-9071-e8171851423e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "failure",
+      "name": "Failure",
+      "order": 2
+    },
+    {
+      "id": "d4511988-bb72-5f4d-bb45-4b25f4de1c0d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "leadership",
+      "name": "Leadership",
+      "order": 3
+    },
+    {
+      "id": "937bbfd2-a122-587a-8a0a-7a2fcc1d35f2",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "teamwork",
+      "name": "Teamwork",
+      "order": 4
+    },
+    {
+      "id": "25e4919f-c96c-5dc0-b5cf-ffd9916bacc7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "deadline-pressure",
+      "name": "Deadline pressure",
+      "order": 5
+    },
+    {
+      "id": "54408e28-b482-5665-aaaa-c8be2ca3f713",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "ambiguity",
+      "name": "Ambiguity",
+      "order": 6
+    },
+    {
+      "id": "1a77f7a7-f4f5-57d1-9617-983cb872d76a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "customer-focus",
+      "name": "Customer focus",
+      "order": 7
+    },
+    {
+      "id": "d8283725-c21e-5d2f-9874-811245535998",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "technical-decision",
+      "name": "Technical decision",
+      "order": 8
+    },
+    {
+      "id": "b2fc26bf-acf0-5c84-b2c1-8c117f5a7ec3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "learning",
+      "name": "Learning",
+      "order": 9
+    },
+    {
+      "id": "76f98826-87fa-5473-869c-fdab92ad27b3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "influence",
+      "name": "Influence",
+      "order": 10
+    }
+  ]
+}

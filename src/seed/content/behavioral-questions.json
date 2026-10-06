@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "af28ef9b-e4f8-513e-9e9a-8e942ee3cb1f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Tell me about a time you took ownership of a problem that was not strictly yours.",
+      "competencies": [
+        "ownership"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nPick a case where you noticed something others ignored (a flaky deploy, a recurring customer complaint), acted without being asked, and kept stakeholders informed. Show judgement: you involved the actual owner rather than silently taking over."
+    },
+    {
+      "id": "bed06681-c44a-5904-b660-3dea3aedc172",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Describe a disagreement with a teammate or manager. How did you resolve it?",
+      "competencies": [
+        "conflict",
+        "influence"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nKeep it professional and specific. Show that you understood the other person's view, used data or a small experiment to decide, and either persuaded them or committed to their decision (\"disagree and commit\"). Avoid stories where the other person is simply wrong and you win."
+    },
+    {
+      "id": "b14b3647-81d5-5351-a533-f333502952a7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Tell me about a time you failed or made a significant mistake.",
+      "competencies": [
+        "failure",
+        "learning"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nChoose a real mistake with real impact (not a disguised strength). Spend most of the time on what you did to fix it and the lasting change you made (a check in CI, a runbook, a review practice). Interviewers look for accountability, not blame."
+    },
+    {
+      "id": "ec3c5184-4b4f-59fd-b050-9677cba92298",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Describe a time you had to deliver under a tight deadline.",
+      "competencies": [
+        "deadline-pressure",
+        "ownership"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nExplain how you negotiated scope (what you cut and why), communicated risk early, and protected quality where it mattered. Numbers help: \"shipped the core flow in 6 days; deferred reporting to the next sprint\"."
+    },
+    {
+      "id": "88b1ef04-7bda-539c-9bd3-578c630fcd0b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Tell me about a time you worked with unclear or changing requirements.",
+      "competencies": [
+        "ambiguity",
+        "customer-focus"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nShow how you reduced ambiguity: asked targeted questions, wrote down assumptions, built a small prototype or first version for feedback, and designed to make change cheap."
+    },
+    {
+      "id": "c56979e7-19c6-5ede-819e-9cccd7c883fd",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Describe the most complex technical decision you made. What were the alternatives?",
+      "competencies": [
+        "technical-decision"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nState the options and trade-offs clearly (cost, complexity, performance, team skills), how you evaluated them (benchmarks, a spike, a design doc reviewed by peers), and what happened afterwards, including anything you would decide differently now."
+    },
+    {
+      "id": "9d1a4b47-fa7b-5892-a413-68e883b60075",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Tell me about a time you led a project or initiative without formal authority.",
+      "competencies": [
+        "leadership",
+        "influence"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nFocus on how you aligned people: a clear goal, a written plan, small wins, unblocking others, and giving credit. Mention outcomes for the team, not just the system."
+    },
+    {
+      "id": "a347f433-d719-519f-94e1-7ada44d172e1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Give an example of going beyond the requirements to help a customer or user.",
+      "competencies": [
+        "customer-focus"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nConnect your action to user impact: reduced support tickets, faster load times, fewer drop-offs. Show that you validated the need (data, feedback) instead of gold-plating."
+    },
+    {
+      "id": "6f4e6f03-cec9-5666-8069-9033aea00a62",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "How did you learn a new technology quickly for a project?",
+      "competencies": [
+        "learning"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nDescribe your learning approach (docs, small prototypes, asking experts, reading source code), how you reduced risk while learning, and how you shared what you learned with the team."
+    },
+    {
+      "id": "ada6af4f-b649-58d2-963e-056c86360d28",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Tell me about a time you helped a struggling teammate.",
+      "competencies": [
+        "teamwork",
+        "leadership"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nShow empathy and practical support (pairing, breaking down work, better documentation) and the result for the person and the team. Keep the teammate anonymous and respectful."
+    },
+    {
+      "id": "2643c993-b48f-5cc4-be68-98bfe51633a4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Describe a situation where you had to push back on a stakeholder's request.",
+      "competencies": [
+        "influence",
+        "conflict",
+        "customer-focus"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nExplain the underlying goal you uncovered, the risk of doing it as asked, and the alternative you proposed. Good answers end with the stakeholder agreeing because their real need was met."
+    },
+    {
+      "id": "d5fa5c00-e15d-5ba8-a212-2ff8938cbe39",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "BEHAVIORAL",
+      "text": "Tell me about a production incident you handled.",
+      "competencies": [
+        "ownership",
+        "deadline-pressure",
+        "technical-decision"
+      ],
+      "guidance": "Use STAR: Situation (one or two lines of context), Task (what you were responsible for), Action (what YOU did, in detail), Result (measurable outcome and what you learned).\n\nCover detection, mitigation first (rollback, feature flag), root cause, communication during the incident, and the blameless follow-up actions that prevented recurrence."
+    },
+    {
+      "id": "ed7dfc01-c7a7-593f-80e5-8d55602f29f7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "Why are you looking to switch jobs?",
+      "competencies": [],
+      "guidance": "Be positive and forward-looking. Focus on what you want next (product ownership, scale, a domain, learning) rather than complaints about your current employer. One or two honest reasons are enough. If moving from a service company, frame it as wanting deeper ownership of a product over the long term."
+    },
+    {
+      "id": "b04ba806-459a-5e60-9dbd-245463ad2b79",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "What is your current CTC?",
+      "competencies": [],
+      "guidance": "Answer factually and consistently with documents you may be asked to share later (payslips, Form 16). Break it into fixed, variable and other components if asked. You can add context such as a pending increment. Informational only; this is not legal or HR advice."
+    },
+    {
+      "id": "d307ecd3-a60b-5edb-867b-d5e836bb4249",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "What is your expected CTC?",
+      "competencies": [
+        "influence"
+      ],
+      "guidance": "Research the market range for the role, level and city first. Give a range anchored on the role's value rather than only a percentage hike on your current salary, and mention you are open to discussing the full package (variable pay, joining bonus, ESOPs). If asked early, you can ask for the budgeted range for the role."
+    },
+    {
+      "id": "9900a22f-6621-52a9-a870-f803baea6c1d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "What is your notice period? Can you join earlier?",
+      "competencies": [],
+      "guidance": "State your contractual notice period and any realistic options: buyout (who pays), early release by negotiation, or leave adjustment. Do not promise an early date you cannot guarantee. If already serving notice, share your last working day."
+    },
+    {
+      "id": "68e09964-3781-57f3-b350-ccb911167e83",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "Are you open to relocation?",
+      "competencies": [],
+      "guidance": "Answer clearly. If yes, you can ask about relocation support. If conditional, state the conditions (timeline, hybrid days). Avoid saying yes if you are not, because it surfaces later at the offer stage."
+    },
+    {
+      "id": "1f438112-063a-5e0d-828e-f8dd58736c96",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "Can you explain the gap in your career?",
+      "competencies": [
+        "learning"
+      ],
+      "guidance": "Be brief and honest, then move to what you did to stay current (courses, projects, certifications) and why you are ready now. You do not need to share private details such as health information."
+    },
+    {
+      "id": "b5fe9ac4-ead7-5a20-acae-87aa448570db",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "What will you do if your current company makes a counter-offer?",
+      "competencies": [],
+      "guidance": "Show that your decision is based on the role and growth, not only money, so a counter-offer does not change the reasons you are moving. Interviewers ask this to judge offer-acceptance risk."
+    },
+    {
+      "id": "9d7fa66f-4d5e-5eba-af18-ccf2648f07d1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "Do you have any other offers?",
+      "competencies": [],
+      "guidance": "Be truthful. If you have offers, you can mention them at a high level and your timeline for deciding; this can help you negotiate but should not sound like a threat. If not, say you are in process with a few companies."
+    },
+    {
+      "id": "5db657e6-43a1-5058-8338-99b9bd569d41",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "Why do you want to join our company?",
+      "competencies": [
+        "customer-focus"
+      ],
+      "guidance": "Prepare two or three specific reasons: the product and its users, the engineering challenges, and the team or culture (from talks, blogs, or people you spoke with). Generic answers ('good brand') are weak."
+    },
+    {
+      "id": "b40d9c9a-cf24-5428-899e-d97fd27a8aad",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "kind": "HR_INDIA",
+      "text": "Where do you see yourself in a few years?",
+      "competencies": [
+        "learning",
+        "leadership"
+      ],
+      "guidance": "Describe a growth direction (deeper technical expertise, tech lead, or a move toward product) that this role can support. Avoid suggesting you plan to leave soon."
+    }
+  ]
+}
