@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { KeyboardShortcuts } from "@/components/app-shell/keyboard-shortcuts";
 import { MobileNav } from "@/components/app-shell/mobile-nav";
+import { NotificationBell } from "@/components/app-shell/notification-bell";
 import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { UserMenu } from "@/components/app-shell/user-menu";
 import { ThemeToggle } from "@/components/theme";
@@ -27,6 +28,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             PrepStack
           </Link>
           <div className="ml-auto flex items-center gap-1">
+            <NotificationBell userId={user.id} />
             <ThemeToggle />
             <UserMenu email={user.email} />
           </div>

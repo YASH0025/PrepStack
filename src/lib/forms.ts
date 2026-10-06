@@ -6,6 +6,18 @@ export interface FormState {
   error?: string;
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
+  /** Submitted (non-secret) values, echoed back so fields survive React's post-action form reset. */
+  values?: Record<string, string>;
+}
+
+/** Picks string values for the given keys from FormData. Never pass password fields. */
+export function echoValues(formData: FormData, keys: string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const key of keys) {
+    const value = formData.get(key);
+    if (typeof value === "string") out[key] = value;
+  }
+  return out;
 }
 
 export const initialFormState: FormState = {};

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 
-import { type FormState, fieldErrorsFrom, formDataToObject } from "@/lib/forms";
+import { type FormState, echoValues, fieldErrorsFrom, formDataToObject } from "@/lib/forms";
 import { RATE_LIMITS, rateLimit } from "@/lib/rate-limit";
 
 import {
@@ -26,15 +26,16 @@ const tooMany = (seconds: number): FormState => ({
 });
 
 export async function signupAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = echoValues(formData, ["email"]);
   const parsed = SignupInputSchema.safeParse(formDataToObject(formData));
-  if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
+  if (!parsed.success) return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
 
   const limit = rateLimit(`signup:${await clientIp()}`, RATE_LIMITS.signup);
-  if (!limit.ok) return tooMany(limit.retryAfterSeconds);
+  if (!limit.ok) return { values, ...tooMany(limit.retryAfterSeconds) };
 
   const result = await getAuthCore().signup(parsed.data);
   if (!result.ok) {
-    return { fieldErrors: { email: ["An account with this email already exists"] } };
+    return { values, fieldErrors: { email: ["An account with this email already exists"] } };
   }
   await startSession(result.user);
   redirect("/onboarding");
@@ -42,14 +43,15 @@ export async function signupAction(_prev: FormState, formData: FormData): Promis
 
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const raw = formDataToObject(formData);
+  const values = echoValues(formData, ["email"]);
   const parsed = LoginInputSchema.safeParse(raw);
-  if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
+  if (!parsed.success) return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
 
   const limit = rateLimit(`login:${await clientIp()}:${parsed.data.email}`, RATE_LIMITS.login);
-  if (!limit.ok) return tooMany(limit.retryAfterSeconds);
+  if (!limit.ok) return { values, ...tooMany(limit.retryAfterSeconds) };
 
   const user = await getAuthCore().login(parsed.data);
-  if (!user) return { error: "Incorrect email or password" };
+  if (!user) return { values, error: "Incorrect email or password" };
 
   await startSession(user);
   redirect(safeNextPath(raw.next));
@@ -64,8 +66,9 @@ export async function requestPasswordResetAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const values = echoValues(formData, ["email"]);
   const parsed = RequestResetInputSchema.safeParse(formDataToObject(formData));
-  if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
+  if (!parsed.success) return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
 
   const limit = rateLimit(
     `reset:${await clientIp()}:${parsed.data.email}`,

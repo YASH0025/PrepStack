@@ -26,6 +26,8 @@ export function LoginForm({ next }: { next?: string }) {
         type="email"
         autoComplete="email"
         required
+        defaultValue={state.values?.email}
+        key={state.values?.email}
         errors={state.fieldErrors?.email}
       />
       <TextField
@@ -57,6 +59,8 @@ export function SignupForm() {
         type="email"
         autoComplete="email"
         required
+        defaultValue={state.values?.email}
+        key={state.values?.email}
         errors={state.fieldErrors?.email}
       />
       <TextField
@@ -84,6 +88,8 @@ export function ForgotPasswordForm() {
         type="email"
         autoComplete="email"
         required
+        defaultValue={state.values?.email}
+        key={state.values?.email}
         errors={state.fieldErrors?.email}
       />
       <SubmitButton pendingText="Sending…">Send reset link</SubmitButton>
