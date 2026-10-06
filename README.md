@@ -21,15 +21,15 @@ Open http://localhost:3000.
 
 ## Scripts
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Production build (standalone output) |
-| `npm run start` | Run the production build |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript, no emit |
-| `npm run format` | Prettier, write |
-| `npm run format:check` | Prettier, check only |
+| Script                 | What it does                         |
+| ---------------------- | ------------------------------------ |
+| `npm run dev`          | Start the dev server                 |
+| `npm run build`        | Production build (standalone output) |
+| `npm run start`        | Run the production build             |
+| `npm run lint`         | ESLint                               |
+| `npm run typecheck`    | TypeScript, no emit                  |
+| `npm run format`       | Prettier, write                      |
+| `npm run format:check` | Prettier, check only                 |
 
 ## Data
 
