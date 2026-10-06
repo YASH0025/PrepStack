@@ -1,140 +1,82 @@
 import * as React from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { cn } from "@/lib/utils";
 
 /*
- * Minimal, safe renderer for curated content. Supports:
- *   paragraphs (blank-line separated), "- " bullet lists, "1. " numbered lists,
- *   ``` fenced code blocks, `inline code` and **bold**.
- * It builds React elements directly (no HTML injection), so content can never
- * execute scripts even if an admin pastes markup.
+ * Markdown rendering for curated content (topic explanations, answers,
+ * guidance) via react-markdown + GitHub-flavoured markdown. Raw HTML in the
+ * source is NOT rendered (react-markdown's default), so content can never
+ * inject scripts. Links open safely in a new tab.
  */
 
-type Block =
-  | { kind: "p"; text: string }
-  | { kind: "ul" | "ol"; items: string[] }
-  | { kind: "code"; text: string; lang: string };
+const blockComponents: Components = {
+  p: ({ children }) => <p>{children}</p>,
+  ul: ({ children }) => <ul className="grid list-disc gap-1 pl-5">{children}</ul>,
+  ol: ({ children }) => <ol className="grid list-decimal gap-1 pl-5">{children}</ol>,
+  a: ({ children, href }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="underline underline-offset-2"
+    >
+      {children}
+    </a>
+  ),
+  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  h1: ({ children }) => <h3 className="font-semibold">{children}</h3>,
+  h2: ({ children }) => <h3 className="font-semibold">{children}</h3>,
+  h3: ({ children }) => <h4 className="font-semibold">{children}</h4>,
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 pl-3 text-muted-foreground">{children}</blockquote>
+  ),
+  table: ({ children }) => (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-sm">{children}</table>
+    </div>
+  ),
+  th: ({ children }) => <th className="border-b px-2 py-1 font-medium">{children}</th>,
+  td: ({ children }) => <td className="border-b px-2 py-1">{children}</td>,
+  pre: ({ children }) => (
+    <pre className="overflow-x-auto rounded-lg border bg-muted/50 p-3 font-mono text-xs leading-relaxed [&>code]:bg-transparent [&>code]:p-0">
+      {children}
+    </pre>
+  ),
+  code: ({ children, className }) => (
+    <code className={cn("rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]", className)}>
+      {children}
+    </code>
+  ),
+};
 
-export function parseBlocks(source: string): Block[] {
-  const blocks: Block[] = [];
-  const lines = source.replace(/\r\n/g, "\n").split("\n");
-  let index = 0;
-  while (index < lines.length) {
-    const line = lines[index] as string;
-    if (line.trim().startsWith("```")) {
-      const lang = line.trim().slice(3).trim();
-      const body: string[] = [];
-      index += 1;
-      while (index < lines.length && !(lines[index] as string).trim().startsWith("```")) {
-        body.push(lines[index] as string);
-        index += 1;
-      }
-      blocks.push({ kind: "code", text: body.join("\n"), lang });
-      index += 1;
-      continue;
-    }
-    if (/^\s*[-*] /.test(line)) {
-      const items: string[] = [];
-      while (index < lines.length && /^\s*[-*] /.test(lines[index] as string)) {
-        items.push((lines[index] as string).replace(/^\s*[-*] /, ""));
-        index += 1;
-      }
-      blocks.push({ kind: "ul", items });
-      continue;
-    }
-    if (/^\s*\d+\. /.test(line)) {
-      const items: string[] = [];
-      while (index < lines.length && /^\s*\d+\. /.test(lines[index] as string)) {
-        items.push((lines[index] as string).replace(/^\s*\d+\. /, ""));
-        index += 1;
-      }
-      blocks.push({ kind: "ol", items });
-      continue;
-    }
-    if (line.trim() === "") {
-      index += 1;
-      continue;
-    }
-    const paragraph: string[] = [];
-    while (
-      index < lines.length &&
-      (lines[index] as string).trim() !== "" &&
-      !/^\s*([-*]|\d+\.) /.test(lines[index] as string) &&
-      !(lines[index] as string).trim().startsWith("```")
-    ) {
-      paragraph.push((lines[index] as string).trim());
-      index += 1;
-    }
-    blocks.push({ kind: "p", text: paragraph.join(" ") });
-  }
-  return blocks;
-}
-
-/** Renders `code` and **bold** spans inside a line of text. */
-export function Inline({ text }: { text: string }) {
-  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g).filter(Boolean);
+/** Block-level markdown (paragraphs, lists, code blocks, tables). */
+export function RichText({ source, className }: { source: string; className?: string }) {
   return (
-    <>
-      {parts.map((part, index) => {
-        if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-          return (
-            <code key={index} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
-              {part.slice(1, -1)}
-            </code>
-          );
-        }
-        if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-          return <strong key={index}>{part.slice(2, -2)}</strong>;
-        }
-        return <React.Fragment key={index}>{part}</React.Fragment>;
-      })}
-    </>
+    <div className={cn("grid gap-3 text-sm leading-relaxed", className)}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={blockComponents}>
+        {source}
+      </ReactMarkdown>
+    </div>
   );
 }
 
-export function RichText({ source, className }: { source: string; className?: string }) {
-  const blocks = parseBlocks(source);
+const inlineComponents: Components = {
+  ...blockComponents,
+  p: ({ children }) => <>{children}</>,
+};
+
+/** Inline markdown for short strings such as answer options (`code`, **bold**). */
+export function Inline({ text }: { text: string }) {
   return (
-    <div className={cn("grid gap-3 text-sm leading-relaxed", className)}>
-      {blocks.map((block, index) => {
-        switch (block.kind) {
-          case "p":
-            return (
-              <p key={index}>
-                <Inline text={block.text} />
-              </p>
-            );
-          case "ul":
-            return (
-              <ul key={index} className="grid list-disc gap-1 pl-5">
-                {block.items.map((item, itemIndex) => (
-                  <li key={itemIndex}>
-                    <Inline text={item} />
-                  </li>
-                ))}
-              </ul>
-            );
-          case "ol":
-            return (
-              <ol key={index} className="grid list-decimal gap-1 pl-5">
-                {block.items.map((item, itemIndex) => (
-                  <li key={itemIndex}>
-                    <Inline text={item} />
-                  </li>
-                ))}
-              </ol>
-            );
-          case "code":
-            return (
-              <pre
-                key={index}
-                className="overflow-x-auto rounded-lg border bg-muted/50 p-3 font-mono text-xs leading-relaxed"
-              >
-                <code data-lang={block.lang || undefined}>{block.text}</code>
-              </pre>
-            );
-        }
-      })}
-    </div>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={inlineComponents}
+      allowedElements={["p", "code", "strong", "em", "del", "a"]}
+      unwrapDisallowed
+    >
+      {text}
+    </ReactMarkdown>
   );
 }
