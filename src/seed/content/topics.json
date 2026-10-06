@@ -1,0 +1,2212 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "35c06b60-c8dd-5452-b291-2fde61d240f5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-types-coercion",
+      "name": "Types, equality and coercion",
+      "category": "JavaScript",
+      "description": "Primitive vs reference types, == vs ===, truthiness and implicit conversion.",
+      "explanation": "JavaScript has seven primitive types (string, number, bigint, boolean, undefined, symbol, null) and one structural type, object. Primitives are compared and copied by value; objects (including arrays and functions) are compared and copied by reference.\n\nStrict equality (`===`) compares type and value with no conversion. Loose equality (`==`) first converts operands using the abstract equality rules, which is why `0 == \"\"` and `null == undefined` are true while `null == 0` is false.\n\nCoercion also happens in arithmetic and conditionals: `+` concatenates if either side is a string, other arithmetic operators convert to numbers, and `if (value)` uses truthiness. The falsy values are `false`, `0`, `-0`, `0n`, `\"\"`, `null`, `undefined` and `NaN`.",
+      "keyConcepts": [
+        "Seven primitives plus object; typeof null is \"object\" (historical bug)",
+        "=== never converts; == follows abstract equality rules",
+        "The eight falsy values",
+        "NaN is not equal to itself; use Number.isNaN",
+        "Object.is differs from === for NaN and -0",
+        "Copy by value vs copy by reference"
+      ],
+      "commonMistakes": [
+        "Using == and being surprised by [] == false",
+        "Checking for an array with typeof instead of Array.isArray",
+        "Assuming a function parameter object is a copy and mutating it",
+        "Using || for defaults when 0 or \"\" are valid values (use ??)"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "EXPLAIN",
+          "hours": 1.5
+        },
+        "6+": {
+          "depth": "EXPLAIN",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 3
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-scope-closures",
+      "name": "Scope, hoisting and closures",
+      "category": "JavaScript",
+      "description": "Lexical scope, var/let/const, the temporal dead zone and how closures capture variables.",
+      "explanation": "Scope is lexical: a function can read variables from the block and functions it was written inside, regardless of where it is called from.\n\n`var` is function-scoped and hoisted with the value `undefined`. `let` and `const` are block-scoped and hoisted too, but accessing them before the declaration throws a ReferenceError (the temporal dead zone).\n\nA closure is a function bundled with references to the variables of the scope it was created in. Closures power private state, factories, memoisation, event handlers and React hooks. Because they capture variables (not values), a closure sees later changes to the variable, and a stale closure keeps an old value alive.",
+      "keyConcepts": [
+        "Lexical scope and the scope chain",
+        "var is function-scoped; let/const are block-scoped",
+        "Hoisting and the temporal dead zone",
+        "Closures capture variables, not values",
+        "Module pattern and private state",
+        "Stale closures in callbacks and React hooks"
+      ],
+      "commonMistakes": [
+        "Using var in a loop with async callbacks and getting the last value",
+        "Assuming const makes objects immutable",
+        "Creating memory leaks by holding large objects in long-lived closures",
+        "Reading state inside a stale closure (setInterval in useEffect)"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 5
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "7a0e4010-9773-5b80-b096-831a5d93e9a7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-this-binding",
+      "name": "this, call/apply/bind and arrow functions",
+      "category": "JavaScript",
+      "description": "How this is determined at call time and how arrow functions differ.",
+      "explanation": "For regular functions, `this` is decided by how the function is called, not where it is defined:\n\n- Called as `obj.method()` → `this` is `obj`\n- Called plainly as `fn()` → `undefined` in strict mode (the global object in sloppy mode)\n- Called with `new` → the newly created object\n- Called with `call`, `apply` or `bind` → the object you pass\n\nArrow functions have no own `this`; they use the `this` of the surrounding scope. That makes them ideal for callbacks inside methods but wrong as object methods that need the object.",
+      "keyConcepts": [
+        "Four binding rules: default, implicit, explicit, new",
+        "Arrow functions use lexical this",
+        "bind returns a new function with a fixed this",
+        "call vs apply (arguments list vs array)",
+        "Losing this when passing a method as a callback"
+      ],
+      "commonMistakes": [
+        "Passing obj.method as a callback and losing this",
+        "Using an arrow function as an object method that needs this",
+        "Binding in render on every call without need"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 1.5
+        },
+        "4-6": {
+          "depth": "EXPLAIN",
+          "hours": 1
+        },
+        "6+": {
+          "depth": "EXPLAIN",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 3
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "10d58862-993d-5abd-9b66-b1a5c725d07d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-prototypes-classes",
+      "name": "Prototypes and classes",
+      "category": "JavaScript",
+      "description": "Prototype chain, class syntax as sugar, inheritance vs composition.",
+      "explanation": "Every object has an internal link to a prototype object. Property lookups walk this prototype chain until the property is found or the chain ends at `null`.\n\n`class` syntax is mostly sugar over constructor functions and prototypes: methods live on `Class.prototype`, `extends` sets up the chain, and `super` calls the parent. Classes add real features too: private fields (`#field`), static blocks, and constructors that throw if called without `new`.\n\nIn application code, composition (small functions and objects combined) is usually preferred over deep inheritance hierarchies.",
+      "keyConcepts": [
+        "Prototype chain lookup",
+        "Methods on prototype are shared between instances",
+        "class/extends/super as prototype sugar",
+        "Private fields with #",
+        "Composition over inheritance"
+      ],
+      "commonMistakes": [
+        "Mutating built-in prototypes",
+        "Deep inheritance hierarchies that are hard to change",
+        "Forgetting super() before using this in a subclass constructor"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "EXPLAIN",
+          "hours": 1.5
+        },
+        "6+": {
+          "depth": "EXPLAIN",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-event-loop",
+      "name": "The event loop",
+      "category": "JavaScript",
+      "description": "Call stack, task and microtask queues, and why async code runs in the order it does.",
+      "explanation": "JavaScript runs your code on a single thread with one call stack. Long-running work blocks everything else on that thread.\n\nAsynchronous work is coordinated by the event loop:\n\n1. Run the current script until the call stack is empty.\n2. Run all queued **microtasks** (promise reactions, `queueMicrotask`, `MutationObserver`), including ones queued while draining.\n3. In browsers, possibly render.\n4. Take the next **task** (timers, I/O callbacks, UI events) and repeat.\n\nSo `Promise.resolve().then(a)` always runs before `setTimeout(b, 0)`. Node.js has the same microtask rule plus its own phases (timers, poll, check) and `process.nextTick`, which runs before other microtasks.",
+      "keyConcepts": [
+        "Single-threaded call stack",
+        "Tasks (macrotasks) vs microtasks",
+        "Microtasks drain completely before the next task",
+        "setTimeout(fn, 0) is not immediate",
+        "Rendering happens between tasks in browsers",
+        "Blocking the main thread freezes the UI"
+      ],
+      "commonMistakes": [
+        "Assuming setTimeout 0 runs before promise callbacks",
+        "Running CPU-heavy loops on the main thread",
+        "Infinite microtask loops starving rendering",
+        "Thinking async functions run on another thread"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 5
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-promises",
+      "name": "Promises",
+      "category": "JavaScript",
+      "description": "Promise states, chaining, combinators (all, allSettled, race, any) and error propagation.",
+      "explanation": "A promise represents a value that will be available later. It is **pending**, then either **fulfilled** with a value or **rejected** with a reason, and it settles only once.\n\n`.then` returns a new promise, which is what makes chaining work: returning a value fulfils the next promise, returning a promise adopts its state, and throwing rejects it. A rejection skips `.then` handlers until a `.catch` (or the second argument of `.then`) handles it.\n\nCombinators:\n- `Promise.all` – fulfils with all values, rejects on the first rejection\n- `Promise.allSettled` – waits for all and reports each outcome\n- `Promise.race` – settles like the first one to settle\n- `Promise.any` – fulfils with the first fulfilment, rejects only if all reject",
+      "keyConcepts": [
+        "Pending, fulfilled, rejected; settles once",
+        "then returns a new promise",
+        "Errors propagate down the chain to the nearest catch",
+        "all vs allSettled vs race vs any",
+        "Unhandled rejections",
+        "Promise executor runs synchronously"
+      ],
+      "commonMistakes": [
+        "Forgetting to return inside .then, breaking the chain",
+        "Nesting promises instead of chaining",
+        "Using Promise.all when partial failure should not cancel the rest",
+        "Swallowing errors with an empty catch"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 5
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-async-await-errors",
+      "name": "async/await and error handling",
+      "category": "JavaScript",
+      "description": "Writing async code with async/await, try/catch, parallelism and cancellation.",
+      "explanation": "`async` functions always return a promise. `await` pauses the function until the promise settles, returning the value or throwing the rejection reason, so ordinary `try/catch/finally` works for async errors.\n\nSequential awaits run one after another. For independent work, start everything first and await together (`await Promise.all([...])`).\n\nCancellation is done with `AbortController`: pass its signal to `fetch` and other APIs, and call `abort()` when the result is no longer needed (component unmounted, user typed again, timeout).",
+      "keyConcepts": [
+        "async functions return promises",
+        "try/catch/finally around await",
+        "Sequential vs parallel awaits",
+        "AbortController and AbortSignal.timeout",
+        "Error boundaries between layers (wrap, add context, rethrow)"
+      ],
+      "commonMistakes": [
+        "Awaiting in a loop when calls are independent",
+        "Using forEach with async callbacks and expecting it to wait",
+        "Catching errors and returning undefined silently",
+        "Not cancelling stale requests (race conditions in search boxes)"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "245308b2-62e8-57a6-8657-458cf412724c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-array-object-methods",
+      "name": "Arrays, objects and immutable updates",
+      "category": "JavaScript",
+      "description": "map/filter/reduce, destructuring, spread, Map/Set and updating data without mutation.",
+      "explanation": "Everyday JavaScript is data transformation. The core array methods are `map` (transform each item), `filter` (keep some items), `reduce` (fold into one value), `find`/`some`/`every`, and `flatMap`. Newer non-mutating methods (`toSorted`, `toReversed`, `with`) return copies instead of changing the original.\n\nDestructuring and spread make immutable updates concise: `{ ...user, name }` creates a new object, `[...list, item]` a new array. `Map` and `Set` are better than plain objects for dynamic keys, non-string keys and frequent additions/removals.",
+      "keyConcepts": [
+        "map, filter, reduce, find, some, every, flatMap",
+        "sort mutates; toSorted does not",
+        "Destructuring with defaults and rest",
+        "Spread for shallow immutable updates",
+        "Map and Set vs objects and arrays",
+        "Grouping with Object.groupBy / reduce"
+      ],
+      "commonMistakes": [
+        "Sorting props or state in place",
+        "Using reduce where map/filter is clearer",
+        "O(n²) lookups with find inside loops instead of a Map",
+        "Using an array of numbers without a compare function in sort"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 1
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "e5d856a1-4ac6-51ac-82cf-4054579bf0a8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-debounce-throttle",
+      "name": "Debounce, throttle and memoisation",
+      "category": "JavaScript",
+      "description": "Rate-limiting functions and caching results; a classic machine-coding question.",
+      "explanation": "**Debounce** delays a call until a quiet period has passed (search input, window resize end). **Throttle** allows at most one call per interval (scroll position, analytics pings). Both are built with closures that keep a timer id or last-call timestamp between invocations.\n\n**Memoisation** caches a pure function's results by its arguments. It trades memory for speed and is only correct for pure functions.",
+      "keyConcepts": [
+        "Debounce: wait for silence",
+        "Throttle: at most once per interval",
+        "Leading vs trailing calls",
+        "Preserving this and arguments",
+        "Memoisation and cache invalidation"
+      ],
+      "commonMistakes": [
+        "Creating a new debounced function on every React render",
+        "Losing this/arguments in the wrapper",
+        "Unbounded memo caches leaking memory"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 1
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 2
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "923c28cb-8e17-5e7c-9e58-82dbe8563f59",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "js-modules",
+      "name": "Modules and bundling",
+      "category": "JavaScript",
+      "description": "ES modules vs CommonJS, tree shaking, code splitting and dynamic import.",
+      "explanation": "ES modules (`import`/`export`) are static: imports are resolved before code runs, which enables tree shaking (removing unused exports) and live bindings. CommonJS (`require`/`module.exports`) is dynamic and synchronous; it is still common in older Node.js code.\n\nBundlers (webpack, Vite/Rollup, Turbopack) build a dependency graph, transform code (TypeScript, JSX), split it into chunks and minify it. `import()` loads a module on demand and is the basis for route-level and component-level code splitting.",
+      "keyConcepts": [
+        "Static ESM vs dynamic CommonJS",
+        "Named vs default exports",
+        "Tree shaking and side effects",
+        "Dynamic import() and code splitting",
+        "Circular dependencies"
+      ],
+      "commonMistakes": [
+        "Importing a whole library for one helper",
+        "Side effects at module top level that break tree shaking",
+        "Circular imports causing undefined values at startup"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 1.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 3
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "ts-fundamentals",
+      "name": "TypeScript fundamentals and generics",
+      "category": "TypeScript",
+      "description": "Structural typing, unions and narrowing, generics, utility types and strict mode.",
+      "explanation": "TypeScript adds a static type system that is erased at compile time. Typing is **structural**: two types are compatible if their shapes match, regardless of names.\n\nUnion types (`A | B`) model values that can be one of several shapes; **narrowing** (`typeof`, `in`, discriminant fields, type guards) tells the compiler which one you have. **Generics** let functions and types work over many types while preserving relationships (`function first<T>(xs: T[]): T | undefined`).\n\nUtility types such as `Partial`, `Pick`, `Omit`, `Record` and `ReturnType` derive types from others. Strict mode (especially `strictNullChecks`) is what makes TypeScript catch real bugs. Types do not exist at runtime, so external input must still be validated (for example with Zod).",
+      "keyConcepts": [
+        "Structural typing",
+        "Unions, discriminated unions and narrowing",
+        "Generics and constraints (extends)",
+        "Utility types (Partial, Pick, Omit, Record)",
+        "unknown vs any",
+        "Types are erased: validate at runtime boundaries"
+      ],
+      "commonMistakes": [
+        "Using any to silence errors",
+        "Casting with as instead of narrowing",
+        "Trusting API responses because they have a type",
+        "Disabling strict mode"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 3
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "react-rendering",
+      "name": "React rendering and reconciliation",
+      "category": "React",
+      "description": "What triggers a render, how React reconciles, keys, and the render vs commit phases.",
+      "explanation": "A component re-renders when its state changes, its parent re-renders, or a context it reads changes. Rendering means calling the component function to get a new element tree; it does not necessarily touch the DOM.\n\nReact then **reconciles**: it compares the new tree with the previous one and commits only the differences to the DOM. Elements of a different type replace the whole subtree; elements of the same type are updated in place. In lists, `key` tells React which item is which across renders, so items keep their state when the list is reordered.\n\nRendering must be pure: no side effects, no mutation of props or state. Side effects go in event handlers or effects, which run after the commit.",
+      "keyConcepts": [
+        "Triggers: state change, parent render, context change",
+        "Render phase (pure) vs commit phase (DOM updates)",
+        "Reconciliation by element type and key",
+        "Stable, unique keys in lists (not array index for dynamic lists)",
+        "Strict Mode double-invokes renders in development to surface impurity",
+        "Batching of state updates"
+      ],
+      "commonMistakes": [
+        "Using array index as key in lists that can reorder or filter",
+        "Mutating state and expecting a re-render",
+        "Defining components inside other components (remounts every render)",
+        "Doing side effects during render"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 3
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "react-hooks",
+      "name": "Hooks: state, effects and refs",
+      "category": "React",
+      "description": "useState, useEffect, useRef, dependency arrays, cleanup, and when you don't need an effect.",
+      "explanation": "`useState` holds values that should trigger a re-render. Updates are queued; use the functional form (`setCount(c => c + 1)`) when the new value depends on the old one.\n\n`useEffect` synchronises a component with something outside React (subscriptions, timers, non-React widgets, network). It runs after commit; its dependency array lists every reactive value it reads, and its cleanup runs before the next effect and on unmount.\n\n`useRef` holds a mutable value that does not trigger renders, or a reference to a DOM node.\n\nMany effects are unnecessary: derived values should be computed during render, and responses to user actions belong in event handlers.",
+      "keyConcepts": [
+        "Rules of hooks (top level, React functions only)",
+        "Functional state updates",
+        "Effect dependencies and cleanup",
+        "Effects synchronise with external systems",
+        "You might not need an effect (derived state, event handlers)",
+        "useRef for mutable values and DOM nodes"
+      ],
+      "commonMistakes": [
+        "Missing dependencies causing stale values",
+        "Storing derived data in state and syncing it with an effect",
+        "Fetching in effects without handling race conditions or cleanup",
+        "Calling hooks conditionally"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 4
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "eeca9564-f902-5685-b3ad-a9bb7b3a6504",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "react-state-management",
+      "name": "State management and data fetching",
+      "category": "React",
+      "description": "Local vs shared vs server state, context, reducers, and when to use a library.",
+      "explanation": "Not all state is the same:\n\n- **Local UI state** (an open menu, a form input) lives in the component.\n- **Shared client state** (current theme, a multi-step wizard) can be lifted to a common parent, put in context, or kept in a small store.\n- **Server state** (data from an API) is a cache of remote data with its own concerns: loading, errors, refetching, invalidation and deduplication. Libraries such as TanStack Query or RTK Query solve this; global stores are a poor fit.\n- **URL state** (filters, tabs, pagination) belongs in the URL so it survives refresh and can be shared.\n\n`useReducer` helps when updates are complex or depend on the previous state. Context is a dependency-injection mechanism, not a performance tool: every consumer re-renders when its value changes.",
+      "keyConcepts": [
+        "Local, shared, server and URL state",
+        "Lifting state up vs context",
+        "useReducer for complex transitions",
+        "Server state libraries (caching, invalidation)",
+        "Context re-render behaviour"
+      ],
+      "commonMistakes": [
+        "Putting server data in a global store and syncing it manually",
+        "One giant context that re-renders everything",
+        "Keeping filters in state instead of the URL",
+        "Duplicating the same data in several places"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "DESIGN",
+          "hours": 3
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "react-performance",
+      "name": "React performance optimisation",
+      "category": "React",
+      "description": "memo, useMemo, useCallback, virtualisation, code splitting and transitions.",
+      "explanation": "Optimise only after measuring. The main tools:\n\n- **Avoid work**: move state down, split components, pass `children` so subtrees don't re-render.\n- **Skip renders**: `React.memo` with stable props (`useMemo` for objects, `useCallback` for functions). The React Compiler can do this automatically.\n- **Do less per render**: virtualise long lists, memoise expensive calculations.\n- **Load less**: code-split routes and heavy components with `lazy` and dynamic import.\n- **Stay responsive**: `useTransition` and `useDeferredValue` mark updates as non-urgent so typing stays smooth.",
+      "keyConcepts": [
+        "Measure with the Profiler before optimising",
+        "React.memo and referential stability",
+        "useMemo/useCallback costs and benefits",
+        "List virtualisation",
+        "Code splitting with lazy",
+        "Transitions and deferred values"
+      ],
+      "commonMistakes": [
+        "Wrapping everything in useMemo/useCallback without measuring",
+        "memo on components that always receive new props",
+        "Rendering thousands of rows without virtualisation"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "ef940a40-2ac6-5349-94a3-ce23a75446a4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "react-forms",
+      "name": "Forms and validation in React",
+      "category": "React",
+      "description": "Controlled vs uncontrolled inputs, form libraries, schema validation and accessibility.",
+      "explanation": "Controlled inputs keep the value in React state; uncontrolled inputs keep it in the DOM and are read on submit (via refs or FormData). Large forms with many controlled inputs can re-render on every keystroke, which is why libraries such as React Hook Form use uncontrolled inputs with subscriptions.\n\nValidation should be defined once as a schema (Zod, Yup) and run on the client for fast feedback and again on the server for security; the client is never trusted.\n\nAccessible forms associate labels with inputs, link error messages with `aria-describedby`, mark invalid fields with `aria-invalid`, and move focus to the first error on submit.",
+      "keyConcepts": [
+        "Controlled vs uncontrolled inputs",
+        "Schema validation shared by client and server",
+        "React Hook Form and resolvers",
+        "Server actions and progressive enhancement",
+        "Accessible labels and error messages"
+      ],
+      "commonMistakes": [
+        "Validating only on the client",
+        "Re-rendering the whole form on every keystroke",
+        "Placeholder text used instead of labels"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 1.5
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "53a806b4-f878-5eba-8675-baa3a3ef65e1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "nextjs-ssr",
+      "name": "Next.js, SSR and server components",
+      "category": "React",
+      "description": "CSR vs SSR vs SSG, React Server Components, hydration and caching.",
+      "explanation": "Rendering strategies:\n\n- **CSR**: the browser downloads JavaScript and renders. Simple hosting, slower first paint, weaker SEO.\n- **SSR**: the server renders HTML per request; the client hydrates it to make it interactive.\n- **SSG/ISR**: pages are rendered at build time (or periodically) and served from a CDN.\n\n**React Server Components** run only on the server, can read data directly (database, filesystem) and send no JavaScript for themselves. Client Components (`\"use client\"`) handle interactivity. Server Actions let forms call server functions directly.\n\n**Hydration** attaches event handlers to server-rendered HTML; mismatches between server and client output (dates, random values, browser-only APIs) cause hydration errors.",
+      "keyConcepts": [
+        "CSR vs SSR vs SSG/ISR trade-offs",
+        "Server vs Client Components",
+        "Hydration and hydration mismatches",
+        "Server Actions and their security (always check auth)",
+        "Streaming with Suspense",
+        "Caching and revalidation"
+      ],
+      "commonMistakes": [
+        "Marking everything 'use client' and losing server rendering benefits",
+        "Reading window/localStorage during server render",
+        "Trusting a Server Action without checking auth",
+        "Leaking secrets into Client Components"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 3
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 1
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "b198c247-5bba-5d65-9d4a-e4d8be6f0f4b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "react-testing",
+      "name": "Testing React applications",
+      "category": "React",
+      "description": "Unit, component and end-to-end tests with Testing Library and Playwright.",
+      "explanation": "Test behaviour, not implementation. React Testing Library renders components and queries them the way users do (by role, label and text), then simulates interactions with `user-event`. Mock the network at the boundary (MSW) rather than mocking your own modules.\n\nPure logic (reducers, formatters, validation) gets fast unit tests. Critical user journeys (signup, checkout) get a few end-to-end tests with Playwright or Cypress against a running app.",
+      "keyConcepts": [
+        "Testing pyramid / trophy",
+        "Query by role and label",
+        "user-event over fireEvent",
+        "Mocking network with MSW",
+        "End-to-end tests for critical flows"
+      ],
+      "commonMistakes": [
+        "Testing internal state or implementation details",
+        "Snapshot tests nobody reads",
+        "Too many slow, flaky end-to-end tests"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 1.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "26e226c3-1ccc-50f8-9455-f724aaa209c3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "web-browser-performance",
+      "name": "Web performance and Core Web Vitals",
+      "category": "Web",
+      "description": "LCP, INP, CLS, the critical rendering path, images, caching and bundle size.",
+      "explanation": "Core Web Vitals measure real user experience:\n\n- **LCP** (Largest Contentful Paint): loading. Improve with fast server responses, preloading the hero image, avoiding render-blocking resources.\n- **INP** (Interaction to Next Paint): responsiveness. Improve by keeping the main thread free: smaller bundles, splitting long tasks, less work per interaction.\n- **CLS** (Cumulative Layout Shift): visual stability. Reserve space for images, ads and fonts.\n\nOther levers: compress and size images properly (modern formats, `srcset`), cache static assets with long-lived hashed URLs, ship less JavaScript, and use a CDN.",
+      "keyConcepts": [
+        "LCP, INP, CLS and their thresholds",
+        "Lab (Lighthouse) vs field (RUM) data",
+        "Critical rendering path",
+        "Image optimisation and lazy loading",
+        "HTTP caching for static assets"
+      ],
+      "commonMistakes": [
+        "Optimising Lighthouse scores while field data is bad",
+        "Lazy-loading the LCP image",
+        "Images without width/height causing layout shift"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 1
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "cc12f285-01eb-5a83-a9aa-7677a421d96c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "web-security",
+      "name": "Web security: XSS, CSRF, CORS",
+      "category": "Web",
+      "description": "Common web vulnerabilities and defences: escaping, CSP, cookies, CORS.",
+      "explanation": "**XSS** (cross-site scripting) injects scripts into your page. Defences: let the framework escape output (React does by default), avoid `dangerouslySetInnerHTML` or sanitise first, and add a Content Security Policy.\n\n**CSRF** (cross-site request forgery) tricks a logged-in browser into sending a request. Defences: `SameSite` cookies, CSRF tokens for cookie-authenticated forms, and checking the Origin header.\n\n**CORS** is a browser mechanism that lets a server opt in to cross-origin reads. It is not a server-side protection: it does not stop non-browser clients.\n\nSession cookies should be `HttpOnly` (no JavaScript access), `Secure` (HTTPS only) and `SameSite`.",
+      "keyConcepts": [
+        "Stored, reflected and DOM-based XSS",
+        "Output escaping and Content Security Policy",
+        "CSRF and SameSite cookies",
+        "CORS is enforced by browsers only",
+        "HttpOnly, Secure, SameSite cookie flags",
+        "OWASP Top 10"
+      ],
+      "commonMistakes": [
+        "Storing auth tokens in localStorage where XSS can read them",
+        "Setting Access-Control-Allow-Origin: * with credentials",
+        "Rendering user HTML without sanitising",
+        "Thinking CORS protects the API from attackers"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "e32f79da-ddb2-53c4-b6f8-26546e23fc57",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "web-http-caching",
+      "name": "HTTP, REST semantics and caching",
+      "category": "Web",
+      "description": "Methods, status codes, idempotency, headers, Cache-Control and ETags.",
+      "explanation": "HTTP methods carry meaning: `GET` reads (safe, cacheable), `POST` creates or performs actions, `PUT` replaces (idempotent), `PATCH` partially updates, `DELETE` removes (idempotent). Status codes communicate outcomes: 2xx success, 3xx redirects, 4xx client errors (400 validation, 401 unauthenticated, 403 forbidden, 404, 409 conflict, 422, 429), 5xx server errors.\n\nCaching is controlled by `Cache-Control` (`max-age`, `no-store`, `private`, `s-maxage`, `stale-while-revalidate`) and validators (`ETag` with `If-None-Match`, returning 304 Not Modified). Static assets with hashed filenames can be cached for a year; HTML and API responses usually need short or no caching.",
+      "keyConcepts": [
+        "Safe and idempotent methods",
+        "Status code classes and common codes",
+        "Cache-Control directives",
+        "ETags and conditional requests",
+        "CDN caching and cache keys",
+        "HTTP/2 and HTTP/3 basics"
+      ],
+      "commonMistakes": [
+        "Returning 200 with an error body",
+        "Caching personalised responses publicly",
+        "Using GET for actions that change data"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 3
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "0ea37843-6d2c-59e4-9a7c-9adc0ed74e60",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "web-css-accessibility",
+      "name": "CSS layout and accessibility",
+      "category": "Web",
+      "description": "Flexbox, Grid, responsive design, semantic HTML and accessibility basics.",
+      "explanation": "**Flexbox** lays items out in one dimension (a row or a column); **Grid** handles two dimensions. Responsive design uses fluid layouts, media queries and container queries.\n\nAccessibility starts with semantic HTML: real `<button>`, `<a>`, `<label>`, headings in order, and landmarks (`<main>`, `<nav>`). Everything interactive must work with a keyboard and show a visible focus state. Colour contrast must meet WCAG (4.5:1 for normal text), and information must never be conveyed by colour alone. ARIA fills gaps but is not a substitute for native elements.",
+      "keyConcepts": [
+        "Flexbox vs Grid",
+        "Box model and stacking contexts",
+        "Media and container queries",
+        "Semantic HTML and landmarks",
+        "Keyboard access and focus management",
+        "WCAG contrast; don't rely on colour alone"
+      ],
+      "commonMistakes": [
+        "Clickable divs instead of buttons",
+        "Removing focus outlines",
+        "Images without alt text",
+        "ARIA roles that contradict the element"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 1.5
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 2
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "node-runtime",
+      "name": "Node.js runtime and event loop",
+      "category": "Node.js",
+      "description": "libuv, event loop phases, the thread pool, process.nextTick and blocking the loop.",
+      "explanation": "Node.js runs JavaScript on a single main thread and delegates I/O to **libuv**. Network I/O uses the operating system's non-blocking APIs; some work (file system, DNS lookup, crypto, zlib) runs on libuv's thread pool (4 threads by default).\n\nThe event loop cycles through phases: **timers** (setTimeout/setInterval), **pending callbacks**, **poll** (new I/O events), **check** (setImmediate) and **close callbacks**. Between callbacks, `process.nextTick` callbacks and then promise microtasks run.\n\nBecause one thread runs all JavaScript, CPU-heavy work (large JSON parsing, image processing, synchronous crypto) blocks every request. Offload it to worker threads, a job queue, or another service.",
+      "keyConcepts": [
+        "Single-threaded JS, non-blocking I/O via libuv",
+        "Event loop phases",
+        "process.nextTick vs microtasks vs setImmediate",
+        "libuv thread pool and UV_THREADPOOL_SIZE",
+        "Blocking the event loop",
+        "Worker threads for CPU-bound work"
+      ],
+      "commonMistakes": [
+        "Using synchronous fs/crypto APIs in request handlers",
+        "Assuming async means parallel CPU work",
+        "Recursive process.nextTick starving I/O"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "afe7cfb1-2b7a-5546-bef4-8fbdb725b87f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "node-streams",
+      "name": "Streams and buffers",
+      "category": "Node.js",
+      "description": "Readable, writable and transform streams, piping and backpressure.",
+      "explanation": "Streams process data piece by piece instead of loading it all into memory, which keeps memory flat for large files and responses. There are readable, writable, duplex and transform streams.\n\n**Backpressure** is how a fast producer slows down for a slow consumer: `write()` returns false when the buffer is full and the producer should wait for `drain`. `stream.pipeline()` connects streams, handles backpressure and propagates errors and cleanup correctly.\n\nBuffers hold raw binary data. Use them for bytes, and always specify encodings when converting to strings.",
+      "keyConcepts": [
+        "Readable, Writable, Duplex, Transform",
+        "Backpressure and highWaterMark",
+        "pipeline() over pipe() for error handling",
+        "Async iteration over streams",
+        "Buffers and encodings"
+      ],
+      "commonMistakes": [
+        "Reading a whole large file into memory to send it",
+        "Using pipe() without error handling",
+        "Ignoring the return value of write()"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "express-middleware",
+      "name": "Express routing and middleware",
+      "category": "Node.js",
+      "description": "Middleware chain, routers, error-handling middleware, validation and structure.",
+      "explanation": "An Express app is a chain of middleware functions `(req, res, next)`. Each can modify the request, end the response, or call `next()` to continue. Order matters: parsers and auth run before routes, error handlers run last.\n\nError-handling middleware has four parameters `(err, req, res, next)`. In Express 4, errors thrown inside async handlers must be passed to `next(err)` (Express 5 handles rejected promises automatically).\n\nA maintainable structure separates routes (HTTP), controllers or handlers (request parsing), services (business logic) and repositories (data access). Validate input at the edge with a schema.",
+      "keyConcepts": [
+        "Middleware order and next()",
+        "Routers for modular routes",
+        "Error-handling middleware",
+        "Async errors in Express 4 vs 5",
+        "Layered architecture: route, service, repository",
+        "Input validation at the boundary"
+      ],
+      "commonMistakes": [
+        "Forgetting to call next() or send a response (hanging requests)",
+        "Unhandled async errors crashing or hanging requests",
+        "Business logic inside route handlers",
+        "Sending stack traces to clients in production"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 1.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "rest-api-design",
+      "name": "REST API design",
+      "category": "APIs",
+      "description": "Resource modelling, pagination, filtering, versioning, idempotency and errors.",
+      "explanation": "Good REST APIs model **resources** with nouns (`/orders/{id}/items`), use HTTP methods for actions, and return meaningful status codes.\n\nPractical design choices:\n- **Pagination**: cursor-based for large or changing data; offset-based is simpler but slow and unstable on large tables.\n- **Filtering and sorting** through query parameters with an allow-list.\n- **Versioning** via the URL (`/v1`) or headers; prefer additive, backward-compatible changes.\n- **Idempotency keys** for POSTs that must not run twice (payments).\n- A consistent **error format** and documentation (OpenAPI).\n\nGraphQL and gRPC are alternatives with different trade-offs (flexible queries vs caching simplicity; binary performance vs browser support).",
+      "keyConcepts": [
+        "Resource naming and nesting",
+        "Cursor vs offset pagination",
+        "Versioning and backward compatibility",
+        "Idempotency keys",
+        "Consistent error responses",
+        "REST vs GraphQL vs gRPC"
+      ],
+      "commonMistakes": [
+        "Verbs in URLs (/getUsers)",
+        "Breaking changes without versioning",
+        "Unbounded list endpoints",
+        "Leaking internal database ids or fields unintentionally"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "4-6": {
+          "depth": "DESIGN",
+          "hours": 3
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "auth-sessions-jwt",
+      "name": "Authentication: sessions, JWT and OAuth",
+      "category": "APIs",
+      "description": "Password hashing, session cookies vs JWT, refresh tokens, OAuth 2.0 / OIDC and authorisation.",
+      "explanation": "**Authentication** proves who the user is; **authorisation** decides what they may do.\n\nPasswords are stored as slow, salted hashes (bcrypt, scrypt, Argon2), never encrypted or plain.\n\n**Server sessions** store state on the server and give the browser an opaque id in an HttpOnly cookie; revocation is easy. **JWTs** are signed tokens carrying claims; they are stateless and fast to verify but hard to revoke before expiry, so they are kept short-lived and paired with refresh tokens or a revocation check.\n\n**OAuth 2.0** delegates authorisation to another provider; **OpenID Connect** adds identity on top (\"Sign in with Google\"). The authorisation code flow with PKCE is the standard for web and mobile apps.\n\nAuthorisation must be checked on the server for every request, at the resource level (does this user own this order?).",
+      "keyConcepts": [
+        "Authentication vs authorisation",
+        "Password hashing with bcrypt/Argon2",
+        "Sessions vs JWT trade-offs",
+        "Access and refresh tokens; rotation",
+        "OAuth 2.0 authorisation code + PKCE, OIDC",
+        "RBAC and resource-level checks (IDOR)"
+      ],
+      "commonMistakes": [
+        "Long-lived JWTs with no way to revoke",
+        "Trusting a user id from the request body",
+        "Checking roles in the UI only",
+        "Using fast hashes (SHA-256) for passwords"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "DESIGN",
+          "hours": 3
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 5
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "46c365ff-b271-57cd-b231-c0314d0c01f6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "node-scaling",
+      "name": "Scaling Node.js services",
+      "category": "Node.js",
+      "description": "Clustering, statelessness, load balancing, queues and graceful shutdown.",
+      "explanation": "A Node.js process uses one CPU core for JavaScript. To use more cores, run several processes (the cluster module, PM2, or multiple containers behind a load balancer).\n\nHorizontal scaling requires **stateless** services: sessions, caches and uploads live in shared stores (Redis, a database, object storage), not in process memory or local disk.\n\nSlow or bursty work moves to **queues** and workers. Production services also need health checks, graceful shutdown (stop accepting connections, finish in-flight requests, close pools), timeouts on outgoing calls, and observability (logs, metrics, traces).",
+      "keyConcepts": [
+        "Cluster / multiple processes per machine",
+        "Stateless services and shared state stores",
+        "Load balancing and health checks",
+        "Queues and background workers",
+        "Graceful shutdown and timeouts",
+        "Observability: logs, metrics, traces"
+      ],
+      "commonMistakes": [
+        "Keeping sessions or caches in process memory and then scaling out",
+        "No timeouts on outbound HTTP calls",
+        "Killing pods without draining connections"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 3
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "sql-fundamentals",
+      "name": "SQL queries and joins",
+      "category": "Databases",
+      "description": "SELECT, joins, GROUP BY/HAVING, subqueries and window functions.",
+      "explanation": "Relational databases store data in tables with relationships enforced by keys. Core query skills:\n\n- **Joins**: INNER (matching rows only), LEFT (all rows from the left, nulls where no match), and anti-joins (LEFT JOIN … WHERE right.id IS NULL, or NOT EXISTS).\n- **Aggregation**: GROUP BY with COUNT/SUM/AVG; HAVING filters groups after aggregation, WHERE filters rows before.\n- **Window functions** (ROW_NUMBER, RANK, SUM … OVER) compute across related rows without collapsing them, which solves \"top N per group\" and running totals.\n\nLogical query order is FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT.",
+      "keyConcepts": [
+        "INNER vs LEFT joins and anti-joins",
+        "WHERE vs HAVING",
+        "Logical order of query evaluation",
+        "Window functions for top-N per group",
+        "NULL semantics in comparisons and aggregates",
+        "Normalisation basics (1NF–3NF)"
+      ],
+      "commonMistakes": [
+        "Filtering a LEFT JOIN's right table in WHERE, turning it into an inner join",
+        "Comparing with = NULL instead of IS NULL",
+        "SELECT * in production queries",
+        "N+1 queries from an ORM loop"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 1.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 1
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "db-indexing",
+      "name": "Indexes and query performance",
+      "category": "Databases",
+      "description": "B-tree indexes, composite index order, covering indexes, EXPLAIN and trade-offs.",
+      "explanation": "An index is a separate data structure (usually a B-tree) that lets the database find rows without scanning the whole table. Indexes speed up reads on the indexed columns and slow down writes, because every insert and update must also update the index.\n\nComposite indexes follow the **leftmost prefix** rule: an index on `(user_id, created_at)` helps queries filtering by `user_id`, or by `user_id` and `created_at`, but not by `created_at` alone. Put equality columns first, then range or sort columns.\n\nA **covering index** contains every column a query needs, so the table is never read. Use `EXPLAIN` / `EXPLAIN ANALYZE` to see the plan: sequential scans on large tables, high row estimates and sorts are signs of a missing or unusable index. Functions on indexed columns (`WHERE LOWER(email) = …`) and leading wildcards (`LIKE '%x'`) usually prevent index use unless you index the expression.",
+      "keyConcepts": [
+        "B-tree indexes and how lookups work",
+        "Composite indexes and the leftmost prefix",
+        "Covering indexes",
+        "Reading EXPLAIN plans",
+        "Write cost and over-indexing",
+        "Selectivity and cardinality"
+      ],
+      "commonMistakes": [
+        "Indexing every column",
+        "Wrong column order in composite indexes",
+        "Wrapping indexed columns in functions",
+        "Optimising without looking at the query plan"
+      ],
+      "coreImportance": 5,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "e365b7aa-b2e5-5c39-80db-88b9ffbbde79",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "db-transactions",
+      "name": "Transactions and isolation levels",
+      "category": "Databases",
+      "description": "ACID, isolation anomalies, locking, optimistic concurrency and deadlocks.",
+      "explanation": "A transaction groups operations so they succeed or fail together. **ACID**: Atomicity (all or nothing), Consistency (constraints hold), Isolation (concurrent transactions don't see each other's partial work, to a degree), Durability (committed data survives crashes).\n\nIsolation levels trade correctness for concurrency. **Read Committed** (Postgres default) prevents dirty reads but allows non-repeatable reads and lost updates if you read-then-write naively. **Repeatable Read** and **Serializable** prevent more anomalies but may abort transactions that must be retried.\n\nCommon patterns: atomic updates (`UPDATE stock SET qty = qty - 1 WHERE id = ? AND qty > 0`), row locks (`SELECT … FOR UPDATE`), and optimistic concurrency with a version column. Deadlocks happen when transactions lock rows in different orders; consistent ordering and retries handle them.",
+      "keyConcepts": [
+        "ACID properties",
+        "Dirty reads, non-repeatable reads, phantoms, lost updates",
+        "Isolation levels and their defaults",
+        "Pessimistic locking (FOR UPDATE) vs optimistic (version column)",
+        "Deadlocks and retry logic",
+        "Keeping transactions short"
+      ],
+      "commonMistakes": [
+        "Read-modify-write in application code without locking (lost updates)",
+        "Calling external APIs inside a database transaction",
+        "Long transactions holding locks"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 3
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2.5
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "cc421410-0dc5-5ae4-b7d5-f6deb2dd18be",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "mongodb-modeling",
+      "name": "MongoDB data modelling and aggregation",
+      "category": "Databases",
+      "description": "Embedding vs referencing, schema design for access patterns, indexes and aggregation pipelines.",
+      "explanation": "MongoDB stores JSON-like documents. Design is driven by **access patterns**: data read together should be stored together.\n\n- **Embed** when the child data is bounded and always read with the parent (an order's line items).\n- **Reference** when the related data is large, unbounded, shared, or updated independently (a user's orders).\n\nDocuments are limited to 16 MB, so unbounded arrays are an anti-pattern. Indexes work like in relational databases (including compound indexes and the ESR rule: Equality, Sort, Range). The **aggregation pipeline** (`$match`, `$group`, `$lookup`, `$project`, `$sort`) transforms data in stages; put `$match` early so indexes can be used. Multi-document transactions exist but are costlier than single-document atomic operations.",
+      "keyConcepts": [
+        "Embedding vs referencing",
+        "Design for access patterns",
+        "Unbounded arrays and the 16 MB limit",
+        "Compound indexes and the ESR rule",
+        "Aggregation pipeline stages",
+        "Single-document atomicity"
+      ],
+      "commonMistakes": [
+        "Modelling MongoDB like normalised SQL tables with $lookup everywhere",
+        "Unbounded embedded arrays (comments inside a post forever)",
+        "No indexes on frequently queried fields"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2.5
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "07905360-a937-5a77-a60c-ad9443f6ede7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "caching-redis",
+      "name": "Caching with Redis",
+      "category": "Databases",
+      "description": "Cache-aside, TTLs, invalidation, stampedes and other Redis uses.",
+      "explanation": "Caching stores the results of expensive work for reuse. The common pattern is **cache-aside**: read from the cache; on a miss, load from the database, write to the cache with a TTL, and return.\n\nThe hard parts are **invalidation** (delete or update the cache entry when the source changes), **consistency** (accept staleness bounded by the TTL), and **stampedes** (many requests miss at once; use request coalescing, locks, or early refresh).\n\nRedis is also used for sessions, rate limiting (INCR with expiry), distributed locks, queues (BullMQ), leaderboards (sorted sets) and pub/sub.",
+      "keyConcepts": [
+        "Cache-aside, write-through, write-behind",
+        "TTL and invalidation strategies",
+        "Cache stampede protection",
+        "Hot keys and memory limits/eviction",
+        "Redis data structures and use cases"
+      ],
+      "commonMistakes": [
+        "Caching without a TTL and never invalidating",
+        "Caching per-user data under shared keys",
+        "Treating Redis as the source of truth without persistence"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "dsa-arrays-hashing",
+      "name": "DSA: arrays, strings and hashing",
+      "category": "DSA",
+      "description": "Big-O, two pointers, sliding window and hash maps for common coding rounds.",
+      "explanation": "Most product-company coding rounds start with arrays and strings. Key techniques:\n\n- **Hash maps/sets** turn O(n²) lookups into O(1) average (two-sum, duplicates, frequency counts, grouping anagrams).\n- **Two pointers** for sorted arrays and in-place operations (pair sums, removing duplicates, palindromes).\n- **Sliding window** for contiguous subarrays and substrings with a constraint (longest substring without repeats).\n- **Prefix sums** for range sums and subarray-sum counts.\n\nAlways state the brute force, then improve, and give time and space complexity. Talk through edge cases: empty input, one element, duplicates, negatives, very large inputs.",
+      "keyConcepts": [
+        "Big-O time and space",
+        "Hash maps for O(1) lookups",
+        "Two pointers",
+        "Sliding window",
+        "Prefix sums",
+        "Communicating approach and edge cases"
+      ],
+      "commonMistakes": [
+        "Coding before clarifying the problem",
+        "Not stating complexity",
+        "Missing edge cases (empty input, duplicates)",
+        "Silent coding without explaining"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 6
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 6
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 5
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 4
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 3
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 4
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "1f0dcda0-925a-5569-a0ec-f941aa4b2699",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "dsa-trees-graphs",
+      "name": "DSA: trees, graphs and recursion",
+      "category": "DSA",
+      "description": "Tree traversal, BFS/DFS, recursion, and when graph thinking appears in real systems.",
+      "explanation": "Trees and graphs appear in coding rounds and in real systems (DOM, file systems, dependency graphs, social networks).\n\n- **Tree traversals**: preorder, inorder, postorder (DFS) and level order (BFS with a queue).\n- **Graph search**: BFS finds shortest paths in unweighted graphs; DFS explores and detects cycles. Track visited nodes.\n- **Topological sort** orders tasks with dependencies (build systems, course schedules, prerequisite graphs).\n- **Recursion** needs a base case; deep recursion can overflow the stack, so iterative versions with explicit stacks are sometimes needed.",
+      "keyConcepts": [
+        "DFS (recursive/iterative) and BFS",
+        "Binary search trees and balanced trees",
+        "Visited sets and cycle detection",
+        "Topological sort",
+        "Recursion depth and stack limits"
+      ],
+      "commonMistakes": [
+        "Forgetting a visited set in graphs (infinite loops)",
+        "Missing base cases",
+        "Using DFS when the shortest path is required"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 4
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 4
+        },
+        "6+": {
+          "depth": "APPLY",
+          "hours": 3
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "system-design-basics",
+      "name": "System design fundamentals",
+      "category": "System design",
+      "description": "Requirements, estimates, load balancing, caching, databases, queues and trade-offs.",
+      "explanation": "System design interviews test structured thinking about trade-offs. A reliable approach:\n\n1. **Clarify requirements**: functional (what it does) and non-functional (scale, latency, availability, consistency).\n2. **Estimate** load: requests per second, storage growth, read/write ratio.\n3. **High-level design**: clients, load balancer, stateless services, data stores, caches, queues, CDN.\n4. **Deep dives**: data model and access patterns, scaling the bottleneck, failure modes.\n5. **Trade-offs**: consistency vs availability, latency vs cost, simplicity vs flexibility.\n\nBuilding blocks to know: load balancers, caching layers, SQL vs NoSQL, replication and sharding, message queues and event-driven processing, CDNs, rate limiting, and observability.",
+      "keyConcepts": [
+        "Functional vs non-functional requirements",
+        "Back-of-the-envelope estimation",
+        "Horizontal scaling and stateless services",
+        "Replication, sharding and read replicas",
+        "Queues, async processing and idempotency",
+        "CAP and consistency trade-offs"
+      ],
+      "commonMistakes": [
+        "Jumping into components before clarifying requirements",
+        "Over-engineering for scale that is not needed",
+        "Not discussing failure modes and trade-offs"
+      ],
+      "coreImportance": 4,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 4
+        },
+        "4-6": {
+          "depth": "DESIGN",
+          "hours": 6
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 6
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 5
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 4
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "24221357-bc95-5323-86c0-38b435df8152",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "testing-strategy",
+      "name": "Testing strategy for backend and full-stack",
+      "category": "Engineering",
+      "description": "Unit, integration and end-to-end tests; mocks vs real dependencies; testing in CI.",
+      "explanation": "A good test suite gives confidence quickly. Unit tests cover pure logic; integration tests check modules working with real dependencies (a test database, an HTTP layer); end-to-end tests cover a few critical user journeys.\n\nMock at system boundaries (third-party APIs, email), not your own modules. Tests should be deterministic: control time, randomness and network. Run them in CI on every change, keep them fast, and treat flaky tests as bugs.",
+      "keyConcepts": [
+        "Unit vs integration vs end-to-end",
+        "Test doubles: stubs, mocks, fakes",
+        "Testing with a real database (containers)",
+        "Deterministic tests (fake timers, seeded data)",
+        "Coverage as a guide, not a goal"
+      ],
+      "commonMistakes": [
+        "Mocking everything so tests prove nothing",
+        "Flaky tests that everyone ignores",
+        "Only end-to-end tests: slow and hard to debug"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "c7c56ef6-f176-5170-a69f-50502414bb21",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "git-ci-cd",
+      "name": "Git, code review and CI/CD",
+      "category": "Engineering",
+      "description": "Branching strategies, rebasing vs merging, pull requests, pipelines and safe deploys.",
+      "explanation": "Teams collaborate through Git branches and pull requests. Trunk-based development (short-lived branches merged often) reduces painful merges. Rebasing keeps a linear history; merging preserves context. Never rewrite shared history.\n\nCI runs lint, type checks, tests and builds on every change. CD deploys automatically when checks pass, using strategies that limit risk: blue-green, canary releases, and feature flags. Every deploy needs a fast rollback path and monitoring.",
+      "keyConcepts": [
+        "Trunk-based vs GitFlow",
+        "Rebase vs merge; interactive rebase",
+        "Good pull requests and reviews",
+        "CI pipeline stages",
+        "Blue-green, canary and feature flags",
+        "Rollback and database migrations"
+      ],
+      "commonMistakes": [
+        "Force-pushing shared branches",
+        "Huge pull requests that cannot be reviewed",
+        "Deploying schema changes that break the running version"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "2-4": {
+          "depth": "APPLY",
+          "hours": 1.5
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 1.5
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    },
+    {
+      "id": "c4471741-8336-5445-8737-3fd6bbd2dfeb",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "trackId": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "slug": "design-patterns",
+      "name": "Design principles and patterns",
+      "category": "Engineering",
+      "description": "SOLID, dependency injection, common patterns and keeping code changeable.",
+      "explanation": "Design principles exist to keep code easy to change. The most useful in practice:\n\n- **Single responsibility**: a module has one reason to change.\n- **Dependency inversion**: business logic depends on interfaces (a repository, an email sender), not concrete implementations, which makes it testable and swappable.\n- **Composition over inheritance.**\n- **Separation of concerns**: transport (HTTP), business logic and data access in separate layers.\n\nCommon patterns: repository, strategy, factory, adapter, observer/pub-sub, and middleware/pipeline. Apply them to solve a real problem, not preemptively.",
+      "keyConcepts": [
+        "SOLID principles",
+        "Dependency injection and interfaces",
+        "Repository and service layers",
+        "Strategy, adapter, factory, observer",
+        "YAGNI and avoiding premature abstraction"
+      ],
+      "commonMistakes": [
+        "Abstractions with a single implementation and no reason",
+        "God services that do everything",
+        "Business logic mixed with HTTP or SQL"
+      ],
+      "coreImportance": 3,
+      "depthByBand": {
+        "0-2": {
+          "depth": "KNOW",
+          "hours": 1.5
+        },
+        "2-4": {
+          "depth": "EXPLAIN",
+          "hours": 2
+        },
+        "4-6": {
+          "depth": "APPLY",
+          "hours": 2
+        },
+        "6+": {
+          "depth": "DESIGN",
+          "hours": 2
+        }
+      },
+      "roleImportance": [
+        {
+          "roleId": "4f834635-856f-5b3a-b1dc-5e939cc6f18a",
+          "importance": 2
+        },
+        {
+          "roleId": "bddcfc44-a223-5b4c-b50f-11c075c2643a",
+          "importance": 3
+        },
+        {
+          "roleId": "cd344d53-b06d-5cbf-ba55-eebf81ad43b3",
+          "importance": 3
+        }
+      ],
+      "published": true
+    }
+  ]
+}

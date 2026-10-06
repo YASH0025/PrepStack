@@ -1,0 +1,590 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "f43eb4e5-40da-596d-a66b-3a24c644b84c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "35c06b60-c8dd-5452-b291-2fde61d240f5",
+      "title": "MDN: Equality comparisons and sameness",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness",
+      "kind": "DOCS"
+    },
+    {
+      "id": "50b9baad-35b2-5c07-b5c5-02403be246d7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "35c06b60-c8dd-5452-b291-2fde61d240f5",
+      "title": "MDN: JavaScript data types",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures",
+      "kind": "DOCS"
+    },
+    {
+      "id": "24ea43ff-bc1d-5c0f-91c9-0a324757370c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "title": "MDN: Closures",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures",
+      "kind": "DOCS"
+    },
+    {
+      "id": "9dc12fa7-e16b-5e16-ba35-405c4a4f25ab",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "title": "MDN: let and the temporal dead zone",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let",
+      "kind": "DOCS"
+    },
+    {
+      "id": "c07b20fb-8795-5d7e-b20c-7e08aaa304a2",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7a0e4010-9773-5b80-b096-831a5d93e9a7",
+      "title": "MDN: this",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this",
+      "kind": "DOCS"
+    },
+    {
+      "id": "d09f9d10-30f7-5216-b0c6-b913a04feb9c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "10d58862-993d-5abd-9b66-b1a5c725d07d",
+      "title": "MDN: Inheritance and the prototype chain",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain",
+      "kind": "DOCS"
+    },
+    {
+      "id": "22a926f5-cdb5-5012-a84a-44c8fc8200b9",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "title": "MDN: The event loop",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop",
+      "kind": "DOCS"
+    },
+    {
+      "id": "f189a3fa-7bd7-5371-bc76-a5f972c2e61e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "title": "Jake Archibald: Tasks, microtasks, queues and schedules",
+      "url": "https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "0db6571f-4721-5fed-9780-9234a993c690",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "title": "MDN: Using promises",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
+      "kind": "DOCS"
+    },
+    {
+      "id": "e5fdd9b0-e454-587c-9591-507def1eb9d3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "title": "MDN: Promise.allSettled",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled",
+      "kind": "DOCS"
+    },
+    {
+      "id": "12d1a3fd-7b56-5a41-b1c0-c67f91564808",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "title": "MDN: async function",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function",
+      "kind": "DOCS"
+    },
+    {
+      "id": "39421872-75fb-5025-901a-0ec14445b15a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "title": "MDN: AbortController",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/AbortController",
+      "kind": "DOCS"
+    },
+    {
+      "id": "eb983aac-20a5-5c74-a449-a1e91cd224db",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "245308b2-62e8-57a6-8657-458cf412724c",
+      "title": "MDN: Array",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+      "kind": "DOCS"
+    },
+    {
+      "id": "0b07cd58-e8a0-554a-a3b9-6af33f980826",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "245308b2-62e8-57a6-8657-458cf412724c",
+      "title": "MDN: Map",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+      "kind": "DOCS"
+    },
+    {
+      "id": "b50a6c3d-1a71-5033-b0f5-aa7d052c3e4e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e5d856a1-4ac6-51ac-82cf-4054579bf0a8",
+      "title": "MDN: setTimeout",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout",
+      "kind": "DOCS"
+    },
+    {
+      "id": "2f5a201f-1ee3-509c-97a5-10ca812043f3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "923c28cb-8e17-5e7c-9e58-82dbe8563f59",
+      "title": "MDN: JavaScript modules",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules",
+      "kind": "DOCS"
+    },
+    {
+      "id": "e0e83a7c-12eb-546e-a58e-305d3299eb93",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "title": "TypeScript Handbook",
+      "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "397b05e5-2707-5b77-b3b1-f68cfe8383aa",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "title": "TypeScript: Narrowing",
+      "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "f955a6e3-24b3-5b84-9856-0aa139048ec0",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "title": "React docs: Render and commit",
+      "url": "https://react.dev/learn/render-and-commit",
+      "kind": "DOCS"
+    },
+    {
+      "id": "15e5fe97-4033-5cb5-b34b-c801f0b61ab3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "title": "React docs: Preserving and resetting state",
+      "url": "https://react.dev/learn/preserving-and-resetting-state",
+      "kind": "DOCS"
+    },
+    {
+      "id": "b5b0d31f-35f0-5324-919c-36f9e8a94730",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "title": "React docs: You Might Not Need an Effect",
+      "url": "https://react.dev/learn/you-might-not-need-an-effect",
+      "kind": "DOCS"
+    },
+    {
+      "id": "2c2bcd39-1a52-5e16-a680-c9fb2a214ea3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "title": "React docs: useEffect",
+      "url": "https://react.dev/reference/react/useEffect",
+      "kind": "DOCS"
+    },
+    {
+      "id": "7c491e67-b318-513e-8fcd-32bad6f19ed3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "eeca9564-f902-5685-b3ad-a9bb7b3a6504",
+      "title": "React docs: Managing state",
+      "url": "https://react.dev/learn/managing-state",
+      "kind": "DOCS"
+    },
+    {
+      "id": "e5c62d46-294b-5ef9-86cf-00da82acc7f3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "eeca9564-f902-5685-b3ad-a9bb7b3a6504",
+      "title": "TanStack Query: Overview",
+      "url": "https://tanstack.com/query/latest/docs/framework/react/overview",
+      "kind": "DOCS"
+    },
+    {
+      "id": "a41c75a1-c261-570a-8a27-eb07859d6fcd",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "title": "React docs: memo",
+      "url": "https://react.dev/reference/react/memo",
+      "kind": "DOCS"
+    },
+    {
+      "id": "5accacaa-2e33-54fa-ae80-7e097fcc3a5b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "title": "React docs: useTransition",
+      "url": "https://react.dev/reference/react/useTransition",
+      "kind": "DOCS"
+    },
+    {
+      "id": "5d23395c-0b87-5641-aaa1-dc2f4907c637",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ef940a40-2ac6-5349-94a3-ce23a75446a4",
+      "title": "React Hook Form: Get started",
+      "url": "https://react-hook-form.com/get-started",
+      "kind": "DOCS"
+    },
+    {
+      "id": "ecdc1692-659a-5530-8b6f-d538b803f317",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ef940a40-2ac6-5349-94a3-ce23a75446a4",
+      "title": "Zod documentation",
+      "url": "https://zod.dev/",
+      "kind": "DOCS"
+    },
+    {
+      "id": "e8bb69c1-8181-50e3-81c0-3042e169644c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "53a806b4-f878-5eba-8675-baa3a3ef65e1",
+      "title": "Next.js docs: Server and Client Components",
+      "url": "https://nextjs.org/docs/app/getting-started/server-and-client-components",
+      "kind": "DOCS"
+    },
+    {
+      "id": "2f6ada9b-c8a5-5a65-853c-cba494b48ee0",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "53a806b4-f878-5eba-8675-baa3a3ef65e1",
+      "title": "React docs: Server Components",
+      "url": "https://react.dev/reference/rsc/server-components",
+      "kind": "DOCS"
+    },
+    {
+      "id": "5a8c34cb-30a4-5dd8-9a25-3a5d4a644106",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b198c247-5bba-5d65-9d4a-e4d8be6f0f4b",
+      "title": "Testing Library: Guiding principles",
+      "url": "https://testing-library.com/docs/guiding-principles",
+      "kind": "DOCS"
+    },
+    {
+      "id": "b0ff6798-7aa8-5ff9-bf13-d43d011a3369",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b198c247-5bba-5d65-9d4a-e4d8be6f0f4b",
+      "title": "Playwright: Getting started",
+      "url": "https://playwright.dev/docs/intro",
+      "kind": "DOCS"
+    },
+    {
+      "id": "bb2ea568-67df-5552-bd18-d2d50c111f2e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "26e226c3-1ccc-50f8-9455-f724aaa209c3",
+      "title": "web.dev: Core Web Vitals",
+      "url": "https://web.dev/articles/vitals",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "b8b22d8f-d891-533f-b0e9-a2eb3c62364e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc12f285-01eb-5a83-a9aa-7677a421d96c",
+      "title": "OWASP Top 10",
+      "url": "https://owasp.org/www-project-top-ten/",
+      "kind": "DOCS"
+    },
+    {
+      "id": "3de13389-4151-5490-915d-dc180253f311",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc12f285-01eb-5a83-a9aa-7677a421d96c",
+      "title": "MDN: CORS",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS",
+      "kind": "DOCS"
+    },
+    {
+      "id": "cc0cdbb4-f170-5cd5-a30f-7393de29fad4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e32f79da-ddb2-53c4-b6f8-26546e23fc57",
+      "title": "MDN: HTTP caching",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+      "kind": "DOCS"
+    },
+    {
+      "id": "a65d9ce5-8ba7-5f60-899b-02ea6ecc74e4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e32f79da-ddb2-53c4-b6f8-26546e23fc57",
+      "title": "MDN: HTTP response status codes",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
+      "kind": "DOCS"
+    },
+    {
+      "id": "7270f3f4-6e98-509b-898b-ce80eab5b8af",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "0ea37843-6d2c-59e4-9a7c-9adc0ed74e60",
+      "title": "MDN: CSS Grid layout",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout",
+      "kind": "DOCS"
+    },
+    {
+      "id": "2cdf8167-cd57-5600-86ef-4a82e3c7add4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "0ea37843-6d2c-59e4-9a7c-9adc0ed74e60",
+      "title": "W3C: WAI-ARIA Authoring Practices",
+      "url": "https://www.w3.org/WAI/ARIA/apg/",
+      "kind": "DOCS"
+    },
+    {
+      "id": "4f28e3ed-2a02-5650-9c53-5181bdd9d6eb",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "title": "Node.js: The event loop",
+      "url": "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick",
+      "kind": "DOCS"
+    },
+    {
+      "id": "02a1b52a-25d8-51cd-adc2-38dbcf2c1784",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "title": "Node.js: Don't block the event loop",
+      "url": "https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop",
+      "kind": "DOCS"
+    },
+    {
+      "id": "f25f9fa8-1019-5f6d-9562-3462f1ff1eb2",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "afe7cfb1-2b7a-5546-bef4-8fbdb725b87f",
+      "title": "Node.js docs: Stream",
+      "url": "https://nodejs.org/api/stream.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "ff1d743e-503b-5cda-be39-026397df04c5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "title": "Express: Writing middleware",
+      "url": "https://expressjs.com/en/guide/writing-middleware.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "9902cb7a-7cdc-5d1c-bd1d-30434b7ed4da",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "title": "Express: Error handling",
+      "url": "https://expressjs.com/en/guide/error-handling.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "5565f855-7364-55ba-86ad-782a3f4babbe",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "title": "Microsoft: RESTful web API design",
+      "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "395049d3-0cc5-5caa-ab3d-f7efb28b1aa7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "title": "Stripe: Idempotent requests",
+      "url": "https://docs.stripe.com/api/idempotent_requests",
+      "kind": "DOCS"
+    },
+    {
+      "id": "e06bf7ac-e6aa-5bd8-b50f-70dfd86f3d05",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "title": "OWASP: Password Storage Cheat Sheet",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "f4c81130-8e28-5d68-9e68-2d591b778514",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "title": "OAuth 2.0 simplified",
+      "url": "https://www.oauth.com/",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "9f4f1bfe-9280-5bd8-9754-395b74d2d5a2",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "46c365ff-b271-57cd-b231-c0314d0c01f6",
+      "title": "Node.js docs: Cluster",
+      "url": "https://nodejs.org/api/cluster.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "beac1217-b203-5e46-8bf3-2bc0ecd52b13",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794",
+      "title": "PostgreSQL tutorial: Window functions",
+      "url": "https://www.postgresql.org/docs/current/tutorial-window.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "6dcabf6f-2275-525f-af29-4fcb203b38b6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794",
+      "title": "Use The Index, Luke",
+      "url": "https://use-the-index-luke.com/",
+      "kind": "BOOK"
+    },
+    {
+      "id": "ac712150-7746-574b-99ca-623361999c29",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "title": "Use The Index, Luke",
+      "url": "https://use-the-index-luke.com/",
+      "kind": "BOOK"
+    },
+    {
+      "id": "67a2cd17-a0ba-5253-a540-1a58c0507956",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "title": "PostgreSQL docs: Using EXPLAIN",
+      "url": "https://www.postgresql.org/docs/current/using-explain.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "b1d16659-fb30-58d2-8fc2-0cc73fed7627",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e365b7aa-b2e5-5c39-80db-88b9ffbbde79",
+      "title": "PostgreSQL docs: Transaction isolation",
+      "url": "https://www.postgresql.org/docs/current/transaction-iso.html",
+      "kind": "DOCS"
+    },
+    {
+      "id": "c0cbaa8f-011e-5e41-8b4e-8f0ee82075f8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc421410-0dc5-5ae4-b7d5-f6deb2dd18be",
+      "title": "MongoDB: Data modeling",
+      "url": "https://www.mongodb.com/docs/manual/data-modeling/",
+      "kind": "DOCS"
+    },
+    {
+      "id": "82b21fdd-a9aa-50d6-9ed4-50fe49cab6ec",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc421410-0dc5-5ae4-b7d5-f6deb2dd18be",
+      "title": "MongoDB: Aggregation pipeline",
+      "url": "https://www.mongodb.com/docs/manual/core/aggregation-pipeline/",
+      "kind": "DOCS"
+    },
+    {
+      "id": "e3fa5d58-c4df-5efe-a6bf-0efc0efd8a64",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "07905360-a937-5a77-a60c-ad9443f6ede7",
+      "title": "Redis docs: Client-side caching and patterns",
+      "url": "https://redis.io/docs/latest/develop/",
+      "kind": "DOCS"
+    },
+    {
+      "id": "69a93dbd-fea2-50e3-97af-0d6dff067e13",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "title": "NeetCode roadmap",
+      "url": "https://neetcode.io/roadmap",
+      "kind": "COURSE"
+    },
+    {
+      "id": "73626292-ebf3-5eab-8fcd-739798000268",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "title": "LeetCode: Top interview questions",
+      "url": "https://leetcode.com/studyplan/top-interview-150/",
+      "kind": "COURSE"
+    },
+    {
+      "id": "a294a270-ebe7-5d27-8907-b3843d3a1e02",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "1f0dcda0-925a-5569-a0ec-f941aa4b2699",
+      "title": "NeetCode roadmap",
+      "url": "https://neetcode.io/roadmap",
+      "kind": "COURSE"
+    },
+    {
+      "id": "e157fa32-d5a1-54a1-a141-8eea29330cdf",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "title": "System Design Primer",
+      "url": "https://github.com/donnemartin/system-design-primer",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "32325016-5cb0-585c-898f-c164c55c14a6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "title": "ByteByteGo: System design",
+      "url": "https://bytebytego.com/",
+      "kind": "COURSE"
+    },
+    {
+      "id": "c320ab74-2aaa-5f01-a061-468fd6ef0350",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "24221357-bc95-5323-86c0-38b435df8152",
+      "title": "Martin Fowler: The practical test pyramid",
+      "url": "https://martinfowler.com/articles/practical-test-pyramid.html",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "068cdeb2-d09a-5b26-9e29-25976d706a78",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c7c56ef6-f176-5170-a69f-50502414bb21",
+      "title": "Atlassian: Git tutorials",
+      "url": "https://www.atlassian.com/git/tutorials",
+      "kind": "ARTICLE"
+    },
+    {
+      "id": "668fec45-9377-55db-af26-1aac22efb8ff",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c4471741-8336-5445-8737-3fd6bbd2dfeb",
+      "title": "Refactoring Guru: Design patterns",
+      "url": "https://refactoring.guru/design-patterns",
+      "kind": "ARTICLE"
+    }
+  ]
+}

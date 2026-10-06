@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "2375ef5d-b8fc-566c-96b6-49be045e9887",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "slug": "fullstack-js",
+      "name": "Full-Stack JavaScript",
+      "description": "JavaScript, TypeScript, React, Node.js/Express, SQL and MongoDB, plus engineering fundamentals.",
+      "active": true
+    }
+  ]
+}

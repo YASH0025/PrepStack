@@ -1,0 +1,2495 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "7eb9bfdf-4ddf-5df3-a3a5-b721699d152b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "35c06b60-c8dd-5452-b291-2fde61d240f5",
+      "prompt": "What is the difference between == and ===, and when (if ever) would you use ==?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "=== checks value and type without converting. == converts the values to a common type first, so 1 == '1' is true but 1 === '1' is false. Prefer === everywhere."
+        },
+        {
+          "level": "MID",
+          "answer": "== applies the abstract equality algorithm: null and undefined are only loosely equal to each other, booleans become numbers, and objects are converted with valueOf/toString. That makes results like [] == false (true) hard to predict. A common, readable exception is `value == null`, which checks for both null and undefined in one comparison."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I default to === and enforce it with a lint rule (eqeqeq with the 'null' exception). The only == I allow is `x == null`. For edge cases I reach for Object.is (NaN, -0) or Number.isNaN. In code review, implicit coercion bugs usually show up at boundaries such as query params and form values, which are always strings, so I parse and validate input at the edge instead of relying on comparison semantics."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "== applies the abstract equality algorithm: null and undefined are only loosely equal to each other, booleans become numbers, and objects are converted with valueOf/toString. That makes results like [] == false (true) hard to predict. A common, readable exception is `value == null`, which checks for both null and undefined in one comparison.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "fbbf6a51-c6e5-55df-92e8-afecafc26557",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "35c06b60-c8dd-5452-b291-2fde61d240f5",
+      "prompt": "Explain what happens with `const b = a` when a is an object versus a number, and how you would copy an object safely.",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "For a number, b gets its own copy of the value. For an object, b points to the same object, so changing b.name also changes a.name. You can copy with the spread operator: { ...a }."
+        },
+        {
+          "level": "MID",
+          "answer": "Spread and Object.assign make shallow copies: nested objects are still shared. For a deep copy of plain data use structuredClone (it handles Dates, Maps, Sets and cycles, but not functions or class instances). JSON.parse(JSON.stringify(x)) loses Dates, undefined and Infinity."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I avoid needing deep copies by treating state as immutable: produce new objects at the level that changes and share the rest (structural sharing). That keeps React and memoised selectors cheap because reference equality means unchanged. When a deep copy is truly needed (e.g. snapshotting a draft), structuredClone is the default; for class instances I add explicit clone methods."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Spread and Object.assign make shallow copies: nested objects are still shared. For a deep copy of plain data use structuredClone (it handles Dates, Maps, Sets and cycles, but not functions or class instances). JSON.parse(JSON.stringify(x)) loses Dates, undefined and Infinity.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "12432b3a-6485-5045-b228-a410b00a88f3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "35c06b60-c8dd-5452-b291-2fde61d240f5",
+      "prompt": "Which expression evaluates to true?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "null == 0",
+        "NaN === NaN",
+        "null == undefined",
+        "[] === []"
+      ],
+      "correctIndex": 2,
+      "explanation": "null and undefined are loosely equal only to each other. NaN is never equal to itself, and two array literals are different references.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "a1891d57-f0a1-547f-9e82-76006a8f96bd",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "prompt": "What is a closure? Give a practical example from your own work.",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "A closure is a function that remembers variables from where it was created. Example: a counter factory `function makeCounter() { let count = 0; return () => ++count; }`. Each returned function has its own count."
+        },
+        {
+          "level": "MID",
+          "answer": "A closure is a function plus the lexical environment it was created in. I use them for private state (module pattern), for debounce/throttle wrappers that keep a timer id between calls, and for event handlers that need context. React hooks rely on closures too: every render creates new handler closures over that render's props and state."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Closures are how JavaScript does encapsulation without classes, and they explain a class of bugs. In React, a handler created in an old render closes over old state, so effects with missing dependencies read stale values; the fixes are correct dependency arrays, functional state updates, or a ref for the latest value. On the server, closures in long-lived singletons can retain request data and leak memory, so I keep per-request data out of module scope."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "A closure is a function plus the lexical environment it was created in. I use them for private state (module pattern), for debounce/throttle wrappers that keep a timer id between calls, and for event handlers that need context. React hooks rely on closures too: every render creates new handler closures over that render's props and state.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "f8593e22-8936-589a-ad22-9a707169cc6e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "prompt": "Predict the output and fix it:\n```js\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}\n```",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "It prints 3, 3, 3 because var is shared across iterations and the callbacks run after the loop ends. Changing var to let prints 0, 1, 2."
+        },
+        {
+          "level": "MID",
+          "answer": "var creates one function-scoped binding; all three callbacks close over it and run after the loop finished, when i is 3. let creates a fresh binding per iteration, so each callback captures its own i. Before let, an IIFE was used to create a new scope per iteration."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same explanation, plus the general lesson: asynchronous callbacks observe a variable's value at execution time, not at scheduling time. In real code this appears as handlers reading mutable outer state; I prefer passing values explicitly or capturing immutable snapshots, and lint rules like no-loop-func catch the pattern."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "var creates one function-scoped binding; all three callbacks close over it and run after the loop finished, when i is 3. let creates a fresh binding per iteration, so each callback captures its own i. Before let, an IIFE was used to create a new scope per iteration.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "cf6b3c33-851c-5f87-bb16-87dfa00cb164",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "prompt": "What does this log?\n```js\nconsole.log(a);\nlet a = 1;\n```",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "undefined",
+        "1",
+        "ReferenceError",
+        "null"
+      ],
+      "correctIndex": 2,
+      "explanation": "let is hoisted but stays in the temporal dead zone until its declaration runs, so reading it earlier throws a ReferenceError. With var it would log undefined.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "0de35487-4461-598b-80dc-3834004ebadd",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7df48dab-b455-5e5e-b0c1-bb5f2837f0f3",
+      "prompt": "In a React component, a setInterval created in useEffect with an empty dependency array always logs the initial count. What is the most accurate cause?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "setInterval is not supported inside effects",
+        "The interval callback closes over the count from the first render",
+        "React batches state updates inside intervals",
+        "The component is not re-rendering"
+      ],
+      "correctIndex": 1,
+      "explanation": "The effect ran once, so its interval callback is a closure over the first render's count (a stale closure). Use a functional update, include count in dependencies, or read from a ref.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "dde885c6-f6ba-5ee5-88c9-cd6ded2fc05d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7a0e4010-9773-5b80-b096-831a5d93e9a7",
+      "prompt": "Why does `setTimeout(user.greet, 100)` lose the user, and how do you fix it?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Passing user.greet passes only the function, so when setTimeout calls it, this is not user. Fix with setTimeout(() => user.greet(), 100) or user.greet.bind(user)."
+        },
+        {
+          "level": "MID",
+          "answer": "this is bound at call time. setTimeout calls the function plainly, so this is undefined in strict mode (or window). Wrapping in an arrow keeps the obj.method() call shape; bind creates a permanently bound function. In classes, defining handlers as arrow-function class fields binds them per instance."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same answer, and I mention the trade-offs: arrow class fields allocate one function per instance and do not live on the prototype, which matters for very many instances or for mocking in tests. In most modern codebases I avoid relying on this altogether for callbacks by using closures or plain functions taking explicit arguments."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "this is bound at call time. setTimeout calls the function plainly, so this is undefined in strict mode (or window). Wrapping in an arrow keeps the obj.method() call shape; bind creates a permanently bound function. In classes, defining handlers as arrow-function class fields binds them per instance.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "60b49b07-8c04-52e7-92f9-0859c5542efe",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "7a0e4010-9773-5b80-b096-831a5d93e9a7",
+      "prompt": "Inside an arrow function defined in a class method, what does this refer to?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "The arrow function itself",
+        "The global object",
+        "The this of the enclosing method (the instance)",
+        "undefined, always"
+      ],
+      "correctIndex": 2,
+      "explanation": "Arrow functions do not have their own this; they use the enclosing scope's this, here the instance the method was called on.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "1bb533f3-8793-5450-a34f-adb54ab45a8f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "10d58862-993d-5abd-9b66-b1a5c725d07d",
+      "prompt": "How does inheritance work in JavaScript under the class syntax?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Objects inherit from other objects through the prototype chain. A class's methods are stored on its prototype, and instances can use them. extends makes one class's prototype inherit from another's."
+        },
+        {
+          "level": "MID",
+          "answer": "When you read obj.x and x is not an own property, the engine checks obj's prototype, then its prototype, and so on. class Child extends Parent sets Child.prototype's prototype to Parent.prototype and Child's own prototype to Parent (for statics). super.method() calls the parent's version."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Beyond the mechanics: I use classes for things with identity and lifecycle (a repository, a service with injected dependencies) and plain functions and data elsewhere. I avoid inheritance more than one level deep; when variation grows I switch to composition or strategy objects, which are easier to test and to change."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "When you read obj.x and x is not an own property, the engine checks obj's prototype, then its prototype, and so on. class Child extends Parent sets Child.prototype's prototype to Parent.prototype and Child's own prototype to Parent (for statics). super.method() calls the parent's version.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "eb733a00-5b12-556d-bfd8-92256d200599",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "10d58862-993d-5abd-9b66-b1a5c725d07d",
+      "prompt": "Where are methods declared in a class body stored?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "On each instance",
+        "On the class's prototype",
+        "In a hidden global registry",
+        "On Object.prototype"
+      ],
+      "correctIndex": 1,
+      "explanation": "Class methods are added to Class.prototype and shared by all instances through the prototype chain.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "568dc742-af26-5648-a0b9-eaac1093a4cc",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "prompt": "Predict the output:\n```js\nconsole.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');\n```",
+      "depth": "EXPLAIN",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "A, D, C, B. Synchronous logs run first; the promise callback is a microtask and runs before the setTimeout callback, which is a task."
+        },
+        {
+          "level": "MID",
+          "answer": "A and D run synchronously. After the script finishes, the event loop drains the microtask queue (C) before taking the next task from the timer queue (B). The 0 ms delay only means 'as soon as possible after the current task and its microtasks'."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "A, D, C, B, and I would add how this generalises: any number of chained .then callbacks will all run before B, because microtasks queued during draining are also drained. That is why a promise-heavy loop can starve rendering and timers. In Node, process.nextTick callbacks would run even before C."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "A and D run synchronously. After the script finishes, the event loop drains the microtask queue (C) before taking the next task from the timer queue (B). The 0 ms delay only means 'as soon as possible after the current task and its microtasks'.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "732dc6f2-a18e-5bb6-874f-27449d4fc8e4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "prompt": "A page freezes for two seconds when a user clicks 'Export'. How do you diagnose and fix it?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Some code is probably running for too long on the main thread. I would look at the click handler and move heavy work out, for example with setTimeout or a Web Worker."
+        },
+        {
+          "level": "MID",
+          "answer": "Profile it in the Performance panel to find the long task. If it is CPU work (formatting a large CSV), move it to a Web Worker or split it into chunks that yield back to the event loop (await a timeout or scheduler.yield). If it is layout thrashing, batch DOM reads and writes. Show progress so the UI responds."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "First measure: long tasks in the profiler, INP in field data. Then pick the fix by cause: a Worker for pure computation, chunking with yielding for work that needs the DOM, server-side generation with a download link for very large exports, and streaming if the data is large. I would add a performance budget or INP alert so the regression does not return."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Profile it in the Performance panel to find the long task. If it is CPU work (formatting a large CSV), move it to a Web Worker or split it into chunks that yield back to the event loop (await a timeout or scheduler.yield). If it is layout thrashing, batch DOM reads and writes. Show progress so the UI responds.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "352c3819-5508-5874-9df3-bdc9eb7c952f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "prompt": "Which of these is scheduled as a microtask?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "setTimeout callback",
+        "A click event handler",
+        "A .then() callback of a resolved promise",
+        "setInterval callback"
+      ],
+      "correctIndex": 2,
+      "explanation": "Promise reactions are microtasks. Timers and UI events are tasks.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "1348b3e2-b6fd-50ec-8249-5de62584dd4e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "9d986502-f41f-5d43-9e2d-f9730c490024",
+      "prompt": "A loop schedules 10,000 chained promise callbacks. What happens to a setTimeout(fn, 0) scheduled before the loop?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "It runs first because it was scheduled first",
+        "It runs interleaved with the promise callbacks",
+        "It runs only after all the microtasks have drained",
+        "It is cancelled"
+      ],
+      "correctIndex": 2,
+      "explanation": "The event loop drains the entire microtask queue, including newly queued microtasks, before running the next task.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "17ac2ae6-ed2d-566d-93f8-55a68ccb6ba1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "prompt": "You need data from three independent APIs. One sometimes fails, but the page should still show the other two. How do you write this?",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use Promise.allSettled with the three fetches, then check each result's status and use the value if it is fulfilled."
+        },
+        {
+          "level": "MID",
+          "answer": "Run them in parallel with Promise.allSettled([a(), b(), c()]); map results to { value } or { error } and render each section independently. Promise.all would reject as soon as one fails and lose the other two results. Add a timeout per call with AbortController so a slow API does not block the page."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "allSettled for independence, plus per-call timeouts via AbortSignal.timeout, retries with backoff only for idempotent calls, and graceful degradation in the UI (each section shows its own error state). If one call is critical, I await it separately and fail fast. On the server I would also cap concurrency and add observability (latency and error rate per dependency)."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Run them in parallel with Promise.allSettled([a(), b(), c()]); map results to { value } or { error } and render each section independently. Promise.all would reject as soon as one fails and lose the other two results. Add a timeout per call with AbortController so a slow API does not block the page.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "2f8b3902-7805-5fdb-b7a7-1679fb1a9a93",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "prompt": "What is the difference between Promise.all and Promise.allSettled? When would you use Promise.any?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Promise.all fails if any promise fails. Promise.allSettled waits for all and tells you which succeeded and which failed. Promise.any gives the first successful one."
+        },
+        {
+          "level": "MID",
+          "answer": "all short-circuits on the first rejection and fulfils with an array of values in input order. allSettled never rejects; it gives { status, value | reason } for each. any fulfils with the first fulfilment and only rejects (with an AggregateError) if every promise rejects. Use any for redundancy, e.g. the fastest of several mirrors."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same semantics, plus a caveat: none of them cancels the losing promises; the work keeps running. For real cancellation I pass an AbortSignal and abort the rest once I have what I need. I also keep an eye on unhandled rejections from promises that lose a race."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "all short-circuits on the first rejection and fulfils with an array of values in input order. allSettled never rejects; it gives { status, value | reason } for each. any fulfils with the first fulfilment and only rejects (with an AggregateError) if every promise rejects. Use any for redundancy, e.g. the fastest of several mirrors.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "8c34002b-a6b8-5dd5-8ba3-d852d015cbdd",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "6fc2f774-77e9-5aca-b849-f1a26abc0ee4",
+      "prompt": "What does this chain log?\n```js\nPromise.resolve(1)\n  .then(x => { throw new Error('x') })\n  .then(() => console.log('then'))\n  .catch(() => console.log('catch'))\n  .then(() => console.log('after'));\n```",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "then, after",
+        "catch, after",
+        "catch",
+        "then, catch, after"
+      ],
+      "correctIndex": 1,
+      "explanation": "The throw rejects the chain, so the next then is skipped. catch handles it and returns a fulfilled promise, so the final then runs.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "74248d73-cce6-552f-b825-658f0d1d73d7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "prompt": "Why doesn't this wait for the saves, and how do you fix it?\n```js\nitems.forEach(async (item) => { await save(item); });\nconsole.log('done');\n```",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "forEach does not wait for async callbacks, so 'done' logs before saves finish. Use a for...of loop with await, or Promise.all(items.map(save))."
+        },
+        {
+          "level": "MID",
+          "answer": "forEach ignores the promises its callback returns. Use `for (const item of items) await save(item)` for sequential saves, or `await Promise.all(items.map(save))` for parallel ones. Choose based on whether order matters and whether the backend can handle the load."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same fix, and I would bound concurrency for large lists (process in batches of N, or a small pool) so we neither hammer the API nor take forever sequentially. I would use allSettled if partial success is acceptable and report which items failed, with retries for transient errors."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "forEach ignores the promises its callback returns. Use `for (const item of items) await save(item)` for sequential saves, or `await Promise.all(items.map(save))` for parallel ones. Choose based on whether order matters and whether the backend can handle the load.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "b8529e84-fb05-5c84-94d4-459a5ae4baea",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "prompt": "How do you prevent a search-as-you-type box from showing results for an old query?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Debounce the input and ignore responses that do not match the latest query."
+        },
+        {
+          "level": "MID",
+          "answer": "Debounce input, and abort the previous request with an AbortController when a new one starts, so an older, slower response can never overwrite newer results. In React this lives in an effect whose cleanup calls abort()."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Debounce plus abort on change, plus caching by query so going back is instant; a data-fetching library (TanStack Query) handles dedupe, cancellation and stale-while-revalidate. On the server side, cap results and make the endpoint cheap because type-ahead traffic is spiky."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Debounce input, and abort the previous request with an AbortController when a new one starts, so an older, slower response can never overwrite newer results. In React this lives in an effect whose cleanup calls abort().",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "f2878913-d897-5897-a83f-677d1a234b61",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "356e9acf-121d-5f66-a30b-9082246615fc",
+      "prompt": "Two independent requests take 1s and 2s. How long does `const a = await f1(); const b = await f2();` take?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "About 1s",
+        "About 2s",
+        "About 3s",
+        "It depends on the event loop"
+      ],
+      "correctIndex": 2,
+      "explanation": "Sequential awaits wait for f1 before starting f2. Starting both and awaiting Promise.all takes about 2s.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "2bd649b8-3548-5ff4-b046-e8d6c06e8359",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "245308b2-62e8-57a6-8657-458cf412724c",
+      "prompt": "Given orders `[{ userId, amount }]`, return total amount per user, sorted by total descending.",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Loop over orders and add each amount to totals[userId] in an object, then turn it into an array with Object.entries and sort by the total."
+        },
+        {
+          "level": "MID",
+          "answer": "```js\nconst totals = new Map();\nfor (const { userId, amount } of orders) {\n  totals.set(userId, (totals.get(userId) ?? 0) + amount);\n}\nreturn [...totals].map(([userId, total]) => ({ userId, total }))\n  .toSorted((a, b) => b.total - a.total);\n```\nO(n + k log k), using a Map so user ids of any type work."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "The Map-based single pass above. I would also mention money handling: store amounts as integer paise/cents to avoid floating-point drift, and if this ran in the database I would push it down to a GROUP BY with an index instead of loading all orders into memory."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "```js\nconst totals = new Map();\nfor (const { userId, amount } of orders) {\n  totals.set(userId, (totals.get(userId) ?? 0) + amount);\n}\nreturn [...totals].map(([userId, total]) => ({ userId, total }))\n  .toSorted((a, b) => b.total - a.total);\n```\nO(n + k log k), using a Map so user ids of any type work.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "0954ead5-745d-5a31-884f-89404576981f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "245308b2-62e8-57a6-8657-458cf412724c",
+      "prompt": "Which of these does NOT mutate the original array?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "arr.sort()",
+        "arr.reverse()",
+        "arr.toSorted()",
+        "arr.splice(0, 1)"
+      ],
+      "correctIndex": 2,
+      "explanation": "toSorted returns a sorted copy. sort, reverse and splice change the array in place.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "c58fda79-1b9d-5d6e-ad60-7871c94f19e5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e5d856a1-4ac6-51ac-82cf-4054579bf0a8",
+      "prompt": "Implement debounce(fn, wait).",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "```js\nfunction debounce(fn, wait) {\n  let timer;\n  return function (...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn.apply(this, args), wait);\n  };\n}\n```\nEvery call resets the timer, so fn runs once after calls stop for `wait` ms."
+        },
+        {
+          "level": "MID",
+          "answer": "The version above, preserving this and arguments. I would add a cancel() method that clears the timer (useful on unmount) and optionally flush(). In React I create the debounced function once (useMemo or a ref) so the timer survives re-renders."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same core plus options: leading/trailing edges and maxWait (which turns it into a throttle-debounce hybrid, like lodash). I would discuss returning a promise for the eventual result, cancelling in-flight work with AbortController, and testing it with fake timers."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "The version above, preserving this and arguments. I would add a cancel() method that clears the timer (useful on unmount) and optionally flush(). In React I create the debounced function once (useMemo or a ref) so the timer survives re-renders.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "60cecd85-a19a-57eb-8ddd-12ef2e1cd884",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e5d856a1-4ac6-51ac-82cf-4054579bf0a8",
+      "prompt": "For tracking scroll position every 100ms while the user scrolls, which fits best?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Debounce with 100ms",
+        "Throttle with 100ms",
+        "Memoisation",
+        "setInterval regardless of scrolling"
+      ],
+      "correctIndex": 1,
+      "explanation": "Throttle runs at most once per interval while events keep firing. Debounce would wait until scrolling stops.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "c154269e-6c44-5d96-a19e-4465b083a16e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "923c28cb-8e17-5e7c-9e58-82dbe8563f59",
+      "prompt": "What is tree shaking and why does it work better with ES modules than CommonJS?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Tree shaking removes code you never use from the bundle. ES module imports are static, so the bundler can see what is used."
+        },
+        {
+          "level": "MID",
+          "answer": "ESM import/export statements are static and top-level, so a bundler can determine at build time which exports are referenced and drop the rest. require can be called conditionally with computed paths, so its usage cannot be analysed reliably. Libraries mark themselves side-effect free in package.json so whole files can be dropped."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Plus practical levers: prefer per-function imports or libraries with good ESM builds, mark sideEffects correctly, check the bundle analyser in CI, and use dynamic import for heavy, rarely used features (charts, editors). For Node services, ESM vs CJS mostly affects interop and tooling rather than size."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "ESM import/export statements are static and top-level, so a bundler can determine at build time which exports are referenced and drop the rest. require can be called conditionally with computed paths, so its usage cannot be analysed reliably. Libraries mark themselves side-effect free in package.json so whole files can be dropped.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "aaca38f9-e737-565f-b9c3-47eff16826c4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "923c28cb-8e17-5e7c-9e58-82dbe8563f59",
+      "prompt": "What does `import('./Chart.js')` return?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "The module synchronously",
+        "A promise for the module namespace object",
+        "A URL",
+        "Nothing; it only prefetches"
+      ],
+      "correctIndex": 1,
+      "explanation": "Dynamic import returns a promise that resolves to the module namespace, letting bundlers split it into a separate chunk.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "dfbaa797-791a-5c05-9618-b9856e1e665f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "prompt": "What is a discriminated union and why is it useful?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "It is a union of object types that share a field with different literal values, like type: 'loading' | 'success' | 'error'. Checking that field tells TypeScript which type you have."
+        },
+        {
+          "level": "MID",
+          "answer": "```ts\ntype State =\n  | { status: 'loading' }\n  | { status: 'success'; data: User }\n  | { status: 'error'; error: string };\n```\nSwitching on status narrows the type, so data is only accessible in the success branch. It makes impossible states unrepresentable, unlike separate isLoading/data/error fields."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I use them for state machines, API results and events. With a `never` check in the default case, adding a new variant becomes a compile error everywhere it is not handled (exhaustiveness checking). Combined with Zod schemas at the boundary, the runtime data and the types stay in sync."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "```ts\ntype State =\n  | { status: 'loading' }\n  | { status: 'success'; data: User }\n  | { status: 'error'; error: string };\n```\nSwitching on status narrows the type, so data is only accessible in the success branch. It makes impossible states unrepresentable, unlike separate isLoading/data/error fields.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "bed29485-ce39-5aa5-a87f-4a4228ea67f6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "prompt": "When would you use unknown instead of any?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "unknown is the safe version of any: you must check the type before using it."
+        },
+        {
+          "level": "MID",
+          "answer": "Both accept any value, but any disables type checking for everything it touches, while unknown forces narrowing before use. Use unknown for untrusted data: JSON.parse results, catch clause errors, external API responses. Then narrow with type guards or validate with a schema."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same, plus policy: lint against any (no-explicit-any), use unknown at all trust boundaries and turn it into typed data via validation (Zod's parse returns a typed value). That keeps 'unsafe' code to a few audited places."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Both accept any value, but any disables type checking for everything it touches, while unknown forces narrowing before use. Use unknown for untrusted data: JSON.parse results, catch clause errors, external API responses. Then narrow with type guards or validate with a schema.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "0387b661-1b38-5140-b1bf-857db664ff78",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "bf652b8c-8610-59a3-9510-0b47944262c7",
+      "prompt": "What does `Partial<User>` produce?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "A User with all properties required",
+        "A User type with all properties optional",
+        "A copy of a User value",
+        "A runtime validator for User"
+      ],
+      "correctIndex": 1,
+      "explanation": "Partial is a compile-time utility type that makes every property optional. Types do not create runtime values or validators.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "447b9a4d-0390-5447-9841-f1fb5244b191",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "prompt": "Why are keys needed in lists, and what goes wrong if you use the array index?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Keys help React identify which list items changed. With index keys, if you insert or delete an item, React may reuse the wrong component and show stale input values."
+        },
+        {
+          "level": "MID",
+          "answer": "During reconciliation React matches children by key. If keys are indexes and you insert at the top, every item's key shifts, so React updates every item's props and, worse, keeps component state (like an input's value or an open dropdown) attached to the wrong row. Use a stable id from the data."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Keys are identity. Beyond lists, I use key deliberately to reset state: changing a form's key when the selected record changes remounts it with fresh state, which is cleaner than syncing state in effects. Index keys are fine only for static lists that never reorder, filter or have stateful children."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "During reconciliation React matches children by key. If keys are indexes and you insert at the top, every item's key shifts, so React updates every item's props and, worse, keeps component state (like an input's value or an open dropdown) attached to the wrong row. Use a stable id from the data.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "f409c38a-2683-56ea-bd43-17fa3c9b32e7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "prompt": "A component re-renders too often and the page feels slow. How do you find the cause and fix it?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use the React DevTools Profiler to see which components render and why. Avoid creating new objects and functions in props when they cause child re-renders, and use React.memo where it helps."
+        },
+        {
+          "level": "MID",
+          "answer": "Profile with React DevTools ('why did this render'). Common causes: state held too high (lift it down or split components), context values recreated each render, unstable props breaking React.memo. Fixes: colocate state, memoise context values, useMemo/useCallback for props of memoised children, virtualise long lists."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Measure first (Profiler, INP in production). Most wins are structural: move state closer to where it is used, split contexts by update frequency, pass children instead of re-creating subtrees, virtualise large lists, and defer non-urgent updates with useDeferredValue or transitions. With the React Compiler, manual memoisation is often unnecessary, so I check whether it is enabled before adding useMemo everywhere."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Profile with React DevTools ('why did this render'). Common causes: state held too high (lift it down or split components), context values recreated each render, unstable props breaking React.memo. Fixes: colocate state, memoise context values, useMemo/useCallback for props of memoised children, virtualise long lists.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "ea62c3d5-eadc-5dcc-9d18-31bd797482f6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "prompt": "What happens when a parent component re-renders?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Only children whose props changed re-render",
+        "By default, all its children re-render as well",
+        "Nothing re-renders unless state changed in the child",
+        "The DOM is fully rebuilt"
+      ],
+      "correctIndex": 1,
+      "explanation": "By default React re-renders the whole subtree. React.memo (or the React Compiler) can skip children with unchanged props. The DOM is only updated where output differs.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "4821393b-e74e-52ea-a30a-ddcc258e8400",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e7c1e695-05c1-56f3-aacc-f5ec061dd47d",
+      "prompt": "A form component keeps the previous user's typed values after you select a different user. What is the cleanest fix?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Copy props into state with useEffect whenever userId changes",
+        "Render the form with key={userId}",
+        "Force a re-render with a counter",
+        "Use useMemo for the form"
+      ],
+      "correctIndex": 1,
+      "explanation": "Changing the key remounts the component, resetting its state. Syncing props into state with effects causes extra renders and bugs.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "4a932dd1-4995-59a0-9821-9522c982ecd1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "prompt": "When should you NOT use useEffect? Give examples.",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "You don't need an effect to compute a value from props or state; just calculate it during render. You also don't need one to respond to a button click; do it in the click handler."
+        },
+        {
+          "level": "MID",
+          "answer": "Effects are for syncing with external systems. Not needed for: derived values (fullName from first and last name; compute inline or useMemo if expensive), resetting state on prop change (use a key), reacting to user events (event handlers), and notifying parents about changes (call their callback in the same handler)."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I treat every effect as a smell to justify. Data fetching goes to a library or framework loader (server components, TanStack Query) that handles caching and races. Chains of effects setting state are replaced by computing in render or a reducer. Legitimate effects: subscriptions, timers, integrating non-React widgets, analytics on mount. That cuts render cascades and bugs."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Effects are for syncing with external systems. Not needed for: derived values (fullName from first and last name; compute inline or useMemo if expensive), resetting state on prop change (use a key), reacting to user events (event handlers), and notifying parents about changes (call their callback in the same handler).",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "490dc700-cc10-5060-bd47-d9a68ab590af",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "prompt": "Write a useWindowWidth hook.",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "```js\nfunction useWindowWidth() {\n  const [width, setWidth] = useState(window.innerWidth);\n  useEffect(() => {\n    const onResize = () => setWidth(window.innerWidth);\n    window.addEventListener('resize', onResize);\n    return () => window.removeEventListener('resize', onResize);\n  }, []);\n  return width;\n}\n```"
+        },
+        {
+          "level": "MID",
+          "answer": "Same structure, guarding for server rendering (no window on the server: initialise lazily or default), and throttling the resize handler. The cleanup is essential to avoid leaking listeners."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I would use useSyncExternalStore: subscribe adds the listener, getSnapshot returns innerWidth, getServerSnapshot returns a default. It avoids tearing in concurrent rendering and handles SSR cleanly. Often a CSS media query or container query is the better tool than JS width at all."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Same structure, guarding for server rendering (no window on the server: initialise lazily or default), and throttling the resize handler. The cleanup is essential to avoid leaking listeners.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "d4222724-81ca-54f8-ac5c-66bf4e33671d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c650971f-20a8-51f0-91ac-3546b492074c",
+      "prompt": "When does the cleanup function returned by useEffect run?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Only when the component unmounts",
+        "Before the effect re-runs and when the component unmounts",
+        "Before every render",
+        "Never, unless called manually"
+      ],
+      "correctIndex": 1,
+      "explanation": "Cleanup runs before the next run of the effect (when dependencies changed) and on unmount.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "26455dd4-ed7e-5dae-8545-5833092055ad",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "eeca9564-f902-5685-b3ad-a9bb7b3a6504",
+      "prompt": "How do you decide between local state, context, a store like Redux/Zustand, and a server-state library?",
+      "depth": "DESIGN",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use local state by default. Use context for things many components need, like the theme or current user. Use Redux or a similar store for large apps with a lot of shared state."
+        },
+        {
+          "level": "MID",
+          "answer": "Classify the state first. Server data goes to a server-state library (caching, refetching, mutations). URL-worthy state goes to the URL. Local UI state stays local. What remains, genuinely shared client state, is usually small: context for rarely changing values, a store when many components update it often."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I map each piece of state to an owner and a lifetime. Server state: query library or server components, with explicit invalidation after mutations. URL: anything shareable. Client: local first, a store only for cross-cutting interactive state (an editor, a multi-pane workspace). I also weigh team familiarity and devtools, and I avoid duplicating server data into a client store because that creates two sources of truth."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Classify the state first. Server data goes to a server-state library (caching, refetching, mutations). URL-worthy state goes to the URL. Local UI state stays local. What remains, genuinely shared client state, is usually small: context for rarely changing values, a store when many components update it often.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "4ced3487-7c10-58ec-9ee6-2e57a947a51f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "eeca9564-f902-5685-b3ad-a9bb7b3a6504",
+      "prompt": "A context provides { user, theme } as a new object on every render of App. What is the effect?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "No effect; React compares context fields",
+        "Every consumer re-renders whenever App renders",
+        "Only consumers that read changed fields re-render",
+        "Context values are cached automatically"
+      ],
+      "correctIndex": 1,
+      "explanation": "Context compares the value by reference. A new object every render makes all consumers re-render. Memoise the value or split contexts.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "63d66c0e-6426-5c08-b912-9e4b8bc633d7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "prompt": "When does useCallback actually improve performance?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "When you pass a function to a child wrapped in React.memo, so the child doesn't re-render because of a new function every time."
+        },
+        {
+          "level": "MID",
+          "answer": "Only when referential stability matters: the function is a prop of a memoised child, or a dependency of an effect/memo. Otherwise it adds cost (allocating the dependency array, comparing) for no gain."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same, plus context: with the React Compiler enabled, manual useCallback is mostly redundant. Without it, I apply memoisation at measured hotspots (large lists, expensive children), and I prefer structural fixes (moving state down) which help more than sprinkling hooks."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Only when referential stability matters: the function is a prop of a memoised child, or a dependency of an effect/memo. Otherwise it adds cost (allocating the dependency array, comparing) for no gain.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "65f85612-385c-5303-8363-7aafcf5e3e6d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "78c0c6e1-9822-50ed-969b-30cc9e730d42",
+      "prompt": "A list renders 10,000 rows and scrolling is janky. What is the most effective fix?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Wrap each row in React.memo",
+        "Use useMemo for the array",
+        "Virtualise the list so only visible rows render",
+        "Move the list into context"
+      ],
+      "correctIndex": 2,
+      "explanation": "Virtualisation renders only the visible rows, reducing DOM nodes and render work dramatically.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "fca162e4-fd87-5473-8d1c-14144afb2ac2",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ef940a40-2ac6-5349-94a3-ce23a75446a4",
+      "prompt": "How would you build a multi-step signup form with validation?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Keep all fields in one state object, show one step at a time, and validate the current step before going to the next. Submit everything at the end."
+        },
+        {
+          "level": "MID",
+          "answer": "Use React Hook Form with a Zod schema per step (or one schema with per-step pick). Keep the form instance at the wizard level so values persist across steps, validate with trigger() before advancing, and re-validate everything on the server. Save progress to the server or sessionStorage so a refresh does not lose data."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same structure, plus product concerns: persist partial progress server-side for long flows, make steps addressable by URL for analytics and back-button support, handle server-side errors per field, and keep accessibility right (focus management on step change, error summary). I would also question whether every step is necessary, since shorter forms convert better."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Use React Hook Form with a Zod schema per step (or one schema with per-step pick). Keep the form instance at the wizard level so values persist across steps, validate with trigger() before advancing, and re-validate everything on the server. Save progress to the server or sessionStorage so a refresh does not lose data.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "25b2249d-c386-518d-a676-d5d0d9f12c62",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ef940a40-2ac6-5349-94a3-ce23a75446a4",
+      "prompt": "Why must validation also run on the server even if the client validates?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Client validation is slower",
+        "Requests can be sent directly without the UI, so client checks can be bypassed",
+        "Browsers do not support validation",
+        "It is required by React"
+      ],
+      "correctIndex": 1,
+      "explanation": "Anyone can call your endpoint directly. Client-side validation is for user experience; server-side validation is for correctness and security.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "a83dfd38-a036-54c4-9d9e-e07cf8c374c6",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "53a806b4-f878-5eba-8675-baa3a3ef65e1",
+      "prompt": "What is the difference between a Server Component and a Client Component?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Server Components run on the server and send HTML; they cannot use state or effects. Client Components run in the browser too and can use hooks and event handlers."
+        },
+        {
+          "level": "MID",
+          "answer": "Server Components render only on the server, can be async and read data directly, and their code is never shipped to the browser. Client Components are rendered on the server for the initial HTML and then hydrated in the browser, so they can use state, effects and events. Props from server to client must be serialisable. Push 'use client' as far down the tree as possible."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I design the boundary deliberately: data loading and heavy formatting stay on the server (less JS, direct access to data with auth checks), interactivity islands are client components. Security matters: Server Actions are public endpoints, so each one validates input and checks authorisation. I also watch for accidental serialisation of secrets into client props."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Server Components render only on the server, can be async and read data directly, and their code is never shipped to the browser. Client Components are rendered on the server for the initial HTML and then hydrated in the browser, so they can use state, effects and events. Props from server to client must be serialisable. Push 'use client' as far down the tree as possible.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "1d06d682-eba4-58ef-b48d-0eae1be59117",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "53a806b4-f878-5eba-8675-baa3a3ef65e1",
+      "prompt": "Which causes a hydration mismatch?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Rendering new Date().toLocaleTimeString() directly in a component rendered on server and client",
+        "Fetching data in a Server Component",
+        "Using useState in a Client Component",
+        "Using CSS modules"
+      ],
+      "correctIndex": 0,
+      "explanation": "The server and the browser compute different times, so the HTML differs from the client's first render. Render time-sensitive values after mount or pass them from the server.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "86141022-93a9-598c-bb20-70c4881820c1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b198c247-5bba-5d65-9d4a-e4d8be6f0f4b",
+      "prompt": "How would you test a login form component?",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Render it with Testing Library, type into the email and password fields, click submit and check that the submit function was called with the values. Also check that an error shows for an empty email."
+        },
+        {
+          "level": "MID",
+          "answer": "Render with RTL, find inputs by label, use user-event to type and submit. Mock the network with MSW: one test for success (redirect or callback called), one for invalid credentials (error message visible), one for validation (submit disabled or field error). Assert on what the user sees, not on state."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Component tests as above for states and validation, plus one Playwright end-to-end test for the real login flow including cookies and redirect. I would also cover accessibility (labels, error announcements) with jest-axe or Playwright's accessibility checks, and keep tests independent of implementation so refactors do not break them."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Render with RTL, find inputs by label, use user-event to type and submit. Mock the network with MSW: one test for success (redirect or callback called), one for invalid credentials (error message visible), one for validation (submit disabled or field error). Assert on what the user sees, not on state.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "f1ee650c-4428-563c-8c41-5e52715e0712",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b198c247-5bba-5d65-9d4a-e4d8be6f0f4b",
+      "prompt": "Which Testing Library query best reflects how a user finds a submit button?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "getByTestId('submit')",
+        "container.querySelector('button')",
+        "getByRole('button', { name: /sign in/i })",
+        "getByClassName('btn')"
+      ],
+      "correctIndex": 2,
+      "explanation": "Role queries match how users and assistive technology perceive the page, and also check accessibility.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "5ce45473-fdb1-5ce9-afd7-4841a2c502c5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "26e226c3-1ccc-50f8-9455-f724aaa209c3",
+      "prompt": "Your product page has a poor LCP on mobile. Walk through how you would improve it.",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Check which element is the LCP in Lighthouse, usually the main image. Compress it, use a modern format like WebP, and make sure it is not lazy-loaded."
+        },
+        {
+          "level": "MID",
+          "answer": "Identify the LCP element and break the time into server response, resource load delay, load time and render delay. Fix the biggest part: cache or speed up the server response, preload or prioritise the hero image (fetchpriority=high), serve a correctly sized responsive image, remove render-blocking CSS/JS, and avoid client-only rendering of the hero."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same breakdown, driven by field data (CrUX/RUM) segmented by device and page type. Then systemic fixes: SSR or static generation for the page shell, an image CDN, a performance budget in CI, and monitoring so regressions are caught after deploys."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Identify the LCP element and break the time into server response, resource load delay, load time and render delay. Fix the biggest part: cache or speed up the server response, preload or prioritise the hero image (fetchpriority=high), serve a correctly sized responsive image, remove render-blocking CSS/JS, and avoid client-only rendering of the hero.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "20d426ba-01fc-54b6-85ff-bd63b069b622",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "26e226c3-1ccc-50f8-9455-f724aaa209c3",
+      "prompt": "Which metric is most affected by long JavaScript tasks on the main thread?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "CLS",
+        "INP",
+        "TTFB",
+        "LCP only"
+      ],
+      "correctIndex": 1,
+      "explanation": "INP measures how quickly the page responds to interactions; long tasks block the main thread and delay responses.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "b2b8ff60-2a33-5a6a-acc2-4cd27e774ff8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc12f285-01eb-5a83-a9aa-7677a421d96c",
+      "prompt": "Where should you store an auth token in a web app, and why?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "In an HttpOnly cookie, because JavaScript cannot read it, so an XSS attack cannot steal it. localStorage is readable by any script on the page."
+        },
+        {
+          "level": "MID",
+          "answer": "An HttpOnly, Secure, SameSite=Lax (or Strict) cookie set by the server. It is sent automatically, cannot be read by injected scripts, and SameSite mitigates CSRF. With cookies, add CSRF protection for state-changing requests (Origin check or token). Tokens in memory are an option for SPAs but are lost on refresh and still exposed to XSS during the session."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "HttpOnly session cookie with short-lived sessions, rotation on privilege change, server-side revocation (session version or store), plus CSRF defence and a strict CSP to reduce XSS impact. For third-party API access I would use separate scoped tokens. The real threat model is XSS: if an attacker runs script in your origin, they can make authenticated requests either way, so preventing XSS matters most."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "An HttpOnly, Secure, SameSite=Lax (or Strict) cookie set by the server. It is sent automatically, cannot be read by injected scripts, and SameSite mitigates CSRF. With cookies, add CSRF protection for state-changing requests (Origin check or token). Tokens in memory are an option for SPAs but are lost on refresh and still exposed to XSS during the session.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "a581c50d-7509-5e26-8199-430f68f939a1",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc12f285-01eb-5a83-a9aa-7677a421d96c",
+      "prompt": "What does CORS protect against?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Any client calling your API without permission",
+        "Malicious websites reading responses from your API in a user's browser",
+        "SQL injection",
+        "Brute-force login attempts"
+      ],
+      "correctIndex": 1,
+      "explanation": "CORS controls whether browsers let other origins read responses. Non-browser clients ignore it, so it is not an access-control mechanism for your API.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "9d002ed0-9393-5f49-9d22-39a764926b2b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e32f79da-ddb2-53c4-b6f8-26546e23fc57",
+      "prompt": "What is the difference between 401 and 403?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "401 means you are not logged in (unauthenticated). 403 means you are logged in but not allowed to do this (unauthorised)."
+        },
+        {
+          "level": "MID",
+          "answer": "401 Unauthorized: missing or invalid credentials; the client should authenticate. 403 Forbidden: credentials are valid but lack permission; re-authenticating will not help. Some APIs return 404 instead of 403 to avoid revealing that a resource exists."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same, and I mention consistency: document the error contract (status plus a machine-readable error code), avoid leaking existence of private resources (404 for other users' records), and make sure clients handle 401 by refreshing or redirecting to login without loops."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "401 Unauthorized: missing or invalid credentials; the client should authenticate. 403 Forbidden: credentials are valid but lack permission; re-authenticating will not help. Some APIs return 404 instead of 403 to avoid revealing that a resource exists.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "f3d97c99-87b7-5bad-a529-a11da01fc2b8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e32f79da-ddb2-53c4-b6f8-26546e23fc57",
+      "prompt": "How would you cache an API response that lists products, which changes a few times a day?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Set a Cache-Control header with a max-age, for example a few minutes, so browsers and CDNs reuse the response."
+        },
+        {
+          "level": "MID",
+          "answer": "Use Cache-Control: public, s-maxage=300, stale-while-revalidate=600 so the CDN serves cached responses and refreshes in the background, plus an ETag for cheap revalidation. If products update, purge the CDN cache for that key or use short max-age. Personalised parts (prices per user) must not be in the shared cached response."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Layered caching: CDN with stale-while-revalidate, an application cache (Redis) keyed by query parameters, and event-driven invalidation when products change. Watch the cache key (query param order, headers) and hit ratio. Keep user-specific data in a separate, private endpoint."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Use Cache-Control: public, s-maxage=300, stale-while-revalidate=600 so the CDN serves cached responses and refreshes in the background, plus an ETag for cheap revalidation. If products update, purge the CDN cache for that key or use short max-age. Personalised parts (prices per user) must not be in the shared cached response.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "9eb91d23-3c82-5eed-bd9d-5d62e060eeab",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e32f79da-ddb2-53c4-b6f8-26546e23fc57",
+      "prompt": "Which HTTP methods are idempotent?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "POST and PATCH",
+        "GET, PUT and DELETE",
+        "Only GET",
+        "All methods"
+      ],
+      "correctIndex": 1,
+      "explanation": "Repeating GET, PUT or DELETE has the same effect as doing it once. POST is not idempotent; PATCH is not guaranteed to be.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "f14ff7cf-0728-5476-af51-d06507b8139e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "0ea37843-6d2c-59e4-9a7c-9adc0ed74e60",
+      "prompt": "How do you make a custom dropdown accessible?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use a button to open it, make the options focusable, support keyboard navigation with arrow keys and Escape to close, and add proper labels."
+        },
+        {
+          "level": "MID",
+          "answer": "Prefer a native <select> if possible. Otherwise follow the WAI-ARIA listbox or menu pattern: a button with aria-expanded and aria-controls, options with role=option and aria-selected, arrow-key navigation, typeahead, Escape to close and return focus to the trigger. Test with a keyboard and a screen reader."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I would use a well-tested headless primitive (Radix, React Aria) rather than hand-rolling one, because the edge cases (focus trapping, screen reader announcements, mobile) are many. Then add automated checks (axe) in CI and include keyboard-only flows in end-to-end tests."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Prefer a native <select> if possible. Otherwise follow the WAI-ARIA listbox or menu pattern: a button with aria-expanded and aria-controls, options with role=option and aria-selected, arrow-key navigation, typeahead, Escape to close and return focus to the trigger. Test with a keyboard and a screen reader.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "31e792c5-2835-5df8-8ccb-7bda7120a025",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "0ea37843-6d2c-59e4-9a7c-9adc0ed74e60",
+      "prompt": "Which layout tool is designed for two-dimensional layouts (rows and columns together)?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Flexbox",
+        "CSS Grid",
+        "Floats",
+        "position: absolute"
+      ],
+      "correctIndex": 1,
+      "explanation": "Grid controls rows and columns together. Flexbox distributes items along one axis.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "b18c89b6-920f-5b02-9d74-d18fddad15a5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "prompt": "One API endpoint generates a PDF report and takes 3 seconds of CPU. Other endpoints become slow while it runs. Why, and how do you fix it?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Node runs JavaScript on one thread, so the PDF generation blocks other requests. Move the work to a worker thread or a background job."
+        },
+        {
+          "level": "MID",
+          "answer": "CPU work on the main thread blocks the event loop, so no other callbacks (including other requests) can run. Options: run it in a worker_threads pool, or enqueue a job (BullMQ with Redis) processed by a separate worker process, return 202 with a job id, and notify or let the client poll. Also cache identical reports."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I would separate it into an asynchronous job: API enqueues, a worker service generates and uploads to object storage, the client gets a signed URL when ready. That isolates CPU load, allows independent scaling and retries, and protects API latency. I would monitor event-loop lag (perf_hooks.monitorEventLoopDelay) to catch similar issues."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "CPU work on the main thread blocks the event loop, so no other callbacks (including other requests) can run. Options: run it in a worker_threads pool, or enqueue a job (BullMQ with Redis) processed by a separate worker process, return 202 with a job id, and notify or let the client poll. Also cache identical reports.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "e7faaa12-5ed1-5bf6-917f-f01567e1168a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "prompt": "What is the order of process.nextTick, Promise.then and setImmediate callbacks?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "process.nextTick runs first, then promise callbacks, then setImmediate."
+        },
+        {
+          "level": "MID",
+          "answer": "After the current operation completes, Node drains the nextTick queue, then the promise microtask queue; setImmediate runs in the check phase of the next loop iteration. Inside an I/O callback, setImmediate always runs before a setTimeout 0; at the top level their order is not guaranteed."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same, and the practical takeaway: avoid process.nextTick in application code except for emitting events after a constructor returns; recursive nextTick or microtasks can starve I/O. Use setImmediate to yield in long loops."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "After the current operation completes, Node drains the nextTick queue, then the promise microtask queue; setImmediate runs in the check phase of the next loop iteration. Inside an I/O callback, setImmediate always runs before a setTimeout 0; at the top level their order is not guaranteed.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "0db4d789-3e5e-53b7-938a-ae11f938576e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "prompt": "Which of these runs on libuv's thread pool rather than the OS's non-blocking network APIs?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "An HTTP request handler",
+        "fs.readFile",
+        "A TCP socket read",
+        "setTimeout"
+      ],
+      "correctIndex": 1,
+      "explanation": "File system operations, DNS lookup, crypto and zlib use the thread pool. Network sockets use non-blocking OS APIs.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "b91e1be6-1791-5bb9-9ebd-47b7981184ce",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ebbbf506-5420-5f9c-8757-fafa6058a4e5",
+      "prompt": "An endpoint calls `crypto.pbkdf2Sync` with a high iteration count. What is the impact under load?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "None; crypto runs in the thread pool",
+        "It blocks the event loop, increasing latency for all requests",
+        "It only slows that endpoint",
+        "Node automatically moves it to a worker thread"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Sync variant runs on the main thread. Use the async version (thread pool) or a worker.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "c140ab67-c99d-55ac-9d3c-779ba28e13b3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "afe7cfb1-2b7a-5546-bef4-8fbdb725b87f",
+      "prompt": "How would you let users download a 2 GB CSV export without running out of memory?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Stream the file instead of reading it all into memory, for example with fs.createReadStream piped to the response."
+        },
+        {
+          "level": "MID",
+          "answer": "Generate rows with a database cursor, transform them to CSV lines in a Transform stream, and pipeline them into the HTTP response with Content-Disposition. Backpressure keeps memory constant. Escape CSV fields properly."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "For very large or slow exports I would make it asynchronous: a job streams from the database to object storage, then the user gets a signed download link. That survives timeouts and restarts. For synchronous downloads, stream with a cursor and pipeline, set limits, and add abort handling so the query stops if the client disconnects."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Generate rows with a database cursor, transform them to CSV lines in a Transform stream, and pipeline them into the HTTP response with Content-Disposition. Backpressure keeps memory constant. Escape CSV fields properly.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "f01f1cd4-15ba-5935-9740-f2fc2bb5c13a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "afe7cfb1-2b7a-5546-bef4-8fbdb725b87f",
+      "prompt": "What does stream.pipeline() add over chaining .pipe()?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Faster throughput",
+        "Error propagation and cleanup of all streams",
+        "Automatic compression",
+        "Parallel processing"
+      ],
+      "correctIndex": 1,
+      "explanation": "pipeline forwards errors and destroys all streams on failure, preventing leaks that plain pipe chains cause.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "6e9a5b13-958b-5f3a-8e73-d1bdf8095541",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "prompt": "How do you handle errors consistently across an Express API?",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use try/catch in handlers and an error-handling middleware at the end that sends a JSON error with a status code."
+        },
+        {
+          "level": "MID",
+          "answer": "Define error classes (NotFoundError, ValidationError) with status codes. Wrap async handlers (or use Express 5) so rejections reach next(err). A final error middleware maps known errors to status + { code, message }, logs unknown ones with a request id, and returns a generic 500 without stack traces in production."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same plus contracts and operations: a documented error format, correlation ids in logs and responses, distinguishing operational errors from programmer errors (the latter alert and may restart the process), process-level handlers for unhandledRejection, and graceful shutdown that stops accepting traffic and finishes in-flight requests."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Define error classes (NotFoundError, ValidationError) with status codes. Wrap async handlers (or use Express 5) so rejections reach next(err). A final error middleware maps known errors to status + { code, message }, logs unknown ones with a request id, and returns a generic 500 without stack traces in production.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "4b434b19-7bcd-5798-b1d7-f5df70d22f8d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "91d9e17d-4890-5ca3-ab32-12abc09abbcc",
+      "prompt": "In Express 4, an async route handler throws after an await. What happens if it is not wrapped?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Express catches it and calls the error middleware",
+        "The promise rejects unhandled and the request may hang",
+        "Express retries the handler",
+        "The server returns 404"
+      ],
+      "correctIndex": 1,
+      "explanation": "Express 4 does not await handlers, so the rejection is unhandled. Wrap handlers or upgrade to Express 5, which forwards rejected promises to next.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "0a4a236f-3236-57ec-94cf-4603eef67d06",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "prompt": "Design the API for a 'place order' endpoint that must never charge a customer twice.",
+      "depth": "DESIGN",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use POST /orders. Disable the button after clicking so the user cannot submit twice."
+        },
+        {
+          "level": "MID",
+          "answer": "POST /orders with an Idempotency-Key header generated by the client. The server stores the key with the result; a retry with the same key returns the stored result instead of creating a new order. Payment uses the provider's idempotency support too. Return 201 with the order, 409 if the key is reused with a different payload."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Idempotency keys stored with request hash, status and response, scoped per user with a TTL; processing inside a transaction or with a unique constraint so concurrent duplicates fail safely. The payment step is a state machine (pending, authorised, captured, failed) reconciled with provider webhooks, which are also processed idempotently. Clients retry with backoff on network errors, which is now safe."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "POST /orders with an Idempotency-Key header generated by the client. The server stores the key with the result; a retry with the same key returns the stored result instead of creating a new order. Payment uses the provider's idempotency support too. Return 201 with the order, 409 if the key is reused with a different payload.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "3f400348-afa2-55c4-a79a-a9fde05ec602",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "prompt": "When would you choose cursor-based pagination over offset-based?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Cursor pagination is better for large lists and infinite scroll; offset is fine for small lists with page numbers."
+        },
+        {
+          "level": "MID",
+          "answer": "Offset (LIMIT/OFFSET) gets slower as the offset grows because the database still scans skipped rows, and results shift when rows are inserted. Cursor pagination uses WHERE (created_at, id) < (last values) with an index, so it is fast at any depth and stable. Use offset when users need random page access on small datasets."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same reasoning, plus design details: opaque, encoded cursors so clients don't depend on internals, a stable sort with a unique tiebreaker, an index matching the sort, and consistent behaviour when filters change. I would expose hasMore/nextCursor rather than total counts, which are expensive on large tables."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Offset (LIMIT/OFFSET) gets slower as the offset grows because the database still scans skipped rows, and results shift when rows are inserted. Cursor pagination uses WHERE (created_at, id) < (last values) with an index, so it is fast at any depth and stable. Use offset when users need random page access on small datasets.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "aed72ad9-7b2c-5e9d-bb4d-9e64e8104961",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "025619e2-b58b-5f5d-a41d-b9bb4825f35b",
+      "prompt": "Which URL best follows REST conventions for fetching the items of order 42?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "GET /getOrderItems?id=42",
+        "POST /orders/42/items/list",
+        "GET /orders/42/items",
+        "GET /order-items-for/42"
+      ],
+      "correctIndex": 2,
+      "explanation": "Resources are nouns, nested where it reflects ownership, and the method expresses the action.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "7ebeb617-aaea-5176-82a5-ad81139e014a",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "prompt": "Sessions or JWTs for a typical web app? Explain the trade-offs.",
+      "depth": "DESIGN",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Sessions store data on the server and are easy to log out. JWTs are stored by the client and don't need a server lookup. For a normal web app, sessions in cookies are simpler."
+        },
+        {
+          "level": "MID",
+          "answer": "Sessions: opaque id in an HttpOnly cookie, lookup per request (fast with Redis), instant revocation. JWT: self-contained, no lookup, good for service-to-service, but revocation requires short expiry plus refresh tokens or a denylist. For first-party web apps, cookie sessions are simpler and safer; JWTs are useful when many services must verify identity independently."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "I choose by revocation and topology needs. First-party web: HttpOnly cookie with either a server session or a short-lived signed token plus a version check (hybrid). Distributed services: short-lived JWT access tokens from a central identity provider, refresh token rotation with reuse detection, and key rotation via JWKS. Either way: CSRF defence for cookies, rate-limited login, and audit logging."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Sessions: opaque id in an HttpOnly cookie, lookup per request (fast with Redis), instant revocation. JWT: self-contained, no lookup, good for service-to-service, but revocation requires short expiry plus refresh tokens or a denylist. For first-party web apps, cookie sessions are simpler and safer; JWTs are useful when many services must verify identity independently.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "5ff0e857-d2da-57fc-8d6f-9b110d7df47b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "prompt": "What is an IDOR vulnerability and how do you prevent it?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "IDOR is when a user can access someone else's data by changing an id in the URL. Check that the record belongs to the logged-in user."
+        },
+        {
+          "level": "MID",
+          "answer": "Insecure Direct Object Reference: the server trusts an id from the request without checking ownership, e.g. GET /invoices/123 returns any invoice. Prevent it by scoping every query to the authenticated user (WHERE id = ? AND user_id = ?) and centralising authorisation checks. Random ids help but are not a fix."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same, enforced structurally: data access goes through repositories that require the caller's identity, multi-tenant queries always include the tenant id (or row-level security in Postgres), and tests cover cross-user access. Return 404 rather than 403 to avoid leaking existence."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Insecure Direct Object Reference: the server trusts an id from the request without checking ownership, e.g. GET /invoices/123 returns any invoice. Prevent it by scoping every query to the authenticated user (WHERE id = ? AND user_id = ?) and centralising authorisation checks. Random ids help but are not a fix.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "00e3bdc7-7713-5856-8698-b633147eea6e",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "8d48b9a0-88e4-5aa2-bd36-af187e10bff1",
+      "prompt": "Why is bcrypt preferred over SHA-256 for storing passwords?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "bcrypt produces shorter hashes",
+        "bcrypt is deliberately slow and salted, making brute-force attacks expensive",
+        "SHA-256 can be decrypted",
+        "bcrypt is encryption, not hashing"
+      ],
+      "correctIndex": 1,
+      "explanation": "Fast hashes let attackers try billions of guesses per second. bcrypt/Argon2 are slow by design, with a tunable cost and built-in salt.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "2d73c9ba-eca9-5569-b309-d824696b1f64",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "46c365ff-b271-57cd-b231-c0314d0c01f6",
+      "prompt": "Your Node API runs on one server and needs to handle 10x traffic. What do you change?",
+      "depth": "DESIGN",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Run more instances of the app behind a load balancer and use all CPU cores with PM2 or cluster mode."
+        },
+        {
+          "level": "MID",
+          "answer": "Make the service stateless (sessions in Redis, files in object storage), run multiple instances behind a load balancer with health checks, add a cache for hot reads, move slow work to a queue, and add database connection pooling. Load-test to find the next bottleneck, usually the database."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Profile where time goes before scaling. Then: stateless horizontal scaling with autoscaling on CPU and latency, read replicas or caching for read-heavy paths, queue-based load levelling, rate limiting and back-pressure to protect dependencies, timeouts with circuit breakers, and SLO-based alerting. Plan the database: indexes, pool sizes relative to instances, and eventually partitioning."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Make the service stateless (sessions in Redis, files in object storage), run multiple instances behind a load balancer with health checks, add a cache for hot reads, move slow work to a queue, and add database connection pooling. Load-test to find the next bottleneck, usually the database.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "871abc92-0f31-5d28-bdcf-17e5781f517d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "46c365ff-b271-57cd-b231-c0314d0c01f6",
+      "prompt": "Why must a Node service be stateless before running multiple instances behind a load balancer?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Node cannot store state",
+        "Requests from one user may hit different instances, which would not share in-memory state",
+        "Load balancers delete memory",
+        "It is required by Express"
+      ],
+      "correctIndex": 1,
+      "explanation": "Without sticky sessions, consecutive requests may land on different processes. Shared state must live in an external store.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "230df79a-ac9c-538f-b156-1b6f7653e73c",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794",
+      "prompt": "Find the second-highest salary in each department.",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use a subquery: for each department, select the max salary that is less than the department's max salary."
+        },
+        {
+          "level": "MID",
+          "answer": "```sql\nSELECT department_id, salary\nFROM (\n  SELECT department_id, salary,\n         DENSE_RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) AS rnk\n  FROM employees\n) ranked\nWHERE rnk = 2;\n```\nDENSE_RANK handles ties (two people with the top salary are both rank 1)."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "The window-function query above, plus clarifying requirements: ties (DENSE_RANK vs ROW_NUMBER), departments with only one salary (return nothing or NULL?), and performance: an index on (department_id, salary DESC) lets the database avoid a full sort. On very large tables I would check the plan with EXPLAIN."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "```sql\nSELECT department_id, salary\nFROM (\n  SELECT department_id, salary,\n         DENSE_RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) AS rnk\n  FROM employees\n) ranked\nWHERE rnk = 2;\n```\nDENSE_RANK handles ties (two people with the top salary are both rank 1).",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "05deb1f4-d612-596f-9554-d11819e0b089",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794",
+      "prompt": "Why might a LEFT JOIN behave like an INNER JOIN?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "If you add a condition on the right table in the WHERE clause, rows without a match (NULLs) are filtered out."
+        },
+        {
+          "level": "MID",
+          "answer": "WHERE runs after the join, so `WHERE o.status = 'paid'` removes left rows whose right side is NULL. Put the condition in the ON clause (`LEFT JOIN orders o ON o.user_id = u.id AND o.status = 'paid'`) to keep unmatched left rows."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same explanation; I mention it as a frequent code-review catch and verify with a quick count comparison. For 'users without paid orders' I prefer NOT EXISTS, which states the intent and usually plans well."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "WHERE runs after the join, so `WHERE o.status = 'paid'` removes left rows whose right side is NULL. Put the condition in the ON clause (`LEFT JOIN orders o ON o.user_id = u.id AND o.status = 'paid'`) to keep unmatched left rows.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "39c8cdc8-89dc-5bf4-830d-03ced5dd9fc3",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "960e3e40-0b3a-52ed-8bfd-9d8341cc2794",
+      "prompt": "What is the difference between WHERE and HAVING?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "No difference",
+        "WHERE filters rows before grouping; HAVING filters groups after aggregation",
+        "HAVING is faster",
+        "WHERE only works with joins"
+      ],
+      "correctIndex": 1,
+      "explanation": "WHERE removes rows before GROUP BY; HAVING can filter on aggregates like COUNT(*) > 5.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "3eed4a26-1002-5c0e-aae0-88b8bb0109aa",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "prompt": "A query `SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 20` is slow on a 50M-row table. What do you do?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Add an index on user_id so the database can find the user's orders quickly."
+        },
+        {
+          "level": "MID",
+          "answer": "Run EXPLAIN ANALYZE. Create a composite index on (user_id, created_at DESC): the database can find the user's rows already ordered and stop after 20, with no sort. Select only needed columns, and consider including them in the index to make it covering."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Composite index (user_id, created_at DESC), created concurrently to avoid locking in production, verified with EXPLAIN ANALYZE before and after. Switch the endpoint to cursor pagination for deeper pages. Check write impact and existing redundant indexes (an index on user_id alone becomes redundant). Monitor with pg_stat_statements."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Run EXPLAIN ANALYZE. Create a composite index on (user_id, created_at DESC): the database can find the user's rows already ordered and stop after 20, with no sort. Select only needed columns, and consider including them in the index to make it covering.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "b0a95a6c-ca6e-52c3-aacb-191f62b0ca48",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "prompt": "Given an index on (country, city), which query can use it efficiently?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "WHERE city = 'Pune'",
+        "WHERE country = 'IN' AND city = 'Pune'",
+        "WHERE LOWER(country) = 'in'",
+        "WHERE city LIKE '%une'"
+      ],
+      "correctIndex": 1,
+      "explanation": "Composite indexes are used from the leftmost column. Filtering on city alone, applying functions, or leading wildcards prevent efficient use.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "a74cf7fb-803a-5029-8a4e-b8c59e8ebdef",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "b0a74263-60ac-587c-9218-5ea6e5175c21",
+      "prompt": "Why can too many indexes hurt a write-heavy table?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Indexes make SELECT slower",
+        "Every insert/update must also update each index, increasing write cost and storage",
+        "Databases limit tables to three indexes",
+        "Indexes lock the table permanently"
+      ],
+      "correctIndex": 1,
+      "explanation": "Each index is a structure maintained on every write. Unused indexes cost write throughput and memory.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "52d30eaf-1344-51fa-997c-ad750f78c565",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e365b7aa-b2e5-5c39-80db-88b9ffbbde79",
+      "prompt": "Two users buy the last item in stock at the same time. How do you prevent overselling?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use a transaction and check the stock before reducing it."
+        },
+        {
+          "level": "MID",
+          "answer": "A check-then-update in two statements races. Use a single atomic statement: `UPDATE products SET stock = stock - 1 WHERE id = $1 AND stock > 0 RETURNING stock` and treat zero affected rows as 'sold out'. Alternatively lock the row with SELECT … FOR UPDATE inside a transaction."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Atomic conditional update or a CHECK (stock >= 0) constraint as the safety net. For flash sales with heavy contention on one row, I would use reservations with expiry (or a Redis counter with Lua) and reconcile to the database, plus a queue to smooth the spike. The order and the stock decrement must be in the same transaction, or use an outbox pattern if events go to other services."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "A check-then-update in two statements races. Use a single atomic statement: `UPDATE products SET stock = stock - 1 WHERE id = $1 AND stock > 0 RETURNING stock` and treat zero affected rows as 'sold out'. Alternatively lock the row with SELECT … FOR UPDATE inside a transaction.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "4d34831b-1522-5907-8b97-b5a0038379f8",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "e365b7aa-b2e5-5c39-80db-88b9ffbbde79",
+      "prompt": "What is a 'lost update'?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "An update that fails due to a network error",
+        "Two transactions read the same value, both modify it, and one write overwrites the other",
+        "An update rolled back by the user",
+        "A write to a replica that is never replicated"
+      ],
+      "correctIndex": 1,
+      "explanation": "Read-modify-write without locking or atomic updates lets one transaction silently overwrite another's change.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "0d3ab078-5142-5815-a5b6-87c204dab25f",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc421410-0dc5-5ae4-b7d5-f6deb2dd18be",
+      "prompt": "Model a blog with posts and comments in MongoDB. Embed comments or reference them?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Embed comments inside the post document so you can load a post with its comments in one query."
+        },
+        {
+          "level": "MID",
+          "answer": "It depends on volume. Comments can grow without limit and are paginated, so store them in a separate collection with a postId index. Embed a small, bounded summary in the post (comment count, latest 3 comments) for fast reads, updated when comments are added."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "A comments collection indexed on (postId, createdAt) for pagination, plus the subset pattern (recent comments and counts embedded) for the common read path. Updates to the embedded subset happen atomically with $push and $slice. I would also consider moderation states, threading depth, and hot posts receiving many writes."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "It depends on volume. Comments can grow without limit and are paginated, so store them in a separate collection with a postId index. Embed a small, bounded summary in the post (comment count, latest 3 comments) for fast reads, updated when comments are added.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "30fddae7-fd0c-5646-a688-43e6101a09fe",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "cc421410-0dc5-5ae4-b7d5-f6deb2dd18be",
+      "prompt": "When is embedding usually the better choice?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "When the child data grows without bound",
+        "When the child data is bounded and always read with the parent",
+        "When many parents share the same child",
+        "When the child is updated very frequently by itself"
+      ],
+      "correctIndex": 1,
+      "explanation": "Embed small, bounded data accessed together. Reference large, shared or independently changing data.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "09837f93-563c-59a9-aa5a-613827358a67",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "07905360-a937-5a77-a60c-ad9443f6ede7",
+      "prompt": "How do you keep a product cache consistent when prices change?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Delete the product's cache key whenever its price is updated so the next read loads fresh data."
+        },
+        {
+          "level": "MID",
+          "answer": "Cache-aside with a TTL as a safety net, and delete the key after the database write commits (not before, to avoid caching stale data in between). For many derived keys (lists, search), use versioned keys or tags so one change invalidates all related entries."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Delete-after-commit, triggered reliably via an outbox/event so invalidation is not lost if the app crashes; short TTL as a backstop; and an explicit staleness budget agreed with product (prices may need near-zero staleness, so read them from the database at checkout regardless of the cache). Monitor hit rate and stale reads."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Cache-aside with a TTL as a safety net, and delete the key after the database write commits (not before, to avoid caching stale data in between). For many derived keys (lists, search), use versioned keys or tags so one change invalidates all related entries.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "06d041e4-ba33-5f0b-9cbf-54b12a677064",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "07905360-a937-5a77-a60c-ad9443f6ede7",
+      "prompt": "What is a cache stampede?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Redis running out of memory",
+        "Many requests missing an expired hot key at once and all hitting the database",
+        "Two servers writing the same key",
+        "A cache that is never invalidated"
+      ],
+      "correctIndex": 1,
+      "explanation": "When a popular entry expires, concurrent misses overload the database. Use locking, request coalescing or early refresh.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "1596804d-a23b-5c07-8ea2-513e36b293f4",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "prompt": "Find the length of the longest substring without repeating characters.",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Check every substring and test whether its characters are unique. This is O(n³) but correct; then try to improve it."
+        },
+        {
+          "level": "MID",
+          "answer": "Sliding window with a map of last-seen indexes:\n```js\nfunction longest(s) {\n  const last = new Map();\n  let start = 0, best = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (last.has(s[i]) && last.get(s[i]) >= start) start = last.get(s[i]) + 1;\n    last.set(s[i], i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n}\n```\nO(n) time, O(min(n, alphabet)) space."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "The O(n) sliding window above, explained with an invariant (the window [start, i] has no duplicates). I would cover Unicode (iterate code points for emoji), test cases (empty, all same, all unique), and how the pattern generalises to 'at most k distinct characters'."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Sliding window with a map of last-seen indexes:\n```js\nfunction longest(s) {\n  const last = new Map();\n  let start = 0, best = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (last.has(s[i]) && last.get(s[i]) >= start) start = last.get(s[i]) + 1;\n    last.set(s[i], i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n}\n```\nO(n) time, O(min(n, alphabet)) space.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "dc1d35b1-9ff9-5162-b8c7-36abf9a8dc68",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "prompt": "Two-sum: return indexes of two numbers that add up to a target.",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Use two nested loops to check every pair. O(n²)."
+        },
+        {
+          "level": "MID",
+          "answer": "One pass with a hash map from value to index: for each number, check whether target - num was seen; if so, return both indexes. O(n) time, O(n) space."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Hash map in one pass, discussing the sorted-input variant (two pointers, O(1) space), duplicates, and returning all pairs. In an interview I state the brute force first, then optimise, and test with a quick dry run."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "One pass with a hash map from value to index: for each number, check whether target - num was seen; if so, return both indexes. O(n) time, O(n) space.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "ba5ed547-7919-57d4-bffa-6f9c926afe2b",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "ca45571c-5fca-564c-92cc-b51032d1c4ed",
+      "prompt": "What is the time complexity of checking membership in a JavaScript Set on average?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n log n)"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sets and Maps are hash-based with average constant-time lookups.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "21e3723c-4ebc-5f1b-bf64-dd36c30ac9cf",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "1f0dcda0-925a-5569-a0ec-f941aa4b2699",
+      "prompt": "Given courses and prerequisite pairs, decide whether all courses can be completed.",
+      "depth": "APPLY",
+      "type": "CODING",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Build a graph of prerequisites and check for a cycle; if there is a cycle, you cannot finish all courses."
+        },
+        {
+          "level": "MID",
+          "answer": "Kahn's algorithm: compute in-degrees, queue courses with in-degree 0, pop and decrement neighbours, count processed nodes. If processed equals the number of courses, there is no cycle. O(V + E)."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Kahn's algorithm (which also yields an order), or DFS with three colours for cycle detection. I would relate it to real uses: build tools and package managers, and in this very kind of product, ordering learning topics by prerequisites while respecting priority."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Kahn's algorithm: compute in-degrees, queue courses with in-degree 0, pop and decrement neighbours, count processed nodes. If processed equals the number of courses, there is no cycle. O(V + E).",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "aecba823-046c-5f43-81cb-0280185375d5",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "1f0dcda0-925a-5569-a0ec-f941aa4b2699",
+      "prompt": "Which traversal finds the shortest path (fewest edges) in an unweighted graph?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Depth-first search",
+        "Breadth-first search",
+        "Inorder traversal",
+        "Binary search"
+      ],
+      "correctIndex": 1,
+      "explanation": "BFS explores level by level, so the first time it reaches a node is via the fewest edges.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "ba2992a2-e80a-5710-b6d2-8917594bea62",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "prompt": "Design a URL shortener.",
+      "depth": "DESIGN",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Store each long URL in a database with a short random code. When someone opens the short URL, look up the code and redirect."
+        },
+        {
+          "level": "MID",
+          "answer": "Requirements: create short links, redirect fast, very read-heavy. Generate codes via base62 of a unique id or random with a uniqueness check; store code → URL in a key-value or SQL table indexed by code; redirect with 301/302; cache hot codes in Redis and at the CDN; rate-limit creation; track clicks asynchronously through a queue."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same core, with estimates (e.g. 100M links/month, 100:1 reads) driving choices: ID generation without coordination (pre-allocated ranges per node), a partitioned KV store, CDN and in-memory caching for redirects, analytics via an event stream into a separate store, abuse controls (malware scanning, rate limits), custom aliases with uniqueness, and expiry. I would discuss 301 vs 302 (caching vs accurate analytics)."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Requirements: create short links, redirect fast, very read-heavy. Generate codes via base62 of a unique id or random with a uniqueness check; store code → URL in a key-value or SQL table indexed by code; redirect with 301/302; cache hot codes in Redis and at the CDN; rate-limit creation; track clicks asynchronously through a queue.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "cd917127-b085-5e8d-a6cd-31fe1562f743",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "prompt": "When would you introduce a message queue into a system?",
+      "depth": "APPLY",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "When some work takes a long time, like sending emails, so the user doesn't have to wait."
+        },
+        {
+          "level": "MID",
+          "answer": "To decouple producers and consumers: slow or unreliable work (emails, PDFs, webhooks), smoothing traffic spikes, retrying failures, and fanning out events to several consumers. It brings at-least-once delivery, so consumers must be idempotent, plus monitoring of queue depth and dead-letter queues."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same, plus the costs: eventual consistency, ordering guarantees (per-key partitions), exactly-once is effectively 'at-least-once plus idempotency', and operational overhead. I would use the outbox pattern to publish events reliably with database writes and design for replay."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "To decouple producers and consumers: slow or unreliable work (emails, PDFs, webhooks), smoothing traffic spikes, retrying failures, and fanning out events to several consumers. It brings at-least-once delivery, so consumers must be idempotent, plus monitoring of queue depth and dead-letter queues.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "79d0019e-3b11-5a3d-9660-fa079b496f11",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c8db149f-915d-54e7-bbcb-9ded8b90c44f",
+      "prompt": "A service is 95% reads and the database is the bottleneck. Which change helps most directly?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Add a write-ahead log",
+        "Add caching and/or read replicas",
+        "Switch to a message queue for reads",
+        "Increase the number of database writes"
+      ],
+      "correctIndex": 1,
+      "explanation": "Read-heavy load is relieved by caching hot data and spreading reads across replicas.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "6df3d291-0576-5bb8-aa1d-653677a67f72",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "24221357-bc95-5323-86c0-38b435df8152",
+      "prompt": "How would you test a service method that charges a card and sends a receipt email?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Mock the payment and email services and check they are called with the right values."
+        },
+        {
+          "level": "MID",
+          "answer": "Inject the payment gateway and email sender as interfaces. Unit test with fakes: success path (charged once, email sent), payment failure (no email, error returned), email failure (charge kept, email retried or queued). Add an integration test against the provider's sandbox in CI."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Design for testability first: payment via an idempotent gateway interface, email via an outbox so a send failure never loses a receipt. Tests cover the state machine transitions, idempotency (retrying the same request does not double-charge), and webhook handling. Contract tests against the provider's sandbox catch API drift."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Inject the payment gateway and email sender as interfaces. Unit test with fakes: success path (charged once, email sent), payment failure (no email, error returned), email failure (charge kept, email retried or queued). Add an integration test against the provider's sandbox in CI.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "9780ae95-c992-5ae7-af69-6e4a937dcf92",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "24221357-bc95-5323-86c0-38b435df8152",
+      "prompt": "Where is mocking most appropriate?",
+      "depth": "EXPLAIN",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Every internal function call",
+        "System boundaries such as third-party APIs and email providers",
+        "The code under test itself",
+        "Never"
+      ],
+      "correctIndex": 1,
+      "explanation": "Mock what you don't own or can't run reliably in tests. Mocking your own internals couples tests to implementation.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "3b8383d9-f547-5e2d-aac3-4604842c90ab",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c7c56ef6-f176-5170-a69f-50502414bb21",
+      "prompt": "How do you deploy a database column rename without downtime?",
+      "depth": "DESIGN",
+      "type": "SYSTEM_DESIGN",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "Rename the column and deploy the new code at the same time during low traffic."
+        },
+        {
+          "level": "MID",
+          "answer": "Expand and contract: add the new column, deploy code that writes to both and reads from the old, backfill, switch reads to the new column, stop writing the old, then drop it in a later release. Each step is backward compatible with the running version."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Expand/contract as above, run as separate releases with verification between steps, backfills in batches to avoid locks, and feature flags controlling the read switch so rollback is instant. Also consider replicas, caches and other services reading the table."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Expand and contract: add the new column, deploy code that writes to both and reads from the old, backfill, switch reads to the new column, stop writing the old, then drop it in a later release. Each step is backward compatible with the running version.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "584fdaa0-0f71-5fd4-8b76-4cf8c5e5f3f2",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c7c56ef6-f176-5170-a69f-50502414bb21",
+      "prompt": "What does a canary release do?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Deploys to all users at once",
+        "Routes a small percentage of traffic to the new version first and watches metrics",
+        "Runs tests in production",
+        "Deploys only on weekends"
+      ],
+      "correctIndex": 1,
+      "explanation": "A canary limits blast radius: if errors rise, roll back before most users are affected.",
+      "selfCheck": true,
+      "diagnostic": true
+    },
+    {
+      "id": "51814d90-46aa-5032-aa94-a62a6d5b19b7",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c4471741-8336-5445-8737-3fd6bbd2dfeb",
+      "prompt": "Why put database access behind a repository interface?",
+      "depth": "APPLY",
+      "type": "CONCEPT",
+      "format": "OPEN",
+      "answers": [
+        {
+          "level": "JUNIOR",
+          "answer": "So the rest of the code doesn't need to know SQL, and you can change the database later more easily."
+        },
+        {
+          "level": "MID",
+          "answer": "Business logic depends on an interface (findById, save) rather than a specific database client. Services become testable with in-memory fakes, queries are centralised (one place to add indexes or tenant filters), and switching storage only changes the implementation."
+        },
+        {
+          "level": "SENIOR",
+          "answer": "Same benefits, with honesty about costs: an extra layer, and leaky abstractions when queries are complex. I keep repositories thin and aggregate-focused, allow query-specific methods rather than a generic ORM wrapper, and enforce security (tenant scoping) there. It pays off when storage really changes, for example moving from files to Postgres."
+        }
+      ],
+      "options": [],
+      "correctIndex": null,
+      "explanation": "Business logic depends on an interface (findById, save) rather than a specific database client. Services become testable with in-memory fakes, queries are centralised (one place to add indexes or tenant filters), and switching storage only changes the implementation.",
+      "selfCheck": false,
+      "diagnostic": false
+    },
+    {
+      "id": "45a7dff6-06df-58ae-96f6-3207b697543d",
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "updatedAt": "2026-10-01T00:00:00.000Z",
+      "topicId": "c4471741-8336-5445-8737-3fd6bbd2dfeb",
+      "prompt": "Which principle says high-level modules should depend on abstractions, not concrete implementations?",
+      "depth": "KNOW",
+      "type": "CONCEPT",
+      "format": "MCQ",
+      "answers": [],
+      "options": [
+        "Single responsibility",
+        "Open/closed",
+        "Liskov substitution",
+        "Dependency inversion"
+      ],
+      "correctIndex": 3,
+      "explanation": "Dependency inversion: depend on interfaces so implementations can be swapped and tested.",
+      "selfCheck": true,
+      "diagnostic": true
+    }
+  ]
+}
