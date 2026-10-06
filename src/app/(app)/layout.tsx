@@ -33,7 +33,10 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             <UserMenu email={user.email} />
           </div>
         </header>
-        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:py-8">
+        <main
+          id="main"
+          className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-6 sm:px-6 lg:py-8"
+        >
           {children}
         </main>
       </div>
