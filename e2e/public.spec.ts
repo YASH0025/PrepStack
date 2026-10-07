@@ -13,6 +13,8 @@ test.describe("public pages", () => {
     const firstTopic = page.locator("main ul a").first();
     const name = await firstTopic.innerText();
     await firstTopic.click();
+    // First visit compiles the page in dev mode; wait for the navigation itself.
+    await page.waitForURL(/\/topics\/[a-z0-9-]+$/, { timeout: 90_000 });
     await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
     await expect(page.getByText("How deep to go")).toBeVisible();
     // Canonical link for SEO.
