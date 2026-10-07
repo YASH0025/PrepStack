@@ -145,7 +145,8 @@ export function InterviewTimer({ myName, partnerName }: { myName: string; partne
     <div className="flex flex-wrap items-center gap-3 rounded-lg border p-3">
       <div className="grid">
         <span className="text-xs text-muted-foreground">
-          Turn {turn + 1} of 2 · {turn === 0 ? `${myName} interviews` : `${partnerName} interviews`}
+          Turn {turn + 1} of 2 ·{" "}
+          {turn === 0 ? `${myName} ask the questions` : `${partnerName} asks the questions`}
         </span>
         <span className="font-mono text-2xl tabular-nums" aria-live="off">
           {mm}:{ss}
