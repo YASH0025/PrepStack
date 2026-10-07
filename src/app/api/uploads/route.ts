@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import { getStorageService, validateUpload } from "@/lib/services/file-storage";
-import { rateLimit } from "@/lib/rate-limit";
+import { RATE_LIMITS, rateLimit } from "@/lib/rate-limit";
 import { getUserForApi } from "@/modules/auth/service";
 import { TrackerError, trackerFor } from "@/modules/tracker/service";
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const user = await getUserForApi();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const limit = rateLimit(`upload:${user.id}`, { limit: 30, windowMs: 60 * 60_000 });
+  const limit = rateLimit(`upload:${user.id}`, RATE_LIMITS.upload);
   if (!limit.ok)
     return Response.json({ error: "Too many uploads. Try again later." }, { status: 429 });
 
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
   const problem = validateUpload({ data, mimeType: file.type, kind: "attachment" });
   if (problem) return Response.json({ error: problem }, { status: 400 });
 
+  let storageKey: string | null = null;
   try {
     const stored = await storage.upload({
       data,
@@ -52,6 +53,7 @@ export async function POST(request: Request) {
       kind: "attachment",
       ownerId: user.id,
     });
+    storageKey = stored.storageKey;
     await tracker.addAttachment(round.id, {
       id: randomUUID(),
       storageKey: stored.storageKey,
@@ -62,6 +64,8 @@ export async function POST(request: Request) {
     });
     return Response.json({ ok: true });
   } catch (error) {
+    // Never leave an uploaded file behind that no round points at.
+    if (storageKey) await storage.delete(storageKey).catch(() => undefined);
     if (error instanceof TrackerError)
       return Response.json({ error: error.message }, { status: 400 });
     console.error("[uploads] upload failed", error);

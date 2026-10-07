@@ -45,6 +45,11 @@ export class RevisionSheetService {
     return this.state.deleteForRounds(roundIds);
   }
 
+  /** Saved check states (data export). */
+  listState() {
+    return this.state.list();
+  }
+
   /** Assembles every input from its owning module, then runs the pure generator. */
   async view(roundId: string): Promise<RevisionSheetView | null> {
     const tracker = trackerFor(this.userId);

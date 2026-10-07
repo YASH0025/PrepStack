@@ -94,7 +94,7 @@ export default async function ModerationPage({ searchParams }: PageProps<"/admin
             <li key={report.id} className="grid gap-4 rounded-lg border p-4">
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <Badge variant="outline">{report.status}</Badge>
-                <span>Submitted {format(new Date(report.createdAt), "d MMM yyyy, HH:mm")}</span>
+                <span>Submitted {format(new Date(report.createdAt), "d MMM yyyy")}</span>
                 {report.moderationNote && <span>· Note: {report.moderationNote}</span>}
               </div>
               {flags.length > 0 && (

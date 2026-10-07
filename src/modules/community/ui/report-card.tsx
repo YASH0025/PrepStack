@@ -13,10 +13,13 @@ export function ReportCard({
   report,
   topicNames,
   bookmarked = false,
+  hrefBase = "/intel/reports",
 }: {
   report: InterviewReport;
   topicNames: Record<string, string>;
   bookmarked?: boolean;
+  /** "/reports" on public pages. */
+  hrefBase?: string;
 }) {
   const topics = [
     ...reportTopicIds(report).map((id) => topicNames[id]),
@@ -28,7 +31,7 @@ export function ReportCard({
     <li className="relative grid gap-2 rounded-lg border p-4 transition-colors hover:bg-accent/40">
       <div className="flex flex-wrap items-baseline gap-x-2">
         <Link
-          href={`/intel/reports/${report.id}`}
+          href={`${hrefBase}/${report.id}`}
           className="font-medium after:absolute after:inset-0 hover:underline"
         >
           {report.companyName}

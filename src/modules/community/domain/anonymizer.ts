@@ -120,12 +120,9 @@ export function scrubDraft(
   return {
     draft: {
       ...draft,
-      // The company is the subject of the report: only patterns apply to it, never names.
-      companyName: (() => {
-        const result = scrubText(draft.companyName, [], "companyName");
-        findings.push(...result.findings);
-        return result.text;
-      })(),
+      // Callers exclude the real company's words from `terms` (personalTermsExcept),
+      // so the company survives while a name typed into this field does not.
+      companyName: clean(draft.companyName, "companyName"),
       roleTitle: clean(draft.roleTitle, "roleTitle"),
       technologies: draft.technologies.map((tech, index) => clean(tech, `technologies.${index}`)),
       summary: clean(draft.summary, "summary"),

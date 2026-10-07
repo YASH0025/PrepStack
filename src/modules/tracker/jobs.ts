@@ -146,7 +146,8 @@ export async function createFollowUpNotifications(userId: string, now: Date): Pr
     const result = await notifications.notify({
       type: "FOLLOW_UP_DUE",
       title: `Follow up with ${name}`,
-      body: item.note ?? "You planned to follow up today.",
+      // The note itself stays in the (encrypted) round; notifications only point to it.
+      body: "You planned to follow up today.",
       href: item.roundId
         ? roundHref(item.roundId)
         : `/interviews/tracker?app=${item.applicationId}`,

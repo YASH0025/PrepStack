@@ -6,7 +6,6 @@ The full product specification lives in [docs/PROJECT_BRIEF.md](docs/PROJECT_BRI
 
 ## Requirements
 
-
 - Node.js 22 LTS
 - npm 10+
 
@@ -35,6 +34,7 @@ Put your email in `ADMIN_EMAILS` before signing up to get access to the admin CM
 | `npm run format`        | Prettier, write                                                  |
 | `npm run format:check`  | Prettier, check only                                             |
 | `npm test`              | Unit tests (Vitest)                                              |
+| `npm run test:e2e`      | End-to-end tests (Playwright, starts its own dev server)         |
 | `npm run seed:generate` | Rebuild the bundled seed content from `scripts/seed/`            |
 | `npm run cron`          | Run scheduled jobs once (reminders, debrief prompts, follow-ups) |
 
@@ -53,6 +53,37 @@ For a server, schedule `npm run cron` with your OS scheduler, for example every 
 `*/5 * * * * cd /path/to/prepstack && npm run cron`. Jobs are idempotent, so overlapping runs are safe.
 In-app prompts and follow-ups are also computed when you load a page, so the app works even if
 the cron has not run; only emails depend on it.
+
+## End-to-end tests
+
+`npm run test:e2e` starts `next dev` on port 3200 with a throwaway `.e2e-data` folder and
+test-only secrets, then runs the specs in `e2e/`: public pages and access control, and the core
+journey (sign up → track a round → debrief → share an anonymized report → moderator approval →
+public page without personal details → data export → account deletion).
+
+Install a browser once with `npx playwright install chromium`, or point `PW_CHROMIUM_PATH`
+(and optionally `PW_CHROMIUM_ARGS`, a JSON array) at an existing Chromium.
+
+## Community and moderation
+
+- "Share anonymized version" (from a debrief) builds a report from allowlisted fields only,
+  removes people, contacts, salaries, links and exact dates, shows the exact public preview and
+  publishes only after confirmation. The public record has no link back to the author.
+- New reports wait in `/admin/moderation` (approve, hide, edit for anonymity, handle flags).
+  Every moderation action is written to the audit log.
+- Topic frequency is shown only when a company/role has at least `COMMUNITY_MIN_SAMPLE`
+  reports (default 5); below that the app says "Not enough data yet".
+
+## Public pages
+
+`/topics`, `/topics/[slug]`, `/reports` and `/reports/[id]` are server-rendered and indexable,
+with `sitemap.xml` and `robots.txt`. Set `APP_URL` to the public URL in production.
+
+## Your data
+
+Profile → "Download my data" exports everything stored about the signed-in user as JSON
+(decrypted). "Delete my account" removes the account and the whole private folder; the user
+chooses whether their shared reports stay (they are already anonymous) or are deleted too.
 
 ## Data
 

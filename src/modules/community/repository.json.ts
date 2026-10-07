@@ -124,4 +124,11 @@ export class JsonFlagRepository extends JsonRepository<ReportFlag> implements Fl
       result: undefined,
     }));
   }
+
+  deleteForUser(userId: string): Promise<void> {
+    return this.collection.transaction((records) => ({
+      records: records.filter((record) => record.userId !== userId),
+      result: undefined,
+    }));
+  }
 }

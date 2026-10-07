@@ -154,4 +154,16 @@ export class AuthCore {
     });
     return { result: "OK", user: updated ?? undefined };
   }
+
+  /** Re-checks the signed-in user's password before sensitive actions (account deletion). */
+  async verifyCurrentPassword(userId: string, password: string): Promise<boolean> {
+    const user = await this.deps.users.getById(userId);
+    if (!user) return false;
+    return verifyPassword(password, user.passwordHash);
+  }
+
+  /** Removes the account record. Private data is deleted by the account service. */
+  deleteUser(userId: string): Promise<boolean> {
+    return this.deps.users.delete(userId);
+  }
 }

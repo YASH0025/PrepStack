@@ -20,6 +20,7 @@ export function TagInput({
   max = 30,
   invalid,
   describedBy,
+  ariaLabel,
 }: {
   id?: string;
   value: string[];
@@ -29,6 +30,8 @@ export function TagInput({
   max?: number;
   invalid?: boolean;
   describedBy?: string;
+  /** Accessible name when there is no visible <label for={id}>. */
+  ariaLabel?: string;
 }) {
   const [draft, setDraft] = React.useState("");
 
@@ -65,6 +68,7 @@ export function TagInput({
         placeholder={value.length === 0 ? placeholder : undefined}
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
+        aria-label={ariaLabel}
         className="h-6 min-w-32 flex-1 border-0 p-0 shadow-none focus-visible:ring-0 dark:bg-transparent"
         onChange={(event) => setDraft(event.target.value)}
         onBlur={() => {

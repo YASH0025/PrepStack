@@ -55,4 +55,7 @@ export const RATE_LIMITS = {
   publish: { limit: 10, windowMs: 24 * 60 * 60_000 },
   vote: { limit: 120, windowMs: 60 * 60_000 },
   flag: { limit: 20, windowMs: 24 * 60 * 60_000 },
+  upload: { limit: 30, windowMs: 60 * 60_000 },
+  export: { limit: 20, windowMs: 60 * 60_000 },
+  deleteAccount: { limit: 5, windowMs: 15 * 60_000 },
 } as const;

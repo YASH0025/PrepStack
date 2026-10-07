@@ -148,6 +148,7 @@ export class CommunityService {
   async removeUserActivity(userId: string): Promise<void> {
     const voted = await this.votes.reportIdsVotedBy(userId);
     await this.votes.deleteForUser(userId);
+    await this.flags.deleteForUser(userId);
     for (const reportId of voted) {
       await this.reports.update(reportId, { usefulCount: await this.votes.countFor(reportId) });
     }

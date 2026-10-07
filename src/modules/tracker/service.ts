@@ -3,7 +3,14 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 
 import { companyKey } from "@/lib/domain";
-import { decryptJson, decryptOptional, encryptJson, encryptOptional } from "@/lib/services/crypto";
+import {
+  decrypt,
+  decryptJson,
+  decryptOptional,
+  encrypt,
+  encryptJson,
+  encryptOptional,
+} from "@/lib/services/crypto";
 
 import { nextRoundNumber, statusWhenScheduling, toUtcRange } from "./domain/rounds";
 import {
@@ -21,6 +28,7 @@ import {
   type ApplicationInput,
   type ApplicationPatch,
   type ApplicationRecord,
+  type Attachment,
   type ApplicationStatus,
   type ChecklistItem,
   type CustomField,
@@ -81,6 +89,7 @@ export class TrackerService {
       expectedSalary: decryptOptional(record.expectedSalary),
       offeredSalary: decryptOptional(record.offeredSalary),
       notes: decryptOptional(record.notes),
+      outcome: decryptOptional(record.outcome),
     };
   }
 
@@ -89,6 +98,12 @@ export class TrackerService {
       ...record,
       people: record.people ? decryptJson(record.people, PeopleSchema) : EMPTY_PEOPLE,
       notes: decryptOptional(record.notes),
+      cancelReason: decryptOptional(record.cancelReason),
+      followUpNote: decryptOptional(record.followUpNote),
+      attachments: record.attachments.map((attachment) => ({
+        ...attachment,
+        fileName: decrypt(attachment.fileName),
+      })),
     };
   }
 
@@ -109,7 +124,7 @@ export class TrackerService {
       offerJoiningDate: input.offerJoiningDate,
       notes: encryptOptional(input.notes),
       followUpDate: input.followUpDate,
-      outcome: input.outcome,
+      outcome: encryptOptional(input.outcome),
     };
   }
 
@@ -180,10 +195,31 @@ export class TrackerService {
     const rounds = await this.rounds.listForApplication(id);
     await this.rounds.deleteForApplication(id);
     await this.applications.delete(id);
+    const orphaned = new Set(
+      await this.unreferenced(
+        rounds.flatMap((round) => round.attachments.map((attachment) => attachment.storageKey)),
+      ),
+    );
     return rounds.map((round) => ({
       id: round.id,
-      storageKeys: round.attachments.map((attachment) => attachment.storageKey),
+      storageKeys: round.attachments
+        .map((attachment) => attachment.storageKey)
+        .filter((key) => orphaned.has(key)),
     }));
+  }
+
+  /**
+   * Storage keys no remaining round still points at. Rescheduled rounds share
+   * their attachments, so a file is only deleted once nothing references it.
+   */
+  private async unreferenced(keys: string[]): Promise<string[]> {
+    if (keys.length === 0) return [];
+    const inUse = new Set(
+      (await this.rounds.list()).flatMap((round) =>
+        round.attachments.map((attachment) => attachment.storageKey),
+      ),
+    );
+    return [...new Set(keys)].filter((key) => !inUse.has(key));
   }
 
   /* Rounds ----------------------------------------------------------------------- */
@@ -293,7 +329,7 @@ export class TrackerService {
     const record = await this.rounds.update(id, {
       status: "CANCELLED",
       result: "NOT_APPLICABLE",
-      cancelReason: reason,
+      cancelReason: encryptOptional(reason),
       cancelledBy,
     });
     if (!record) throw new TrackerError("Round not found");
@@ -335,7 +371,7 @@ export class TrackerService {
         rescheduledToId: null,
         sentReminders: [],
       },
-      { cancelReason: input.reason || null, cancelledBy: input.cancelledBy },
+      { cancelReason: encryptOptional(input.reason || null), cancelledBy: input.cancelledBy },
     );
     if (!result) throw new TrackerError("Round not found");
     return this.toRound(result.newRound);
@@ -345,7 +381,12 @@ export class TrackerService {
     const round = await this.rounds.getById(id);
     if (!round) return null;
     await this.rounds.delete(id);
-    return { id, storageKeys: round.attachments.map((attachment) => attachment.storageKey) };
+    return {
+      id,
+      storageKeys: await this.unreferenced(
+        round.attachments.map((attachment) => attachment.storageKey),
+      ),
+    };
   }
 
   async updateChecklist(id: string, checklist: ChecklistItem[]): Promise<Round> {
@@ -371,12 +412,16 @@ export class TrackerService {
     followUpDate: string | null,
     followUpNote: string | null,
   ): Promise<Round> {
-    const record = await this.rounds.update(id, { followUpDate, followUpNote });
+    const record = await this.rounds.update(id, {
+      followUpDate,
+      followUpNote: encryptOptional(followUpNote),
+    });
     if (!record) throw new TrackerError("Round not found");
     return this.toRound(record);
   }
 
-  async addAttachment(id: string, attachment: RoundRecord["attachments"][number]): Promise<Round> {
+  async addAttachment(id: string, input: Attachment): Promise<Round> {
+    const attachment = { ...input, fileName: encrypt(input.fileName) };
     const current = await this.rounds.getById(id);
     if (!current) throw new TrackerError("Round not found");
     if (current.attachments.length >= 20)
@@ -398,7 +443,8 @@ export class TrackerService {
     const record = await this.rounds.update(id, {
       attachments: current.attachments.filter((attachment) => attachment.id !== attachmentId),
     });
-    return { round: this.toRound(record as RoundRecord), storageKey: removed?.storageKey ?? null };
+    const [orphaned] = removed ? await this.unreferenced([removed.storageKey]) : [];
+    return { round: this.toRound(record as RoundRecord), storageKey: orphaned ?? null };
   }
 
   /** Records that a reminder/prompt was sent (idempotency for scheduled jobs). */

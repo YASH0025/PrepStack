@@ -28,6 +28,8 @@ import { DEPTH_LEVEL } from "@/lib/domain";
 import { addDays, todayIn } from "@/lib/local-date";
 import { assessmentServiceFor } from "@/modules/assessment/service";
 import { requireUser } from "@/modules/auth/service";
+import { getCommunityService, slugForCompany } from "@/modules/community/service";
+import { RecentReportsCard } from "@/modules/community/ui/recent-reports-card";
 import { getContentService } from "@/modules/content/service";
 import { noticePlannerFor } from "@/modules/notice-planner/service";
 import { NoticeWidget } from "@/modules/notice-planner/ui/notice-widget";
@@ -38,6 +40,12 @@ import { regenerateRoadmapAction } from "@/modules/roadmap/actions";
 import { roadmapServiceFor } from "@/modules/roadmap/service";
 import { reviewServiceFor } from "@/modules/review/service";
 import { RoadmapItemRow } from "@/modules/roadmap/ui/roadmap-item-row";
+import { trackerToday } from "@/modules/tracker/today";
+import {
+  FollowUpsCard,
+  NextInterviewCard,
+  PendingDebriefsCard,
+} from "@/modules/tracker/ui/today-widgets";
 
 export const metadata: Metadata = { title: "Today" };
 
@@ -49,7 +57,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
 
   const content = getContentService();
   const roadmapService = roadmapServiceFor(user.id);
-  const [roadmap, topics, depths, history, flagged, notice, reviewStats, reviewQueue] =
+  const [roadmap, topics, depths, history, flagged, notice, reviewStats, reviewQueue, interviews] =
     await Promise.all([
       roadmapService.get(),
       content.topics({ trackId: profile.trackId, publishedOnly: true }),
@@ -59,7 +67,12 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
       noticePlannerFor(user.id).outcome(),
       reviewServiceFor(user.id).stats(),
       reviewServiceFor(user.id).queue(),
+      trackerToday(user.id, profile.timezone),
     ]);
+  const communityReports = await getCommunityService().recentForCompanies(
+    interviews.trackedCompanies.map(slugForCompany),
+    4,
+  );
   const topicMap = new Map(topics.map((topic) => [topic.id, topic]));
 
   const todayItems = roadmap?.items.filter((item) => item.scheduledDate === today) ?? [];
@@ -206,6 +219,10 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
           </Card>
 
           <div className="grid content-start gap-6">
+            <NextInterviewCard next={interviews.next} timezone={profile.timezone} />
+            <PendingDebriefsCard items={interviews.pendingDebriefs} timezone={profile.timezone} />
+            <FollowUpsCard items={interviews.followUps} />
+
             <Card>
               <CardHeader>
                 <CardTitle>Review</CardTitle>
@@ -280,6 +297,11 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
               </CardContent>
             </Card>
 
+            <RecentReportsCard
+              reports={communityReports}
+              hasTrackedCompanies={interviews.trackedCompanies.length > 0}
+            />
+
             {history.length === 0 && (
               <Card>
                 <CardHeader>
@@ -305,16 +327,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
                 </CardHeader>
                 <CardContent className="flex items-center justify-between text-sm">
                   <span>Ends {format(parseISO(roadmap.endDate), "d MMM")}</span>
-                  <Badge variant="muted">
-                    {Math.max(
-                      0,
-                      Math.round(
-                        (parseISO(roadmap.endDate).getTime() - parseISO(today).getTime()) /
-                          86_400_000,
-                      ) + 1,
-                    )}{" "}
-                    days left
-                  </Badge>
+                  <Badge variant="muted">{daysLeftLabel(roadmap.endDate, today)}</Badge>
                 </CardContent>
               </Card>
             )}
@@ -327,4 +340,12 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
 
 function reviewEmptyText(total: number): string {
   return total === 0 ? "Add questions to review from topic pages." : "All caught up for today.";
+}
+
+function daysLeftLabel(endDate: string, today: string): string {
+  const days = Math.max(
+    0,
+    Math.round((parseISO(endDate).getTime() - parseISO(today).getTime()) / 86_400_000) + 1,
+  );
+  return `${days} day${days === 1 ? "" : "s"} left`;
 }
