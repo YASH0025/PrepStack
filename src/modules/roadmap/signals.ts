@@ -4,8 +4,9 @@ import { type LocalDateString } from "@/lib/local-date";
 import { type ContentCatalog } from "@/modules/content/service";
 import { type Profile } from "@/modules/profile/schemas";
 import { progressServiceFor } from "@/modules/progress/service";
+import { trackerFor } from "@/modules/tracker/service";
 
-import { type DeadlineCandidate } from "./domain/deadline";
+import { type DeadlineCandidate, interviewDeadlines } from "./domain/deadline";
 import { type CommunitySignal, type WeaknessSignal } from "./domain/engine";
 
 /**
@@ -34,9 +35,10 @@ export function addWeakness(
 
 export async function collectRoadmapSignals(
   userId: string,
-  _profile: Profile,
+  profile: Profile,
   catalog: ContentCatalog,
   _today: LocalDateString,
+  now: Date = new Date(),
 ): Promise<RoadmapSignals> {
   const progress = progressServiceFor(userId);
   const known = new Set(catalog.topics.map((topic) => topic.id));
@@ -55,8 +57,26 @@ export async function collectRoadmapSignals(
     );
   }
 
+  // Upcoming technical interviews become deadlines (the plan finishes the day before).
+  const tracker = trackerFor(userId);
+  const [rounds, applications] = await Promise.all([
+    tracker.listRounds(),
+    tracker.listApplications(),
+  ]);
+  const company = new Map(applications.map((app) => [app.id, app.companyName]));
+  const deadlines = interviewDeadlines(
+    rounds.map((round) => ({
+      startUtc: round.startUtc,
+      status: round.status,
+      type: round.type,
+      companyName: company.get(round.applicationId) ?? "Interview",
+    })),
+    profile.timezone,
+    now,
+  );
+
   return {
-    deadlines: [],
+    deadlines,
     weakness,
     community: null,
     completedTopicIds: (await progress.completedTopicIds()).filter((id) => known.has(id)),

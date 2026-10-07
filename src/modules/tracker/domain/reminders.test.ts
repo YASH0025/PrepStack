@@ -6,7 +6,6 @@ import {
   dueReminder,
   needsDebriefPrompt,
   reminderKey,
-  shiftDate,
   upcomingConflicts,
 } from "./reminders";
 
@@ -182,8 +181,7 @@ describe("helpers", () => {
     ).toEqual(["conflict:a:2026-10-12T05:30:00.000Z:b:2026-10-12T06:00:00.000Z"]);
   });
 
-  it("shifts dates and describes offsets", () => {
-    expect(shiftDate("2026-03-01", -1)).toBe("2026-02-28");
+  it("describes offsets", () => {
     expect(describeOffset(1440)).toBe("1 day");
     expect(describeOffset(120)).toBe("2 hours");
     expect(describeOffset(30)).toBe("30 minutes");

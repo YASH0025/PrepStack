@@ -61,7 +61,7 @@ export class RoadmapService {
       }
     }
 
-    const signals = await collectRoadmapSignals(this.userId, profile, catalog, today);
+    const signals = await collectRoadmapSignals(this.userId, profile, catalog, today, now);
     const completedFromPlan = topicsFullyLearned(current?.items ?? []);
     const completedTopicIds = [...new Set([...completedFromPlan, ...signals.completedTopicIds])];
 

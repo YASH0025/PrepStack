@@ -1,3 +1,5 @@
+import { addDays } from "@/lib/local-date";
+
 import { detectConflicts } from "./rounds";
 
 /*
@@ -98,7 +100,7 @@ export function dueFollowUps(
   today: string,
   closedStatuses: readonly string[],
 ): DueFollowUp[] {
-  const earliest = shiftDate(today, -FOLLOW_UP_WINDOW_DAYS);
+  const earliest = addDays(today, -FOLLOW_UP_WINDOW_DAYS);
   const inWindow = (date: string | null): date is string =>
     date !== null && date <= today && date >= earliest;
   const closed = new Set(
@@ -136,13 +138,6 @@ export function upcomingConflicts<
   return detectConflicts(
     future as (T & { status: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "RESCHEDULED" })[],
   ).map(([a, b]) => ({ key: `conflict:${a.id}:${a.startUtc}:${b.id}:${b.startUtc}`, a, b }));
-}
-
-/** yyyy-MM-dd shifted by whole days. */
-export function shiftDate(date: string, days: number): string {
-  const value = new Date(`${date}T00:00:00Z`);
-  value.setUTCDate(value.getUTCDate() + days);
-  return value.toISOString().slice(0, 10);
 }
 
 /** "1 day", "2 hours", "30 minutes". */
