@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getStorageService } from "@/lib/services/file-storage";
 import { requireUser } from "@/modules/auth/service";
 import { getContentService } from "@/modules/content/service";
+import { noticePlannerFor } from "@/modules/notice-planner/service";
 import { requireProfile } from "@/modules/profile/service";
 import { roadmapServiceFor } from "@/modules/roadmap/service";
 import { followUpMarkers, revisionMarkers } from "@/modules/tracker/domain/calendar";
@@ -20,16 +21,24 @@ export default async function CalendarPage() {
   const user = await requireUser("/interviews/calendar");
   const profile = await requireProfile(user.id);
   const tracker = trackerFor(user.id);
-  const [applications, rounds, roadmap, topics] = await Promise.all([
+  const [applications, rounds, roadmap, topics, notice] = await Promise.all([
     tracker.listApplications(),
     tracker.listRounds(),
     roadmapServiceFor(user.id).get(),
     getContentService().topics({ trackId: profile.trackId, publishedOnly: true }),
+    noticePlannerFor(user.id).outcome(),
   ]);
   const topicNames = new Map(topics.map((topic) => [topic.id, topic.name]));
   const markers = [
     ...followUpMarkers(rounds, applications),
     ...revisionMarkers(roadmap?.items ?? [], (id) => topicNames.get(id)),
+    ...(notice?.outcome.markers ?? []).map((marker) => ({
+      id: `notice-${marker.kind}-${marker.date}`,
+      kind: "NOTICE" as const,
+      date: marker.date,
+      label: marker.label,
+      href: "/interviews/notice-planner",
+    })),
   ];
 
   return (

@@ -3,6 +3,7 @@ import "server-only";
 import { type LocalDateString } from "@/lib/local-date";
 import { type ContentCatalog } from "@/modules/content/service";
 import { type Profile } from "@/modules/profile/schemas";
+import { noticePlannerFor } from "@/modules/notice-planner/service";
 import { progressServiceFor } from "@/modules/progress/service";
 import { trackerFor } from "@/modules/tracker/service";
 
@@ -74,6 +75,16 @@ export async function collectRoadmapSignals(
     profile.timezone,
     now,
   );
+
+  // The end of the notice-period prep phase is also a deadline.
+  const notice = await noticePlannerFor(userId).outcome(now);
+  if (notice?.outcome.prepPhaseEnd) {
+    deadlines.push({
+      date: notice.outcome.prepPhaseEnd,
+      source: "NOTICE_PREP_END",
+      label: "End of the prep phase in your notice plan",
+    });
+  }
 
   return {
     deadlines,

@@ -388,3 +388,33 @@ export function TopicsToRevise({
     </ul>
   );
 }
+
+export function SuggestedStories({
+  stories,
+}: {
+  stories: { id: string; title: string; competencies: string[] }[];
+}) {
+  if (stories.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        No ready stories yet.{" "}
+        <Link href="/practice/stories/new" className="underline">
+          Write one
+        </Link>{" "}
+        for ownership, conflict or failure; they come up in most behavioral rounds.
+      </p>
+    );
+  }
+  return (
+    <ul className="grid gap-1.5">
+      {stories.map((story) => (
+        <li key={story.id} className="text-sm">
+          <Link href={`/practice/stories/${story.id}`} className="font-medium hover:underline">
+            {story.title}
+          </Link>
+          <span className="text-xs text-muted-foreground"> · {story.competencies.join(", ")}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}

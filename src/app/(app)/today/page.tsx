@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { CalendarCheck, ClipboardCheck, PartyPopper, Route, TriangleAlert } from "lucide-react";
+import {
+  Brain,
+  CalendarCheck,
+  ClipboardCheck,
+  PartyPopper,
+  Route,
+  TriangleAlert,
+} from "lucide-react";
 
 import { EmptyState, PageHeader } from "@/components/page";
 import { SubmitButton } from "@/components/form-bits";
@@ -22,11 +29,14 @@ import { addDays, todayIn } from "@/lib/local-date";
 import { assessmentServiceFor } from "@/modules/assessment/service";
 import { requireUser } from "@/modules/auth/service";
 import { getContentService } from "@/modules/content/service";
+import { noticePlannerFor } from "@/modules/notice-planner/service";
+import { NoticeWidget } from "@/modules/notice-planner/ui/notice-widget";
 import { requireProfile } from "@/modules/profile/service";
 import { TOPIC_STATUS_LABELS } from "@/modules/progress/schemas";
 import { progressServiceFor } from "@/modules/progress/service";
 import { regenerateRoadmapAction } from "@/modules/roadmap/actions";
 import { roadmapServiceFor } from "@/modules/roadmap/service";
+import { reviewServiceFor } from "@/modules/review/service";
 import { RoadmapItemRow } from "@/modules/roadmap/ui/roadmap-item-row";
 
 export const metadata: Metadata = { title: "Today" };
@@ -39,13 +49,17 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
 
   const content = getContentService();
   const roadmapService = roadmapServiceFor(user.id);
-  const [roadmap, topics, depths, history, flagged] = await Promise.all([
-    roadmapService.get(),
-    content.topics({ trackId: profile.trackId, publishedOnly: true }),
-    assessmentServiceFor(user.id).latestDepths(profile.trackId),
-    assessmentServiceFor(user.id).history(),
-    progressServiceFor(user.id).flaggedTopicIds(),
-  ]);
+  const [roadmap, topics, depths, history, flagged, notice, reviewStats, reviewQueue] =
+    await Promise.all([
+      roadmapService.get(),
+      content.topics({ trackId: profile.trackId, publishedOnly: true }),
+      assessmentServiceFor(user.id).latestDepths(profile.trackId),
+      assessmentServiceFor(user.id).history(),
+      progressServiceFor(user.id).flaggedTopicIds(),
+      noticePlannerFor(user.id).outcome(),
+      reviewServiceFor(user.id).stats(),
+      reviewServiceFor(user.id).queue(),
+    ]);
   const topicMap = new Map(topics.map((topic) => [topic.id, topic]));
 
   const todayItems = roadmap?.items.filter((item) => item.scheduledDate === today) ?? [];
@@ -194,6 +208,48 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
           <div className="grid content-start gap-6">
             <Card>
               <CardHeader>
+                <CardTitle>Review</CardTitle>
+                <CardDescription>
+                  {reviewQueue.cards.length > 0
+                    ? `${reviewQueue.cards.length} card${reviewQueue.cards.length === 1 ? "" : "s"} due`
+                    : reviewEmptyText(reviewStats.total)}
+                </CardDescription>
+                <CardAction>
+                  <Brain className="size-5 text-primary" aria-hidden />
+                </CardAction>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {reviewQueue.reason && (
+                  <p className="text-xs text-muted-foreground">{reviewQueue.reason}</p>
+                )}
+                <div className="flex items-center justify-between gap-2">
+                  {reviewQueue.cards.length > 0 ? (
+                    <Button asChild size="sm">
+                      <Link href="/practice/review/session">Start review</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/practice/review">Open review</Link>
+                    </Button>
+                  )}
+                  {reviewStats.reviewedThisWeek > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      {reviewStats.reviewedThisWeek} this week
+                      {reviewStats.streakDays > 1 && ` · ${reviewStats.streakDays}-day streak`}
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <NoticeWidget
+              plan={notice?.plan ?? null}
+              outcome={notice?.outcome ?? null}
+              today={today}
+            />
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Weak topics</CardTitle>
                 <CardDescription>From your diagnostic and your own flags.</CardDescription>
               </CardHeader>
@@ -267,4 +323,8 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
       </div>
     </>
   );
+}
+
+function reviewEmptyText(total: number): string {
+  return total === 0 ? "Add questions to review from topic pages." : "All caught up for today.";
 }

@@ -6,6 +6,7 @@ import {
   CalendarClock,
   CheckSquare,
   ExternalLink,
+  FileText,
   MapPin,
   Pencil,
   Repeat,
@@ -42,6 +43,7 @@ import {
   InterviewerQuestions,
   RescheduleHistory,
   RoundNotes,
+  SuggestedStories,
   TopicsToRevise,
 } from "./round-drawer-sections";
 import { RoundFormDialog } from "./round-form";
@@ -264,6 +266,11 @@ export function RoundDrawer({
           {/* 4. Prep (scheduled rounds) */}
           {scheduled && (
             <DrawerSection title="Prep">
+              <Button asChild size="sm" className="w-fit">
+                <Link href={`/interviews/rounds/${round.id}/revision-sheet`}>
+                  <FileText /> Open revision sheet
+                </Link>
+              </Button>
               <ChecklistEditor key={round.id} roundId={round.id} items={round.prepChecklist} />
               <div className="grid gap-2">
                 <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -275,6 +282,14 @@ export function RoundDrawer({
                   <TopicsToRevise topics={prep?.topicsToRevise ?? []} />
                 )}
               </div>
+              {prep?.stories && (
+                <div className="grid gap-2">
+                  <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Stories to rehearse
+                  </h4>
+                  <SuggestedStories stories={prep.stories} />
+                </div>
+              )}
               <div className="grid gap-2">
                 <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                   Questions to ask the interviewer

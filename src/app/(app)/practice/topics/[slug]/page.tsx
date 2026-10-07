@@ -12,6 +12,7 @@ import { TopicArticle } from "@/modules/content/ui/topic-article";
 import { requireProfile } from "@/modules/profile/service";
 import { progressServiceFor } from "@/modules/progress/service";
 import { SelfCheck } from "@/modules/progress/ui/self-check";
+import { reviewServiceFor } from "@/modules/review/service";
 import { TopicStatusControl } from "@/modules/progress/ui/topic-status-control";
 
 export async function generateMetadata({
@@ -31,13 +32,14 @@ export default async function TopicPage({ params }: PageProps<"/practice/topics/
   if (!topic || !topic.published) notFound();
 
   const progress = progressServiceFor(user.id);
-  const [questions, resources, edges, allTopics, status, savedIds] = await Promise.all([
+  const [questions, resources, edges, allTopics, status, savedIds, reviewIds] = await Promise.all([
     content.questions({ topicId: topic.id }),
     content.resources(topic.id),
     content.prerequisites(),
     content.topics({ trackId: topic.trackId, publishedOnly: true }),
     progress.statusOf(topic.id),
     progress.savedQuestionIds(),
+    reviewServiceFor(user.id).sourceIds("SAVED_QUESTION"),
   ]);
   const byId = new Map(allTopics.map((item) => [item.id, item]));
   const prerequisites = edges
@@ -116,6 +118,7 @@ export default async function TopicPage({ params }: PageProps<"/practice/topics/
               }))}
               defaultLevel={levelForBand(profile.experienceBand)}
               savedIds={[...savedIds]}
+              reviewIds={[...reviewIds]}
               canSave
             />
           </Section>

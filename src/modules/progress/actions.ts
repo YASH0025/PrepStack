@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { type ActionResult, fail, ok } from "@/lib/forms";
+import { levelForBand } from "@/lib/domain";
 import { requireUser } from "@/modules/auth/service";
+import { getProfile } from "@/modules/profile/service";
+import { reviewServiceFor } from "@/modules/review/service";
+import { cardFromQuestion } from "@/modules/review/sources";
 import { getContentService } from "@/modules/content/service";
 import { roadmapServiceFor } from "@/modules/roadmap/service";
 
@@ -63,8 +67,15 @@ export async function updateSavedNoteAction(input: unknown): Promise<ActionResul
 export async function checkSelfCheckAction(
   questionId: string,
   chosenIndex: number,
-): Promise<ActionResult<{ correct: boolean; correctIndex: number; explanation: string }>> {
-  await requireUser();
+): Promise<
+  ActionResult<{
+    correct: boolean;
+    correctIndex: number;
+    explanation: string;
+    addedToReview: boolean;
+  }>
+> {
+  const user = await requireUser();
   const parsed = z.object({ questionId: z.uuid(), chosenIndex: z.number().int().min(0).max(5) });
   const input = parsed.safeParse({ questionId, chosenIndex });
   if (!input.success) return fail("Invalid answer");
@@ -78,5 +89,21 @@ export async function checkSelfCheckAction(
     return fail("Question not found");
   }
   const correct = input.data.chosenIndex === question.correctIndex;
-  return ok({ correct, correctIndex: question.correctIndex, explanation: question.explanation });
+  // Wrong self-check answers go straight into spaced-repetition review.
+  let addedToReview = false;
+  if (!correct) {
+    const profile = await getProfile(user.id);
+    const card = cardFromQuestion(
+      question,
+      levelForBand(profile?.experienceBand ?? "2-4"),
+      "SELF_CHECK",
+    );
+    addedToReview = (await reviewServiceFor(user.id).addFromSource(card)).created;
+  }
+  return ok({
+    correct,
+    correctIndex: question.correctIndex,
+    explanation: question.explanation,
+    addedToReview,
+  });
 }
