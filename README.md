@@ -85,6 +85,25 @@ Profile → "Download my data" exports everything stored about the signed-in use
 (decrypted). "Delete my account" removes the account and the whole private folder; the user
 chooses whether their shared reports stay (they are already anonymous) or are deleted too.
 
+## Deploying with Docker
+
+```bash
+cp .env.example .env          # fill in the secrets; set APP_URL to your public URL
+docker compose up -d --build  # app on :3000 plus a scheduler that runs jobs every 5 minutes
+```
+
+- All data (including private user data) lives in the `prepstack-data` volume. Back it up,
+  together with `ENCRYPTION_KEY`: without that key encrypted fields cannot be read.
+- `GET /api/health` reports whether the data folder is writable (used by the container healthcheck).
+- Run one app container only: JSON storage and rate limits are per process.
+- `npm run build` ends with `scripts/clean-standalone.mjs`, which strips any traced `data/` or
+  `.env` files from `.next/standalone` and fails the build if private data is left.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push to `main` and on pull requests: `npm run check`,
+the Playwright end-to-end suite, and a Docker image build.
+
 ## Data
 
 In the current phase all data is stored as JSON files under `DATA_DIR` (default `./data`).
