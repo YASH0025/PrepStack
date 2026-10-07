@@ -41,3 +41,6 @@ next-env.d.ts
 
 # stray build/download artefacts
 *.whl
+
+# end-to-end test data
+/.e2e-data/
