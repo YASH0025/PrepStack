@@ -44,6 +44,7 @@ export async function POST(request: Request) {
   const problem = validateUpload({ data, mimeType: file.type, kind: "attachment" });
   if (problem) return Response.json({ error: problem }, { status: 400 });
 
+  let storageKey: string | null = null;
   try {
     const stored = await storage.upload({
       data,
@@ -52,6 +53,7 @@ export async function POST(request: Request) {
       kind: "attachment",
       ownerId: user.id,
     });
+    storageKey = stored.storageKey;
     await tracker.addAttachment(round.id, {
       id: randomUUID(),
       storageKey: stored.storageKey,
@@ -62,6 +64,8 @@ export async function POST(request: Request) {
     });
     return Response.json({ ok: true });
   } catch (error) {
+    // Never leave an uploaded file behind that no round points at.
+    if (storageKey) await storage.delete(storageKey).catch(() => undefined);
     if (error instanceof TrackerError)
       return Response.json({ error: error.message }, { status: 400 });
     console.error("[uploads] upload failed", error);

@@ -13,7 +13,7 @@ import { type ReportDraft, ReportDraftSchema } from "@/modules/community/schemas
 import { getCommunityService } from "@/modules/community/service";
 
 import { debriefsFor } from "./debrief-service";
-import { ShareError, scrubEditedDraft, shareContext } from "./share";
+import { ShareError, companyMismatch, scrubEditedDraft, shareContext } from "./share";
 
 const Id = z.uuid();
 
@@ -46,6 +46,8 @@ export async function previewShareAction(
   if (!parsed.success) return fail("Check the highlighted fields", fieldErrorsFrom(parsed.error));
   try {
     const { context } = await load(roundId);
+    const mismatch = companyMismatch(context, parsed.data);
+    if (mismatch) return fail(mismatch, { companyName: [mismatch] });
     const { draft, findings } = scrubEditedDraft(context, parsed.data);
     return ok({ draft, removed: summarize(findings) });
   } catch (error) {
@@ -72,6 +74,8 @@ export async function publishShareAction(
     if (context.debrief.publishedReportIds.length >= 10) {
       return fail("You have already shared this round several times");
     }
+    const mismatch = companyMismatch(context, parsed.data);
+    if (mismatch) return fail(mismatch, { companyName: [mismatch] });
     const { draft, findings } = scrubEditedDraft(context, parsed.data);
     if (findings.length > 0 || !isDeepStrictEqual(draft, parsed.data)) {
       return fail("We found more personal details. Review the preview again before publishing.");

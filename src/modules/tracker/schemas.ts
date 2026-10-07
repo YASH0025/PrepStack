@@ -172,7 +172,8 @@ export const ApplicationRecordSchema = recordSchema({
   offerJoiningDate: LocalDateSchema.nullable(),
   notes: EncryptedStringSchema.nullable(),
   followUpDate: LocalDateSchema.nullable(),
-  outcome: z.string().max(500).nullable(),
+  /** Private note on how it ended: encrypted at rest. */
+  outcome: EncryptedStringSchema.nullable(),
   customValues: z.record(z.string(), CustomValueSchema),
   kanbanOrder: z.number(),
 });
@@ -185,15 +186,18 @@ export const ChecklistItemSchema = z.object({
 });
 export type ChecklistItem = z.infer<typeof ChecklistItemSchema>;
 
-export const AttachmentSchema = z.object({
+/** Stored attachment metadata. The original file name can contain names, so it is encrypted. */
+export const AttachmentRecordSchema = z.object({
   id: z.uuid(),
   storageKey: z.string().min(1).max(500),
-  fileName: z.string().min(1).max(200),
+  fileName: EncryptedStringSchema,
   mimeType: z.string().min(1).max(120),
   bytes: z.number().int().nonnegative(),
   uploadedAt: IsoDateTimeSchema,
 });
-export type Attachment = z.infer<typeof AttachmentSchema>;
+export type AttachmentRecord = z.infer<typeof AttachmentRecordSchema>;
+/** Decrypted attachment, for the owner only. */
+export type Attachment = Omit<AttachmentRecord, "fileName"> & { fileName: string };
 
 export const RoundRecordSchema = recordSchema({
   applicationId: z.uuid(),
@@ -210,7 +214,8 @@ export const RoundRecordSchema = recordSchema({
   status: RoundStatusSchema,
   result: RoundResultSchema,
   people: EncryptedStringSchema.nullable(),
-  cancelReason: z.string().max(500).nullable(),
+  /** Private notes: encrypted at rest. */
+  cancelReason: EncryptedStringSchema.nullable(),
   cancelledBy: CancelledBySchema.nullable(),
   rescheduledFromId: z.uuid().nullable(),
   rescheduledToId: z.uuid().nullable(),
@@ -224,11 +229,11 @@ export const RoundRecordSchema = recordSchema({
     )
     .max(5),
   followUpDate: LocalDateSchema.nullable(),
-  followUpNote: z.string().max(300).nullable(),
+  followUpNote: EncryptedStringSchema.nullable(),
   prepChecklist: z.array(ChecklistItemSchema).max(50),
   interviewerQuestions: z.array(z.string().min(1).max(300)).max(30),
   notes: EncryptedStringSchema.nullable(),
-  attachments: z.array(AttachmentSchema).max(20),
+  attachments: z.array(AttachmentRecordSchema).max(20),
   /** Idempotency keys of reminders/prompts already sent for this round. */
   sentReminders: z.array(z.object({ key: z.string().max(100), sentAt: IsoDateTimeSchema })).max(50),
 }).refine((round) => round.endUtc > round.startUtc, {
@@ -254,18 +259,25 @@ export type CustomField = z.infer<typeof CustomFieldSchema>;
 
 export type Application = Omit<
   ApplicationRecord,
-  "referrerName" | "agency" | "expectedSalary" | "offeredSalary" | "notes"
+  "referrerName" | "agency" | "expectedSalary" | "offeredSalary" | "notes" | "outcome"
 > & {
   referrerName: string | null;
   agency: string | null;
   expectedSalary: string | null;
   offeredSalary: string | null;
   notes: string | null;
+  outcome: string | null;
 };
 
-export type Round = Omit<RoundRecord, "people" | "notes"> & {
+export type Round = Omit<
+  RoundRecord,
+  "people" | "notes" | "cancelReason" | "followUpNote" | "attachments"
+> & {
   people: People;
+  attachments: Attachment[];
   notes: string | null;
+  cancelReason: string | null;
+  followUpNote: string | null;
 };
 
 /* ---------------------------------------------------------------------------

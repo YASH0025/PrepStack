@@ -129,6 +129,7 @@ export function ShareForm({
         <ReportDraftFields
           form={form}
           topicNames={topicNames}
+          lockCompany
           onQuestionRemoved={() => {
             setPreview(null);
             setConfirmed(false);

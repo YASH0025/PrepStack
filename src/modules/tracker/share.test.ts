@@ -4,7 +4,7 @@ import { getCommunityService } from "@/modules/community/service";
 
 import { DebriefInputSchema } from "./debrief-schemas";
 import { debriefsFor } from "./debrief-service";
-import { initialShareDraft, scrubEditedDraft, shareContext } from "./share";
+import { companyMismatch, initialShareDraft, scrubEditedDraft, shareContext } from "./share";
 import { trackerFor } from "./service";
 
 const USER = { id: "79797979-7979-4797-8797-797979797979", email: "dev.person@example.com" };
@@ -108,6 +108,19 @@ describe("share anonymized version", () => {
     expect(edited.draft.summary).toBe(
       "Thanks [name removed] ([email removed]), they offered [amount removed]",
     );
+
+    // A name typed into the company field is neither exempted nor kept.
+    const sneaky = scrubEditedDraft(context, {
+      ...draft,
+      companyName: "Umbrella Labs via Neha",
+      summary: "Neha Kapoor helped",
+    });
+    expect(sneaky.draft.companyName).toBe("Umbrella Labs via [name removed]");
+    expect(sneaky.draft.summary).toBe("[name removed] helped");
+    expect(companyMismatch(context, { ...draft, companyName: "Umbrella Labs via Neha" })).toMatch(
+      /must stay "Umbrella Labs"/,
+    );
+    expect(companyMismatch(context, { ...draft, companyName: "UMBRELLA labs" })).toBeNull();
 
     // Publishing stores no link back; only the private debrief remembers the report.
     const report = await getCommunityService().submit(edited.draft);

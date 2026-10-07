@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getStorageService } from "@/lib/services/file-storage";
 import { deletePrivateUserDir } from "@/lib/storage/paths";
 import { assessmentServiceFor } from "@/modules/assessment/service";
 import { getAuthCore, getUserRepository } from "@/modules/auth/service";
@@ -117,6 +118,9 @@ export async function deleteAccount(
   await deleteAttachmentFiles(
     rounds.flatMap((round) => round.attachments.map((attachment) => attachment.storageKey)),
   );
+  // Also catches files no round points at any more (failed deletes, avatars).
+  const storage = getStorageService();
+  if (storage.enabled) await storage.deleteAllForOwner(userId);
   await deletePrivateUserDir(userId);
   await getAuthCore().deleteUser(userId);
 }

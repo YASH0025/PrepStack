@@ -33,10 +33,13 @@ export function ReportDraftFields({
   form,
   topicNames,
   onQuestionRemoved,
+  lockCompany = false,
 }: {
   form: DraftForm;
   topicNames: Record<string, string>;
   onQuestionRemoved?: () => void;
+  /** Authors share about their tracked company; only moderators may change it. */
+  lockCompany?: boolean;
 }) {
   const { register, control, formState } = form;
   const errors = formState.errors;
@@ -44,8 +47,13 @@ export function ReportDraftFields({
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id="report-company" label="Company" error={errors.companyName}>
-          {(props) => <Input {...props} {...register("companyName")} />}
+        <FormField
+          id="report-company"
+          label="Company"
+          hint={lockCompany ? "From your tracker." : undefined}
+          error={errors.companyName}
+        >
+          {(props) => <Input {...props} readOnly={lockCompany} {...register("companyName")} />}
         </FormField>
         <FormField id="report-role" label="Role" error={errors.roleTitle}>
           {(props) => <Input {...props} {...register("roleTitle")} />}

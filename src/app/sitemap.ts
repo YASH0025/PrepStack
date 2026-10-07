@@ -25,8 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     ...reports.map((report) => ({
+      // No exact timestamps: votes and moderation would reveal activity times.
       url: `${base}/reports/${report.id}`,
-      lastModified: report.updatedAt,
       changeFrequency: "yearly" as const,
       priority: 0.5,
     })),

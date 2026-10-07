@@ -1,5 +1,6 @@
 import "server-only";
 
+import { companyKey, slugify } from "@/lib/domain";
 import { localDateOf } from "@/lib/local-date";
 import {
   type Finding,
@@ -114,10 +115,28 @@ export function initialShareDraft(
   });
 }
 
-/** Re-runs the scrub on the user's edited draft (preview and publish both use this). */
+/**
+ * The shared report must be about the company of this application. Returns an
+ * error message when the edited company no longer matches.
+ */
+export function companyMismatch(context: ShareContext, draft: ReportDraft): string | null {
+  const edited = companyKey(draft.companyName) || slugify(draft.companyName);
+  return edited === context.application.companyKey
+    ? null
+    : `The company must stay "${context.application.companyName}". Edit it in the tracker if it is wrong.`;
+}
+
+/**
+ * Re-runs the scrub on the user's edited draft (preview and publish both use
+ * this). The exempt company words come from the SAVED application, never from
+ * the edited draft, so typing a name into the company field cannot exempt it.
+ */
 export function scrubEditedDraft(
   context: ShareContext,
   draft: ReportDraft,
 ): { draft: ReportDraft; findings: Finding[] } {
-  return scrubDraft(draft, personalTermsExcept(context.personalTerms, draft.companyName));
+  return scrubDraft(
+    draft,
+    personalTermsExcept(context.personalTerms, context.application.companyName),
+  );
 }
