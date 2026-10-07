@@ -18,4 +18,5 @@ export interface FlagRepository extends CrudRepository<ReportFlag> {
   hasOpenFlag(reportId: string, userId: string): Promise<boolean>;
   resolveForReport(reportId: string, resolution: string): Promise<number>;
   deleteForReport(reportId: string): Promise<void>;
+  deleteForUser(userId: string): Promise<void>;
 }

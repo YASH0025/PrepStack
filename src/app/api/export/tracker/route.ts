@@ -4,6 +4,7 @@ import { ROUND_TYPE_LABELS } from "@/lib/domain";
 import { csvResponse } from "@/lib/csv";
 import { formatRoundTime } from "@/lib/format";
 import { todayIn } from "@/lib/local-date";
+import { RATE_LIMITS, rateLimit } from "@/lib/rate-limit";
 import { getUserForApi } from "@/modules/auth/service";
 import { getProfile } from "@/modules/profile/service";
 import {
@@ -23,6 +24,9 @@ import { trackerFor } from "@/modules/tracker/service";
 export async function GET(request: NextRequest) {
   const user = await getUserForApi();
   if (!user) return new Response("Unauthorized", { status: 401 });
+  if (!rateLimit(`export:${user.id}`, RATE_LIMITS.export).ok) {
+    return new Response("Too many exports. Try again later.", { status: 429 });
+  }
 
   const type = request.nextUrl.searchParams.get("type") === "rounds" ? "rounds" : "applications";
   const tracker = trackerFor(user.id);
