@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
-
 import { describe, expect, it } from "vitest";
 
 import { privatePath } from "@/lib/storage/paths";
+import { readStored } from "@/test/stored";
 
 import { ApplicationInputSchema, RoundInputSchema } from "./schemas";
 import { trackerFor } from "./service";
@@ -60,8 +59,8 @@ describe("TrackerService", () => {
     const application = await tracker.createApplication(applicationInput);
     await tracker.createRound(roundInput(application.id));
 
-    const applicationsFile = await readFile(privatePath(USER, "applications.json"), "utf8");
-    const roundsFile = await readFile(privatePath(USER, "rounds.json"), "utf8");
+    const applicationsFile = await readStored(privatePath(USER, "applications.json"));
+    const roundsFile = await readStored(privatePath(USER, "rounds.json"));
     for (const secret of ["32 LPA", "Rahul Verma", "budget is flexible"]) {
       expect(applicationsFile).not.toContain(secret);
     }

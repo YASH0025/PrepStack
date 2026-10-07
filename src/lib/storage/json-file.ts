@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type z } from "zod";
 
+import { getStorageDriver } from "./driver";
 import { type MigrationMap, StorageValidationError, formatZodIssues } from "./types";
 
 /** Writes JSON atomically: write to a temp file in the same folder, then rename over the target. */
@@ -95,7 +96,8 @@ export function migrateEnvelope(
 export async function readEnvelope<S extends z.ZodType>(
   spec: EnvelopeSpec<S>,
 ): Promise<z.infer<S>> {
-  const raw = await readJsonRaw(spec.filePath);
+  const driver = await getStorageDriver();
+  const raw = await driver.read(spec.filePath);
   if (raw === undefined) return spec.empty();
 
   const { envelope, migrated } = migrateEnvelope(
@@ -109,7 +111,7 @@ export async function readEnvelope<S extends z.ZodType>(
     throw new StorageValidationError(spec.filePath, formatZodIssues(parsed.error));
   }
   if (migrated) {
-    await writeJsonAtomic(spec.filePath, spec.encode ? spec.encode(parsed.data) : parsed.data);
+    await driver.write(spec.filePath, spec.encode ? spec.encode(parsed.data) : parsed.data);
   }
   return parsed.data;
 }
@@ -123,5 +125,6 @@ export async function writeEnvelope<S extends z.ZodType>(
   if (!parsed.success) {
     throw new StorageValidationError(spec.filePath, formatZodIssues(parsed.error));
   }
-  await writeJsonAtomic(spec.filePath, spec.encode ? spec.encode(parsed.data) : parsed.data);
+  const driver = await getStorageDriver();
+  await driver.write(spec.filePath, spec.encode ? spec.encode(parsed.data) : parsed.data);
 }

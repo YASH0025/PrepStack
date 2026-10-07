@@ -26,6 +26,16 @@ const EnvSchema = z
     APP_URL: z.url().default("http://localhost:3000"),
     /** Root folder for JSON data files. Must be on a persistent disk. */
     DATA_DIR: z.string().min(1).default("./data"),
+    /** Where data is stored: JSON files under DATA_DIR, or PostgreSQL at DATABASE_URL. */
+    STORAGE_DRIVER: z.enum(["json", "postgres"]).default("json"),
+    /** PostgreSQL connection string. Required when STORAGE_DRIVER=postgres. */
+    DATABASE_URL: optionalString,
+
+    /** OAuth sign-in (Postgres mode only). Set both values of a pair to enable it. */
+    GOOGLE_CLIENT_ID: optionalString,
+    GOOGLE_CLIENT_SECRET: optionalString,
+    GITHUB_CLIENT_ID: optionalString,
+    GITHUB_CLIENT_SECRET: optionalString,
 
     /** Signs session cookies (JWT, HS256). */
     SESSION_SECRET: z.string().min(32, "must be at least 32 characters"),
@@ -57,6 +67,25 @@ const EnvSchema = z
     COMMUNITY_MIN_SAMPLE: z.coerce.number().int().min(1).default(5),
   })
   .superRefine((value, ctx) => {
+    if (value.STORAGE_DRIVER === "postgres" && !value.DATABASE_URL) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["DATABASE_URL"],
+        message: "required when STORAGE_DRIVER=postgres",
+      });
+    }
+    for (const [id, secret] of [
+      ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+      ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"],
+    ] as const) {
+      if (Boolean(value[id]) !== Boolean(value[secret])) {
+        ctx.addIssue({
+          code: "custom",
+          path: [id],
+          message: `set both ${id} and ${secret}, or neither`,
+        });
+      }
+    }
     const cloudinary = [
       value.CLOUDINARY_CLOUD_NAME,
       value.CLOUDINARY_API_KEY,

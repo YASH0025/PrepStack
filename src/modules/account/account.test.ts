@@ -1,8 +1,7 @@
-import { access } from "node:fs/promises";
-
 import { describe, expect, it } from "vitest";
 
 import { privateUserDir } from "@/lib/storage/paths";
+import { folderHasData } from "@/test/stored";
 import { getAuthCore, getUserRepository } from "@/modules/auth/service";
 import { getCommunityService } from "@/modules/community/service";
 import { DebriefInputSchema } from "@/modules/tracker/debrief-schemas";
@@ -10,12 +9,6 @@ import { debriefsFor } from "@/modules/tracker/debrief-service";
 import { trackerFor } from "@/modules/tracker/service";
 
 import { buildAccountExport, deleteAccount } from "./service";
-
-const exists = (path: string) =>
-  access(path).then(
-    () => true,
-    () => false,
-  );
 
 async function userWithSharedReport(email: string) {
   const signup = await getAuthCore().signup({ email, password: "password123" });
@@ -120,7 +113,7 @@ describe("account data", () => {
     await community.toggleVote(keep.reportId, keep.userId);
 
     await deleteAccount(keep.userId, { reports: "ANONYMIZE" });
-    expect(await exists(privateUserDir(keep.userId))).toBe(false);
+    expect(await folderHasData(privateUserDir(keep.userId))).toBe(false);
     expect(await getUserRepository().getById(keep.userId)).toBeNull();
     const kept = await community.getPublished(keep.reportId);
     expect(kept?.usefulCount).toBe(0);

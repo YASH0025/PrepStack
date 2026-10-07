@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
-
 import { describe, expect, it } from "vitest";
 
 import { privatePath } from "@/lib/storage/paths";
+import { readStored } from "@/test/stored";
 
 import { DebriefInputSchema } from "./debrief-schemas";
 import { debriefsFor } from "./debrief-service";
@@ -93,7 +92,7 @@ describe("DebriefService", () => {
     expect(first.reviewQuestions.map((question) => question.text)).toEqual(["Explain closures"]);
     expect((await tracker.getRound(round.id))?.status).toBe("COMPLETED");
 
-    const onDisk = await readFile(privatePath(USER, "debriefs.json"), "utf8");
+    const onDisk = await readStored(privatePath(USER, "debriefs.json"));
     expect(onDisk).not.toContain("Secret feedback");
     expect(onDisk).not.toContain("Function + lexical scope");
     expect((await service.get(round.id))?.interviewerFeedback).toBe(

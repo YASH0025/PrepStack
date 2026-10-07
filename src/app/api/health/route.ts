@@ -1,16 +1,13 @@
-import { access, constants, mkdir } from "node:fs/promises";
-
-import { dataRoot } from "@/lib/storage/paths";
+import { getStorageDriver } from "@/lib/storage/driver";
 
 export const dynamic = "force-dynamic";
 
-/** Liveness/readiness for Docker and load balancers: the data folder must be writable. */
+/** Liveness/readiness for Docker and load balancers: storage must be reachable and writable. */
 export async function GET() {
-  try {
-    await mkdir(dataRoot(), { recursive: true });
-    await access(dataRoot(), constants.W_OK);
-    return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
-  } catch {
-    return Response.json({ ok: false, error: "data folder not writable" }, { status: 503 });
-  }
+  const driver = await getStorageDriver();
+  const ok = await driver.health();
+  return Response.json(
+    ok ? { ok, storage: driver.name } : { ok, storage: driver.name, error: "storage unavailable" },
+    { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } },
+  );
 }

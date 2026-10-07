@@ -1,9 +1,7 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-
 import { describe, expect, it } from "vitest";
 
 import { privatePath } from "@/lib/storage/paths";
+import { readStored, writeStored } from "@/test/stored";
 
 import { trackerFor } from "./service";
 
@@ -16,8 +14,7 @@ describe("tracker storage v1 → v2", () => {
   it("encrypts plain-text notes and attachment names on first read", async () => {
     const applications = privatePath(USER, "applications.json");
     const rounds = privatePath(USER, "rounds.json");
-    await mkdir(path.dirname(applications), { recursive: true });
-    await writeFile(
+    await writeStored(
       applications,
       JSON.stringify({
         schemaVersion: 1,
@@ -48,7 +45,7 @@ describe("tracker storage v1 → v2", () => {
         ],
       }),
     );
-    await writeFile(
+    await writeStored(
       rounds,
       JSON.stringify({
         schemaVersion: 1,
@@ -103,8 +100,8 @@ describe("tracker storage v1 → v2", () => {
     expect([round?.cancelReason, round?.followUpNote]).toEqual(["Ravi cancelled", "Email Ravi"]);
     expect(round?.attachments[0]?.fileName).toBe("Offer_Asha_Rao.pdf");
 
-    const onDisk = (await readFile(applications, "utf8")) + (await readFile(rounds, "utf8"));
+    const onDisk = (await readStored(applications)) + (await readStored(rounds));
     for (const secret of ["Asha", "Ravi"]) expect(onDisk).not.toContain(secret);
-    expect(JSON.parse(await readFile(rounds, "utf8")).schemaVersion).toBe(2);
+    expect(JSON.parse(await readStored(rounds)).schemaVersion).toBe(2);
   });
 });

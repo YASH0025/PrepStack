@@ -1,5 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { readStored, writeStored } from "@/test/stored";
 
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -46,9 +45,8 @@ describe("fieldCipher", () => {
 
   it("stores ciphertext on disk and upgrades legacy plain-text files", async () => {
     const filePath = privatePath("11111111-2222-4333-8444-555555555555", "stories.json");
-    await mkdir(path.dirname(filePath), { recursive: true });
     const now = new Date().toISOString();
-    await writeFile(
+    await writeStored(
       filePath,
       JSON.stringify({
         schemaVersion: 1,
@@ -73,9 +71,9 @@ describe("fieldCipher", () => {
       cipher: fieldCipher(["title"]),
     });
     expect((await collection.list())[0]?.title).toBe("Fight with Ravi");
-    expect(await readFile(filePath, "utf8")).not.toContain("Ravi");
+    expect(await readStored(filePath)).not.toContain("Ravi");
     await collection.create({ title: "New secret", empty: "", questions: [], plain: 3 });
-    const disk = await readFile(filePath, "utf8");
+    const disk = await readStored(filePath);
     expect(disk).not.toContain("New secret");
     expect((await collection.list()).map((record) => record.title)).toEqual([
       "Fight with Ravi",
