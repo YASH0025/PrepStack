@@ -20,6 +20,7 @@ import {
   RescheduleRoundInputSchema,
   RoundInputSchema,
 } from "./schemas";
+import { type RoundPrep, buildRoundPrep } from "./prep";
 import { TrackerError, trackerFor } from "./service";
 
 const Id = z.uuid();
@@ -294,6 +295,32 @@ export async function setRoundFollowUpAction(input: unknown): Promise<ActionResu
       parsed.data.followUpDate,
       parsed.data.followUpNote,
     );
+    done();
+    return ok();
+  });
+}
+
+/** Prep details for the calendar drawer, loaded when a round is opened. */
+export async function loadRoundPrepAction(roundId: string): Promise<ActionResult<RoundPrep>> {
+  const user = await requireUser();
+  const parsed = Id.safeParse(roundId);
+  if (!parsed.success) return fail("Invalid round");
+  const round = await trackerFor(user.id).getRound(parsed.data);
+  if (!round) return fail("Round not found");
+  return ok(await buildRoundPrep(user.id, round));
+}
+
+export async function removeAttachmentAction(
+  roundId: string,
+  attachmentId: string,
+): Promise<ActionResult> {
+  const user = await requireUser();
+  return guard(async () => {
+    const { storageKey } = await trackerFor(user.id).removeAttachment(
+      Id.parse(roundId),
+      Id.parse(attachmentId),
+    );
+    if (storageKey) await afterRoundsDeleted(user.id, [{ id: roundId, storageKeys: [storageKey] }]);
     done();
     return ok();
   });
