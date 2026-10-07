@@ -6,6 +6,7 @@ The full product specification lives in [docs/PROJECT_BRIEF.md](docs/PROJECT_BRI
 
 ## Requirements
 
+
 - Node.js 22 LTS
 - npm 10+
 
