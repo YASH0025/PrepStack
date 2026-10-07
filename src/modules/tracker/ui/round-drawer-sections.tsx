@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2,
   X,
+  Share2,
 } from "lucide-react";
 
 import { FormField } from "@/components/rhf";
@@ -506,6 +507,12 @@ export function DebriefSummary({ roundId, debrief }: { roundId: string; debrief:
         <Button asChild size="sm" variant="outline">
           <Link href={`/interviews/rounds/${roundId}/debrief`}>
             <Pencil /> Edit debrief
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/interviews/rounds/${roundId}/share`}>
+            <Share2 />{" "}
+            {debrief.publishedReportIds.length > 0 ? "Shared reports" : "Share anonymized version"}
           </Link>
         </Button>
       </div>
