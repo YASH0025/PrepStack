@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 import { Columns3, Loader2, Trash2 } from "lucide-react";
 
@@ -45,7 +45,7 @@ export function CustomFieldsDialog({ fields }: { fields: CustomField[] }) {
     resolver: zodResolver(CustomFieldInputSchema),
     defaultValues: { name: "", type: "TEXT", options: [] },
   });
-  const type = form.watch("type");
+  const type = useWatch({ control: form.control, name: "type" });
 
   const submit = form.handleSubmit((values) =>
     startTransition(async () => {

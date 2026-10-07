@@ -95,6 +95,7 @@ describe("DebriefService", () => {
 
     const onDisk = await readFile(privatePath(USER, "debriefs.json"), "utf8");
     expect(onDisk).not.toContain("Secret feedback");
+    expect(onDisk).not.toContain("Function + lexical scope");
     expect((await service.get(round.id))?.interviewerFeedback).toBe(
       "Secret feedback from the panel",
     );

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
@@ -100,10 +100,10 @@ export function RoundFormDialog({
     resolver: zodResolver(RoundInputSchema),
     defaultValues: initial(),
   });
-  const { register, control, watch, formState } = form;
+  const { register, control, formState } = form;
   const errors = formState.errors;
   const interviewers = useFieldArray({ control, name: "people.interviewers" });
-  const mode = watch("mode");
+  const mode = useWatch({ control, name: "mode" });
 
   const submit = form.handleSubmit((values) =>
     startTransition(async () => {

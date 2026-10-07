@@ -143,7 +143,7 @@ export function CalendarView({
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid min-w-0 gap-4 [&>*]:min-w-0">
       <div className="flex flex-wrap items-end gap-2">
         <FilterSelect
           label="Company"

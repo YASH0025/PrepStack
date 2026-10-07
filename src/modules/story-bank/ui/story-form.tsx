@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 import { Loader2, Trash2 } from "lucide-react";
 
@@ -55,10 +55,10 @@ export function StoryForm({
     mode: "onTouched",
     defaultValues: defaults,
   });
-  const { register, control, formState, watch } = form;
+  const { register, control, formState } = form;
   const errors = formState.errors;
-  const status = watch("status");
-  const action = watch("action") ?? "";
+  const status = useWatch({ control, name: "status" });
+  const action = useWatch({ control, name: "action" }) ?? "";
 
   const submit = form.handleSubmit((values) =>
     startTransition(async () => {
