@@ -118,6 +118,7 @@ function createSession(store: MockStore, input: NewSessionInput): Promise<MockSe
     status: "SCHEDULED",
     cancelledBy: null,
     noShowUserId: null,
+    remindedUserIds: [],
   });
 }
 
@@ -492,6 +493,15 @@ export class MockService {
       p.userId === this.me ? p : { ...p, questionIds },
     ) as MockSession["participants"];
     await this.store.sessions.update(session.id, { participants });
+  }
+
+  /** Scheduler: records that I was sent the 1-hour reminder. */
+  async markReminded(sessionId: string): Promise<void> {
+    const session = await this.requireParticipant(sessionId);
+    if (session.remindedUserIds.includes(this.me)) return;
+    await this.store.sessions.update(sessionId, {
+      remindedUserIds: [...session.remindedUserIds, this.me],
+    });
   }
 
   /* ------------------------------ feedback ----------------------------- */

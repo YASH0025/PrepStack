@@ -3,6 +3,8 @@ import "server-only";
 import { type LocalDateString } from "@/lib/local-date";
 import { rangeLabel } from "@/modules/community/domain/frequency";
 import { getCommunityService } from "@/modules/community/service";
+import { getContentService } from "@/modules/content/service";
+import { mockFor } from "@/modules/mock/service";
 import { type ContentCatalog } from "@/modules/content/service";
 import { type Profile } from "@/modules/profile/schemas";
 import { noticePlannerFor } from "@/modules/notice-planner/service";
@@ -74,6 +76,27 @@ export async function collectRoadmapSignals(
         "partial",
         "You partly answered a question on this in an interview.",
       );
+    }
+  }
+
+  // Questions a mock interview partner rated as missed or partly answered.
+  const mockFeedback = await mockFor(userId).feedbackReceived();
+  if (mockFeedback.length > 0) {
+    const content = getContentService();
+    for (const feedback of mockFeedback) {
+      for (const item of feedback.questions) {
+        if (item.rating === "NAILED") continue;
+        const question = await content.question(item.questionId);
+        if (!question || !known.has(question.topicId)) continue;
+        addWeakness(
+          weakness,
+          question.topicId,
+          item.rating === "MISSED" ? "missed" : "partial",
+          item.rating === "MISSED"
+            ? "You missed a question on this in a mock interview."
+            : "You partly answered a question on this in a mock interview.",
+        );
+      }
     }
   }
 

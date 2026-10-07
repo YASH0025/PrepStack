@@ -73,6 +73,8 @@ export const MockSessionSchema = recordSchema({
   cancelledBy: IdSchema.nullable(),
   /** Participant who did not show up, when status is NO_SHOW. */
   noShowUserId: IdSchema.nullable(),
+  /** Participants already emailed the 1-hour reminder (scheduler idempotency). */
+  remindedUserIds: z.array(IdSchema).max(2),
 });
 export type MockSession = z.infer<typeof MockSessionSchema>;
 
