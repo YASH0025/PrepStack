@@ -2,6 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
+import { fieldCipher } from "@/lib/storage/field-cipher";
 import { JsonCollection } from "@/lib/storage/json-collection";
 import { privatePath } from "@/lib/storage/paths";
 import { type NewRecord } from "@/lib/storage/types";
@@ -28,7 +29,16 @@ export class JsonDebriefRepository implements DebriefRepository {
     this.collection = new JsonCollection<DebriefRecord>({
       filePath: privatePath(userId, "debriefs.json"),
       recordSchema: DebriefRecordSchema,
-      schemaVersion: 1,
+      schemaVersion: 2,
+      // v1 → v2: Answer notes and problem details (feedback etc. are encrypted by the service).
+      // Identity migration; the write-back encrypts existing plain text.
+      migrations: { 1: (envelope) => envelope },
+      cipher: fieldCipher([
+        "questions[].answerNotes",
+        "codingProblem",
+        "systemDesignPrompt",
+        "takeHome",
+      ]),
     });
   }
 

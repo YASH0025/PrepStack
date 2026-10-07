@@ -42,6 +42,10 @@ export interface EnvelopeSpec<S extends z.ZodType> {
   migrations?: MigrationMap;
   /** Envelope used when the file does not exist yet. */
   empty: () => z.infer<S>;
+  /** Applied after migrations and before validation (e.g. field decryption). */
+  decode?: (envelope: unknown) => unknown;
+  /** Applied after validation, right before writing (e.g. field encryption). */
+  encode?: (envelope: z.infer<S>) => unknown;
 }
 
 /**
@@ -100,12 +104,12 @@ export async function readEnvelope<S extends z.ZodType>(
     spec.schemaVersion,
     spec.migrations,
   );
-  const parsed = spec.schema.safeParse(envelope);
+  const parsed = spec.schema.safeParse(spec.decode ? spec.decode(envelope) : envelope);
   if (!parsed.success) {
     throw new StorageValidationError(spec.filePath, formatZodIssues(parsed.error));
   }
   if (migrated) {
-    await writeJsonAtomic(spec.filePath, parsed.data);
+    await writeJsonAtomic(spec.filePath, spec.encode ? spec.encode(parsed.data) : parsed.data);
   }
   return parsed.data;
 }
@@ -119,5 +123,5 @@ export async function writeEnvelope<S extends z.ZodType>(
   if (!parsed.success) {
     throw new StorageValidationError(spec.filePath, formatZodIssues(parsed.error));
   }
-  await writeJsonAtomic(spec.filePath, parsed.data);
+  await writeJsonAtomic(spec.filePath, spec.encode ? spec.encode(parsed.data) : parsed.data);
 }

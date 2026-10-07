@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { type z } from "zod";
 import { Loader2 } from "lucide-react";
 
@@ -45,9 +45,9 @@ export function NoticeForm({
     mode: "onTouched",
     defaultValues: defaults,
   });
-  const { register, watch, formState } = form;
+  const { register, formState } = form;
   const errors = formState.errors;
-  const state = watch("resignationState");
+  const state = useWatch({ control: form.control, name: "resignationState" });
 
   const submit = form.handleSubmit((values) =>
     startTransition(async () => {

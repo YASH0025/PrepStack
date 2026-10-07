@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { type z } from "zod";
 
+import { type FieldCipher } from "./field-cipher";
 import { withFileLock } from "./file-lock";
 import { type EnvelopeSpec, readEnvelope, writeEnvelope } from "./json-file";
 import {
@@ -18,6 +19,8 @@ export interface CollectionOptions<T extends BaseRecord> {
   recordSchema: z.ZodType<T>;
   schemaVersion: number;
   migrations?: MigrationMap;
+  /** Encrypts the named string fields at rest (see field-cipher.ts). */
+  cipher?: FieldCipher;
 }
 
 /**
@@ -38,6 +41,7 @@ export class JsonCollection<T extends BaseRecord> {
       schemaVersion: options.schemaVersion,
       migrations: options.migrations,
       empty: () => ({ schemaVersion: options.schemaVersion, records: [] }),
+      ...(options.cipher ? cipherHooks(options.cipher) : {}),
     };
   }
 
@@ -151,4 +155,15 @@ function stripBaseFields<P extends object>(patch: P): P {
   delete copy.createdAt;
   delete copy.updatedAt;
   return copy as P;
+}
+
+function cipherHooks(cipher: FieldCipher) {
+  const withRecords = (envelope: unknown, fn: (records: unknown[]) => unknown[]) => {
+    const value = envelope as { records?: unknown };
+    return Array.isArray(value.records) ? { ...value, records: fn(value.records) } : envelope;
+  };
+  return {
+    decode: (envelope: unknown) => withRecords(envelope, cipher.decodeRecords),
+    encode: (envelope: unknown) => withRecords(envelope, cipher.encodeRecords),
+  };
 }

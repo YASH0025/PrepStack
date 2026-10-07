@@ -312,6 +312,9 @@ export function TrackerTable({
     [customFields, nextRoundByApp, timezone, onOpen],
   );
 
+  // TanStack Table returns non-memoizable functions; the React Compiler skips this
+  // component on purpose, which is the documented, correct behaviour.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: applications,
     columns,

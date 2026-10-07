@@ -2,6 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
+import { fieldCipher } from "@/lib/storage/field-cipher";
 import { JsonCollection } from "@/lib/storage/json-collection";
 import { privatePath } from "@/lib/storage/paths";
 import { JsonRepository } from "@/lib/storage/repository";
@@ -19,7 +20,11 @@ export class JsonReviewCardRepository
       new JsonCollection<ReviewCard>({
         filePath: privatePath(userId, "review-cards.json"),
         recordSchema: ReviewCardSchema,
-        schemaVersion: 1,
+        schemaVersion: 2,
+        // v1 → v2: Cards copy answers from debriefs and stories, so they are encrypted too.
+        // Identity migration; the write-back encrypts existing plain text.
+        migrations: { 1: (envelope) => envelope },
+        cipher: fieldCipher(["prompt", "answer"]),
       }),
     );
   }
