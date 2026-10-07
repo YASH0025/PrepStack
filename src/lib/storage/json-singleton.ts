@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { type z } from "zod";
 
-import { withFileLock } from "./file-lock";
+import { getStorageDriver } from "./driver";
 import { type EnvelopeSpec, readEnvelope, writeEnvelope } from "./json-file";
 import {
   type BaseRecord,
@@ -76,7 +76,7 @@ export class JsonSingleton<T extends BaseRecord> {
 
   /** Read-modify-write under the file lock. Returning null clears the record. */
   async mutate(fn: (current: T | null) => T | null | Promise<T | null>): Promise<T | null> {
-    return withFileLock(this.filePath, async () => {
+    return (await getStorageDriver()).withLock(this.filePath, async () => {
       const envelope = await readEnvelope(this.spec);
       const next = await fn(envelope.record);
       let validated: T | null = null;

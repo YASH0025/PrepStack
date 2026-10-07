@@ -18,7 +18,14 @@ interface Values {
   confirm: string;
 }
 
-export function DeleteAccountForm({ sharedCount }: { sharedCount: number }) {
+export function DeleteAccountForm({
+  sharedCount,
+  hasPassword = true,
+}: {
+  sharedCount: number;
+  /** False for Google/GitHub-only accounts: nothing to re-check. */
+  hasPassword?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -79,16 +86,18 @@ export function DeleteAccountForm({ sharedCount }: { sharedCount: number }) {
           </span>
         </label>
       </fieldset>
-      <FormField id="delete-password" label="Your password" error={errors.password}>
-        {(props) => (
-          <Input
-            {...props}
-            type="password"
-            autoComplete="current-password"
-            {...form.register("password")}
-          />
-        )}
-      </FormField>
+      {hasPassword && (
+        <FormField id="delete-password" label="Your password" error={errors.password}>
+          {(props) => (
+            <Input
+              {...props}
+              type="password"
+              autoComplete="current-password"
+              {...form.register("password")}
+            />
+          )}
+        </FormField>
+      )}
       <FormField
         id="delete-confirm"
         label={

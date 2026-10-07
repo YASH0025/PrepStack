@@ -5,7 +5,7 @@ import { PageHeader, Section } from "@/components/page";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DeleteAccountForm } from "@/modules/account/ui/delete-account-form";
-import { requireUser } from "@/modules/auth/service";
+import { getAuth, requireUser } from "@/modules/auth/service";
 import { ChangePasswordForm } from "@/modules/auth/ui/auth-forms";
 import { getContentService } from "@/modules/content/service";
 import { requireProfile } from "@/modules/profile/service";
@@ -18,11 +18,13 @@ export default async function ProfilePage() {
   const user = await requireUser("/profile");
   const profile = await requireProfile(user.id);
   const content = getContentService();
-  const [tracks, roles, debriefs] = await Promise.all([
+  const [tracks, roles, debriefs, account] = await Promise.all([
     content.activeTracks(),
     content.roles(),
     debriefsFor(user.id).list(),
+    getAuth().then((auth) => auth.getAccount(user.id)),
   ]);
+  const hasPassword = account?.hasPassword ?? true;
   const sharedCount = debriefs.reduce((sum, debrief) => sum + debrief.publishedReportIds.length, 0);
 
   return (
@@ -51,7 +53,13 @@ export default async function ProfilePage() {
         </Section>
         <Separator />
         <Section title="Password" description="Changing it signs out your other devices.">
-          <ChangePasswordForm />
+          {hasPassword ? (
+            <ChangePasswordForm />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              You sign in with Google or GitHub, so there is no PrepStack password to change.
+            </p>
+          )}
         </Section>
         <Separator />
         <Section
@@ -66,7 +74,7 @@ export default async function ProfilePage() {
         </Section>
         <Separator />
         <Section title="Delete account" description="Permanently remove your account and data.">
-          <DeleteAccountForm sharedCount={sharedCount} />
+          <DeleteAccountForm sharedCount={sharedCount} hasPassword={hasPassword} />
         </Section>
       </div>
     </>

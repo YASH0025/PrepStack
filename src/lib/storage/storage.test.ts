@@ -1,6 +1,7 @@
-import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
+import { readdir, mkdir } from "node:fs/promises";
 import path from "node:path";
 
+import { readStored, usingPostgres, writeStored } from "@/test/stored";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
@@ -35,7 +36,7 @@ describe("JsonCollection", () => {
     expect(created.id).toMatch(/^[0-9a-f-]{36}$/);
     expect(created.createdAt).toBe(created.updatedAt);
 
-    const onDisk = JSON.parse(await readFile(filePath, "utf8"));
+    const onDisk = JSON.parse(await readStored(filePath));
     expect(onDisk).toEqual({ schemaVersion: 1, records: [created] });
     expect(await makeCollection(filePath).getById(created.id)).toEqual(created);
   });
@@ -75,7 +76,7 @@ describe("JsonCollection", () => {
     const filePath = tempFile();
     const items = makeCollection(filePath);
     await items.create({ name: "ok", count: 1 });
-    const before = await readFile(filePath, "utf8");
+    const before = await readStored(filePath);
 
     await expect(items.create({ name: "", count: 1 })).rejects.toBeInstanceOf(
       StorageValidationError,
@@ -84,20 +85,21 @@ describe("JsonCollection", () => {
       StorageValidationError,
     );
 
-    expect(await readFile(filePath, "utf8")).toBe(before);
+    expect(await readStored(filePath)).toBe(before);
   });
 
   it("rejects invalid data found on disk", async () => {
     const filePath = tempFile();
     await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(filePath, JSON.stringify({ schemaVersion: 1, records: [{ name: 1 }] }));
+    await writeStored(filePath, JSON.stringify({ schemaVersion: 1, records: [{ name: 1 }] }));
     await expect(makeCollection(filePath).list()).rejects.toBeInstanceOf(StorageValidationError);
   });
 
-  it("rejects files that are not JSON", async () => {
+  // Raw text can only be corrupt in a file; Postgres stores JSONB.
+  it.skipIf(usingPostgres)("rejects files that are not JSON", async () => {
     const filePath = tempFile();
     await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(filePath, "{not json");
+    await writeStored(filePath, "{not json");
     await expect(makeCollection(filePath).list()).rejects.toBeInstanceOf(StorageValidationError);
   });
 
@@ -125,7 +127,7 @@ describe("JsonCollection", () => {
     expect((await items.getById(counterRecord.id))?.count).toBe(25);
   });
 
-  it("leaves no temp files behind after writes", async () => {
+  it.skipIf(usingPostgres)("leaves no temp files behind after writes", async () => {
     const filePath = tempFile("clean");
     const items = makeCollection(filePath);
     await items.create({ name: "a", count: 1 });
@@ -166,21 +168,21 @@ describe("migrations", () => {
 
     const [record] = await v2.list();
     expect(record?.tags).toEqual([]);
-    const onDisk = JSON.parse(await readFile(filePath, "utf8"));
+    const onDisk = JSON.parse(await readStored(filePath));
     expect(onDisk.schemaVersion).toBe(2);
   });
 
   it("refuses files from a newer schema version", async () => {
     const filePath = tempFile("future");
     await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(filePath, JSON.stringify({ schemaVersion: 9, records: [] }));
+    await writeStored(filePath, JSON.stringify({ schemaVersion: 9, records: [] }));
     await expect(makeCollection(filePath).list()).rejects.toThrow(/version 9/);
   });
 
   it("fails clearly when a migration is missing", async () => {
     const filePath = tempFile("gap");
     await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(filePath, JSON.stringify({ schemaVersion: 1, records: [] }));
+    await writeStored(filePath, JSON.stringify({ schemaVersion: 1, records: [] }));
     const v3 = new JsonCollection<Item>({ filePath, recordSchema: ItemSchema, schemaVersion: 3 });
     await expect(v3.list()).rejects.toThrow(/no migration from version 1/);
   });
@@ -247,8 +249,8 @@ describe("paths", () => {
 
   it("lists only UUID folders for system jobs", async () => {
     const id = "44444444-4444-4444-8444-444444444444";
-    await mkdir(privateUserDir(id), { recursive: true });
-    await mkdir(path.join(root, "private", "not-a-user"), { recursive: true });
+    await writeStored(path.join(privateUserDir(id), "profile.json"), "{}");
+    await writeStored(path.join(root, "private", "not-a-user", "x.json"), "{}");
     expect(await listPrivateUserIdsForSystemJobs()).toEqual([id]);
   });
 });
@@ -259,9 +261,9 @@ describe("ensureSeeded", () => {
     const first = await ensureSeeded([{ target, envelope: { schemaVersion: 1, records: [] } }]);
     expect(first).toEqual([target]);
 
-    await writeFile(target, JSON.stringify({ schemaVersion: 1, records: ["edited"] }));
+    await writeStored(target, JSON.stringify({ schemaVersion: 1, records: ["edited"] }));
     const second = await ensureSeeded([{ target, envelope: { schemaVersion: 1, records: [] } }]);
     expect(second).toEqual([]);
-    expect(JSON.parse(await readFile(target, "utf8")).records).toEqual(["edited"]);
+    expect(JSON.parse(await readStored(target)).records).toEqual(["edited"]);
   });
 });

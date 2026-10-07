@@ -3,7 +3,7 @@ import "server-only";
 import { getStorageService } from "@/lib/services/file-storage";
 import { deletePrivateUserDir } from "@/lib/storage/paths";
 import { assessmentServiceFor } from "@/modules/assessment/service";
-import { getAuthCore, getUserRepository } from "@/modules/auth/service";
+import { getAuth } from "@/modules/auth/service";
 import { reportBookmarksFor } from "@/modules/bookmarks/service";
 import { getCommunityService } from "@/modules/community/service";
 import { noticePlannerFor } from "@/modules/notice-planner/service";
@@ -25,7 +25,7 @@ import { type DeleteAccountInput } from "./schemas";
  * only from the authenticated user's id; contains no other user's data.
  */
 export async function buildAccountExport(userId: string) {
-  const user = await getUserRepository().getById(userId);
+  const user = await (await getAuth()).getAccount(userId);
   const tracker = trackerFor(userId);
   const progress = progressServiceFor(userId);
   const debriefs = debriefsFor(userId);
@@ -122,5 +122,5 @@ export async function deleteAccount(
   const storage = getStorageService();
   if (storage.enabled) await storage.deleteAllForOwner(userId);
   await deletePrivateUserDir(userId);
-  await getAuthCore().deleteUser(userId);
+  await (await getAuth()).deleteUser(userId);
 }

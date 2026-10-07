@@ -22,6 +22,38 @@ jobs:
       - run: npm ci
       - run: npm run check
 
+  postgres:
+    name: Unit tests and e2e on PostgreSQL + Better Auth
+    runs-on: ubuntu-latest
+    needs: check
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: prepstack
+          POSTGRES_PASSWORD: prepstack
+          POSTGRES_DB: prepstack_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U prepstack" --health-interval 5s --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://prepstack:prepstack@localhost:5432/prepstack_test
+      E2E_DATABASE_URL: postgres://prepstack:prepstack@localhost:5432/prepstack_e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: PGPASSWORD=prepstack psql -h localhost -U prepstack -d prepstack_test -c "create database prepstack_e2e"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: "true"
+
   e2e:
     name: End-to-end (Playwright)
     runs-on: ubuntu-latest

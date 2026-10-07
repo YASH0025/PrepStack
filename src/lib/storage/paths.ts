@@ -1,10 +1,10 @@
 import "server-only";
 
-import { readdir, rm } from "node:fs/promises";
 import path from "node:path";
 
 import { env } from "@/lib/env";
 
+import { getStorageDriver } from "./driver";
 import { IdSchema } from "./types";
 
 /**
@@ -82,17 +82,11 @@ export function privateUserDir(userId: string): string {
  * from a request handler.
  */
 export async function listPrivateUserIdsForSystemJobs(): Promise<string[]> {
-  let entries: string[];
-  try {
-    entries = await readdir(path.join(dataRoot(), "private"));
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw error;
-  }
+  const entries = await (await getStorageDriver()).listChildren(path.join(dataRoot(), "private"));
   return entries.filter((name) => IdSchema.safeParse(name).success).sort();
 }
 
 /** Deletes a user's entire private folder (account deletion). */
 export async function deletePrivateUserDir(userId: string): Promise<void> {
-  await rm(privateUserDir(userId), { recursive: true, force: true });
+  await (await getStorageDriver()).deleteTree(privateUserDir(userId));
 }

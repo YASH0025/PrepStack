@@ -1,9 +1,8 @@
-import { access } from "node:fs/promises";
-
 import { describe, expect, it } from "vitest";
 
 import { privateUserDir } from "@/lib/storage/paths";
-import { getAuthCore, getUserRepository } from "@/modules/auth/service";
+import { folderHasData } from "@/test/stored";
+import { getAuth } from "@/modules/auth/service";
 import { getCommunityService } from "@/modules/community/service";
 import { DebriefInputSchema } from "@/modules/tracker/debrief-schemas";
 import { debriefsFor } from "@/modules/tracker/debrief-service";
@@ -11,16 +10,10 @@ import { trackerFor } from "@/modules/tracker/service";
 
 import { buildAccountExport, deleteAccount } from "./service";
 
-const exists = (path: string) =>
-  access(path).then(
-    () => true,
-    () => false,
-  );
-
 async function userWithSharedReport(email: string) {
-  const signup = await getAuthCore().signup({ email, password: "password123" });
+  const signup = await (await getAuth()).register({ email, password: "password123" });
   if (!signup.ok) throw new Error("signup failed");
-  const userId = signup.user.id;
+  const userId = signup.userId;
   const tracker = trackerFor(userId);
   const app = await tracker.createApplication({
     companyName: "Hooli",
@@ -111,7 +104,9 @@ describe("account data", () => {
 
   it("deletes everything private and keeps or removes shared reports as chosen", async () => {
     const keep = await userWithSharedReport("keep.reports@example.com");
-    const voter = await getAuthCore().signup({
+    const voter = await (
+      await getAuth()
+    ).register({
       email: "voter@example.com",
       password: "password123",
     });
@@ -120,14 +115,14 @@ describe("account data", () => {
     await community.toggleVote(keep.reportId, keep.userId);
 
     await deleteAccount(keep.userId, { reports: "ANONYMIZE" });
-    expect(await exists(privateUserDir(keep.userId))).toBe(false);
-    expect(await getUserRepository().getById(keep.userId)).toBeNull();
+    expect(await folderHasData(privateUserDir(keep.userId))).toBe(false);
+    expect(await (await getAuth()).getAccount(keep.userId)).toBeNull();
     const kept = await community.getPublished(keep.reportId);
     expect(kept?.usefulCount).toBe(0);
 
     const remove = await userWithSharedReport("remove.reports@example.com");
     await deleteAccount(remove.userId, { reports: "REMOVE" });
     expect(await community.get(remove.reportId)).toBeNull();
-    expect(await getUserRepository().getById(remove.userId)).toBeNull();
+    expect(await (await getAuth()).getAccount(remove.userId)).toBeNull();
   });
 });
