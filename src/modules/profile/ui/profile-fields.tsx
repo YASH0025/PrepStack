@@ -81,6 +81,7 @@ export function StackFields({ form }: { form: Form }) {
             </div>
             <TagInput
               id="stack-other"
+              ariaLabel="Other technologies"
               value={(field.value ?? []).filter(
                 (item) => !(STACK_OPTIONS as readonly string[]).includes(item),
               )}
