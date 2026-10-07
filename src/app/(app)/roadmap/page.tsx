@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { AlertTriangle, RefreshCw, Route } from "lucide-react";
+import { AlertTriangle, CalendarCheck, RefreshCw, Route } from "lucide-react";
 
 import { EmptyState, PageHeader, Section } from "@/components/page";
 import { SubmitButton } from "@/components/form-bits";
@@ -88,7 +88,20 @@ export default async function RoadmapPage() {
       />
 
       <div className="grid gap-6">
-        {missed.length > 0 && (
+        {roadmap.endDate < today && (
+          <Alert>
+            <CalendarCheck aria-hidden />
+            <AlertTitle>This plan ended on {pretty(roadmap.endDate, "d MMM")}</AlertTitle>
+            <AlertDescription className="flex flex-wrap items-center justify-between gap-2">
+              <span>
+                It was planned toward: {roadmap.deadlineLabel}. Re-plan toward your next interview
+                or prep window. Completed work is kept.
+              </span>
+              <ReplanButton label="Plan the next stretch" />
+            </AlertDescription>
+          </Alert>
+        )}
+        {missed.length > 0 && roadmap.endDate >= today && (
           <Alert variant="warning">
             <AlertTriangle aria-hidden />
             <AlertTitle>

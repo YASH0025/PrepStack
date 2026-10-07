@@ -126,3 +126,86 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * FullCalendar theme: maps the calendar's CSS variables onto the design
+ * tokens so it follows light/dark mode.
+ */
+.ps-calendar .fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--background);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-neutral-text-color: var(--muted-foreground);
+  --fc-list-event-hover-bg-color: var(--accent);
+  --fc-today-bg-color: color-mix(in oklch, var(--primary) 8%, transparent);
+  --fc-now-indicator-color: var(--destructive);
+  --fc-highlight-color: color-mix(in oklch, var(--primary) 15%, transparent);
+  --fc-button-text-color: var(--foreground);
+  --fc-button-bg-color: var(--background);
+  --fc-button-border-color: var(--border);
+  --fc-button-hover-bg-color: var(--accent);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--secondary);
+  --fc-button-active-border-color: var(--border);
+  --fc-event-border-color: transparent;
+  font-size: 0.875rem;
+}
+.ps-calendar .fc .fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ps-calendar .fc .fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.ps-calendar .fc .fc-button {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.8125rem;
+  text-transform: none;
+  box-shadow: none;
+}
+.ps-calendar .fc .fc-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+.ps-calendar .fc .fc-col-header-cell-cushion,
+.ps-calendar .fc .fc-daygrid-day-number,
+.ps-calendar .fc .fc-list-day-text,
+.ps-calendar .fc .fc-list-day-side-text {
+  color: var(--foreground);
+  text-decoration: none;
+}
+.ps-calendar .fc .fc-event {
+  cursor: pointer;
+  border-radius: 0.375rem;
+}
+.ps-calendar .fc .fc-event-main {
+  overflow: hidden;
+}
+.ps-calendar .fc .ps-round-conflict {
+  outline: 2px solid #dc2626;
+  outline-offset: -1px;
+}
+.ps-calendar .fc .ps-marker {
+  border-style: dashed;
+}
+.ps-calendar .fc .ps-marker-follow-up {
+  border-color: #d97706;
+}
+.ps-calendar .fc .ps-marker-revision {
+  border-color: var(--primary);
+}
+.ps-calendar .fc .fc-list-event .ps-round,
+.ps-calendar .fc .fc-list-event td {
+  color: var(--foreground);
+}
+@media (max-width: 639px) {
+  .ps-calendar .fc .fc-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ps-calendar .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+}

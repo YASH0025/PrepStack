@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
-    "seed:generate": "node scripts/seed/generate.mjs"
+    "seed:generate": "node scripts/seed/generate.mjs",
+    "cron": "node --env-file-if-exists=.env.local scripts/cron.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -32,6 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.11.0",
     "clsx": "^2.1.1",
+    "csv-stringify": "^6.9.0",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "jose": "^6.2.12",
