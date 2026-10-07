@@ -42,6 +42,7 @@ import {
   InterviewerQuestions,
   RescheduleHistory,
   RoundNotes,
+  SuggestedStories,
   TopicsToRevise,
 } from "./round-drawer-sections";
 import { RoundFormDialog } from "./round-form";
@@ -275,6 +276,14 @@ export function RoundDrawer({
                   <TopicsToRevise topics={prep?.topicsToRevise ?? []} />
                 )}
               </div>
+              {prep?.stories && (
+                <div className="grid gap-2">
+                  <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Stories to rehearse
+                  </h4>
+                  <SuggestedStories stories={prep.stories} />
+                </div>
+              )}
               <div className="grid gap-2">
                 <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                   Questions to ask the interviewer

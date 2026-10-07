@@ -1,9 +1,12 @@
 import "server-only";
 
+import { PEOPLE_ROUND_TYPES } from "@/lib/domain";
 import { getContentService } from "@/modules/content/service";
 import { getProfile } from "@/modules/profile/service";
 import { progressServiceFor } from "@/modules/progress/service";
 import { roadmapServiceFor } from "@/modules/roadmap/service";
+import { suggestStoriesForRound } from "@/modules/story-bank/domain/coverage";
+import { storyBankFor } from "@/modules/story-bank/service";
 
 import { type Round } from "./schemas";
 
@@ -12,6 +15,8 @@ export interface RoundPrep {
   interviewerQuestions: string[];
   /** Topics to revise before this round: pending roadmap topics and flagged weak topics. */
   topicsToRevise: { slug: string; name: string; reason: string }[];
+  /** For behavioral/HR/managerial/recruiter rounds: ready stories to rehearse. Null otherwise. */
+  stories: { id: string; title: string; competencies: string[] }[] | null;
 }
 
 /**
@@ -20,15 +25,26 @@ export interface RoundPrep {
  */
 export async function buildRoundPrep(userId: string, round: Round): Promise<RoundPrep> {
   const content = getContentService();
-  const [curated, profile] = await Promise.all([
+  const peopleRound = PEOPLE_ROUND_TYPES.includes(round.type);
+  const [curated, profile, allStories, competencies] = await Promise.all([
     content.interviewerQuestions(),
     getProfile(userId),
+    peopleRound ? storyBankFor(userId).list() : Promise.resolve([]),
+    peopleRound ? content.competencies() : Promise.resolve([]),
   ]);
+  const names = new Map(competencies.map((competency) => [competency.slug, competency.name]));
+  const stories = peopleRound
+    ? suggestStoriesForRound(allStories).map((story) => ({
+        id: story.id,
+        title: story.title,
+        competencies: story.competencies.map((slug) => names.get(slug) ?? slug),
+      }))
+    : null;
   const interviewerQuestions = curated
     .filter((question) => question.roundTypes.includes(round.type))
     .map((question) => question.text);
 
-  if (!profile) return { interviewerQuestions, topicsToRevise: [] };
+  if (!profile) return { interviewerQuestions, topicsToRevise: [], stories };
 
   const [topics, roadmap, flagged] = await Promise.all([
     content.topics({ trackId: profile.trackId, publishedOnly: true }),
@@ -63,5 +79,5 @@ export async function buildRoundPrep(userId: string, round: Round): Promise<Roun
     });
   }
 
-  return { interviewerQuestions, topicsToRevise: topicsToRevise.slice(0, 8) };
+  return { interviewerQuestions, topicsToRevise: topicsToRevise.slice(0, 8), stories };
 }
