@@ -18,6 +18,8 @@ import {
 } from "@/modules/story-bank/domain/coverage";
 import { storyBankFor } from "@/modules/story-bank/service";
 import { StoryLink } from "@/modules/story-bank/ui/story-bits";
+import { debriefsFor } from "@/modules/tracker/debrief-service";
+import { questionsNeedingStories } from "@/modules/tracker/domain/debriefs";
 
 export const metadata: Metadata = { title: "Story bank" };
 
@@ -47,12 +49,14 @@ export default async function StoryBankPage({ searchParams }: PageProps<"/practi
   const params = await searchParams;
   const tab: Tab = TABS.some((entry) => entry.id === params.tab) ? (params.tab as Tab) : "stories";
   const content = getContentService();
-  const [stories, competencies, behavioral, hr] = await Promise.all([
+  const [stories, competencies, behavioral, hr, debriefQuestions] = await Promise.all([
     storyBankFor(user.id).list(),
     content.competencies(),
     content.behavioralQuestions("BEHAVIORAL"),
     content.behavioralQuestions("HR_INDIA"),
+    debriefsFor(user.id).listQuestions(),
   ]);
+  const needStories = questionsNeedingStories(debriefQuestions);
   const names = new Map(competencies.map((competency) => [competency.slug, competency.name]));
   const coverage = competencyCoverage(competencies, stories);
   const summary = coverageSummary(coverage);
@@ -86,6 +90,33 @@ export default async function StoryBankPage({ searchParams }: PageProps<"/practi
           </Link>
         ))}
       </nav>
+
+      {tab === "stories" && needStories.length > 0 && (
+        <section className="mb-6 grid gap-2 rounded-xl border border-amber-300 bg-amber-50/60 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+          <h2 className="text-sm font-semibold">
+            From your debriefs: {needStories.length} question{needStories.length === 1 ? "" : "s"}{" "}
+            you wanted a better story for
+          </h2>
+          <ul className="grid list-disc gap-1 pl-5 text-sm">
+            {needStories.slice(0, 5).map((question) => (
+              <li key={question.id}>
+                {question.text}{" "}
+                <Link
+                  href={`/interviews/rounds/${question.roundId}/debrief`}
+                  className="text-xs text-muted-foreground underline"
+                >
+                  debrief
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Button asChild size="sm" variant="outline" className="w-fit">
+            <Link href="/practice/stories/new">
+              <Plus /> Write a story
+            </Link>
+          </Button>
+        </section>
+      )}
 
       {tab === "stories" &&
         (stories.length === 0 ? (

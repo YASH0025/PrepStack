@@ -127,7 +127,7 @@ export async function createDebriefPrompts(
       type: "DEBRIEF_PROMPT",
       title: `How did it go at ${name}?`,
       body: `Take two minutes to debrief your ${roundLabel(round)} while it is fresh. Missed questions go straight into review.`,
-      href: roundHref(round.id),
+      href: `/interviews/rounds/${round.id}/debrief`,
       dedupeKey: `debrief-prompt:${round.id}:${round.endUtc}`,
     });
     if (result) created += 1;

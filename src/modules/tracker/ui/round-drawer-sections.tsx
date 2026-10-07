@@ -6,10 +6,20 @@ import { useRef, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Download, Loader2, Paperclip, Plus, Trash2, X } from "lucide-react";
+import {
+  Download,
+  Loader2,
+  MessageSquareText,
+  Paperclip,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import { FormField } from "@/components/rhf";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +31,7 @@ import {
   setRoundNotesAction,
   updateInterviewerQuestionsAction,
 } from "../actions";
+import { type Debrief } from "../debrief-schemas";
 import { type Round } from "../schemas";
 
 /** Section wrapper used inside the drawer. */
@@ -416,5 +427,88 @@ export function SuggestedStories({
         </li>
       ))}
     </ul>
+  );
+}
+
+const RATING_BADGE = {
+  NAILED: { variant: "success", label: "Nailed" },
+  PARTIAL: { variant: "warning", label: "Partial" },
+  MISSED: { variant: "danger", label: "Missed" },
+} as const;
+
+/** Debrief summary for a completed round, or a prompt to write one. */
+export function DebriefSummary({ roundId, debrief }: { roundId: string; debrief: Debrief | null }) {
+  if (!debrief) {
+    return (
+      <div className="grid gap-2">
+        <p className="text-sm text-muted-foreground">
+          Two minutes now saves hours later: missed questions go into review and weak topics into
+          your roadmap.
+        </p>
+        <Button asChild size="sm" className="w-fit">
+          <Link href={`/interviews/rounds/${roundId}/debrief`}>
+            <MessageSquareText /> Write debrief
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+  const counts = { NAILED: 0, PARTIAL: 0, MISSED: 0 };
+  for (const question of debrief.questions) counts[question.selfRating] += 1;
+  return (
+    <div className="grid gap-3 text-sm">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span>How it went: {debrief.overallRating}/5</span>
+        <span>Difficulty: {debrief.difficulty}/5</span>
+        {debrief.actualDurationMinutes && <span>{debrief.actualDurationMinutes} min</span>}
+        <span>
+          {counts.NAILED} nailed · {counts.PARTIAL} partial · {counts.MISSED} missed
+        </span>
+      </div>
+      {debrief.questions.length > 0 && (
+        <ul className="grid gap-1.5">
+          {debrief.questions.map((question) => (
+            <li key={question.id} className="flex items-start gap-2">
+              <Badge variant={RATING_BADGE[question.selfRating].variant} className="mt-0.5">
+                {RATING_BADGE[question.selfRating].label}
+              </Badge>
+              <span className="min-w-0 flex-1">{question.text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {debrief.interviewerFeedback && (
+        <p>
+          <span className="font-medium">Feedback: </span>
+          {debrief.interviewerFeedback}
+        </p>
+      )}
+      {debrief.nextSteps && (
+        <p>
+          <span className="font-medium">Next steps: </span>
+          {debrief.nextSteps}
+        </p>
+      )}
+      {debrief.lessons && (
+        <p>
+          <span className="font-medium">Lessons: </span>
+          {debrief.lessons}
+        </p>
+      )}
+      {debrief.followUpActions.length > 0 && (
+        <ul className="grid list-disc gap-0.5 pl-4">
+          {debrief.followUpActions.map((action) => (
+            <li key={action}>{action}</li>
+          ))}
+        </ul>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/interviews/rounds/${roundId}/debrief`}>
+            <Pencil /> Edit debrief
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 }
