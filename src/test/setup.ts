@@ -12,6 +12,7 @@ process.env.SESSION_SECRET ??= "test-session-secret-that-is-at-least-32-chars";
 // 32 zero bytes, base64. Test-only key.
 process.env.ENCRYPTION_KEY ??= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 process.env.CRON_SECRET ??= "test-cron-secret-0123456789abcdef";
+process.env.ADMIN_EMAILS ??= "admin@test.local";
 
 /*
  * `TEST_DATABASE_URL=postgres://… npm test` runs the whole suite on the

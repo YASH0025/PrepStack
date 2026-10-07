@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.E2E_PORT ?? 3200);
+/** Set E2E_DATABASE_URL to run the suite on PostgreSQL + Better Auth. */
+const DATABASE_URL = process.env.E2E_DATABASE_URL;
 const BASE_URL = `http://localhost:${PORT}`;
 
 /** Optional custom browser (CI images or sandboxes without Playwright's own download). */
@@ -37,7 +39,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `rm -rf .e2e-data && next dev -p ${PORT}`,
+    command: `rm -rf .e2e-data && node scripts/e2e-reset-db.mjs && next dev -p ${PORT}`,
     url: `${BASE_URL}/login`,
     timeout: 180_000,
     reuseExistingServer: false,
@@ -49,6 +51,7 @@ export default defineConfig({
       CRON_SECRET: "e2e-cron-secret-1234",
       ADMIN_EMAILS: "admin@e2e.test",
       COMMUNITY_MIN_SAMPLE: "5",
+      ...(DATABASE_URL ? { STORAGE_DRIVER: "postgres", DATABASE_URL } : {}),
     },
   },
 });

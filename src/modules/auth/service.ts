@@ -1,18 +1,19 @@
 import "server-only";
 
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { env } from "@/lib/env";
 import { getEmailService } from "@/lib/services/email";
 
+import { type AuthBackend } from "./backend";
+import { BuiltinAuthBackend } from "./builtin-backend";
 import { AuthCore } from "./core";
-import { SESSION_TTL_SECONDS } from "./crypto";
 import { JsonUserRepository } from "./repository.json";
-import { type SessionUser, type User } from "./schemas";
+import { type SessionUser } from "./schemas";
 
-export const SESSION_COOKIE = "ps_session";
+export { SESSION_COOKIE } from "./builtin-backend";
 
 let core: AuthCore | null = null;
 let userRepository: JsonUserRepository | null = null;
@@ -33,11 +34,22 @@ export function getAuthCore(): AuthCore {
   return core;
 }
 
+let backend: AuthBackend | null = null;
+
+/** Built-in auth in JSON mode, Better Auth in Postgres mode. */
+export async function getAuth(): Promise<AuthBackend> {
+  if (backend) return backend;
+  backend =
+    env.STORAGE_DRIVER === "postgres"
+      ? new (await import("./better-auth")).BetterAuthBackend()
+      : new BuiltinAuthBackend(getAuthCore(), getUserRepository());
+  return backend;
+}
+
 /** The signed-in user for this request, or null. Cached per request. */
-export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
-  const store = await cookies();
-  return getAuthCore().resolveSession(store.get(SESSION_COOKIE)?.value);
-});
+export const getCurrentUser = cache(async (): Promise<SessionUser | null> =>
+  (await getAuth()).currentUser(),
+);
 
 /**
  * Requires a signed-in user. Use at the top of every private page, server
@@ -61,23 +73,6 @@ export async function requireAdmin(): Promise<SessionUser> {
 /** Variant for route handlers: returns null instead of redirecting. */
 export async function getUserForApi(): Promise<SessionUser | null> {
   return getCurrentUser();
-}
-
-export async function startSession(user: User): Promise<void> {
-  const token = await getAuthCore().createSessionToken(user);
-  const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_TTL_SECONDS,
-  });
-}
-
-export async function endSession(): Promise<void> {
-  const store = await cookies();
-  store.delete(SESSION_COOKIE);
 }
 
 /** Best-effort client IP for rate limiting. */

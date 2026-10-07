@@ -1,0 +1,28 @@
+# PostgreSQL + Better Auth mode. Use together with docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d --build
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prepstack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: prepstack
+    volumes:
+      - prepstack-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prepstack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      STORAGE_DRIVER: postgres
+      DATABASE_URL: postgres://prepstack:${POSTGRES_PASSWORD}@db:5432/prepstack
+
+volumes:
+  prepstack-db:

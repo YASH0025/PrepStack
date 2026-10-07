@@ -3,8 +3,9 @@ import Link from "next/link";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { safeNextPath } from "@/modules/auth/service";
+import { getAuth, safeNextPath } from "@/modules/auth/service";
 import { LoginForm } from "@/modules/auth/ui/auth-forms";
+import { SocialSignIn } from "@/modules/auth/ui/social-sign-in";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -25,6 +26,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
             <AlertDescription>Password updated. Sign in with your new password.</AlertDescription>
           </Alert>
         )}
+        <SocialSignIn providers={(await getAuth()).socialProviders()} next={next} />
         <LoginForm next={next} />
         <p className="text-center text-sm text-muted-foreground">
           New here?{" "}

@@ -85,6 +85,28 @@ Profile → "Download my data" exports everything stored about the signed-in use
 (decrypted). "Delete my account" removes the account and the whole private folder; the user
 chooses whether their shared reports stay (they are already anonymous) or are deleted too.
 
+## PostgreSQL and Better Auth
+
+Set `STORAGE_DRIVER=postgres` and `DATABASE_URL` (a local Postgres or Neon). On start the app
+applies the SQL migrations in `drizzle/` and then works exactly as in JSON mode; every module
+stores the same envelopes as rows, with per-key transactional locks (safe for several app
+instances). Sign-in switches to Better Auth: database sessions, password reset, and
+"Continue with Google/GitHub" when `GOOGLE_*` / `GITHUB_*` credentials are set.
+
+Moving existing JSON data (take a backup first; keep the same `ENCRYPTION_KEY`):
+
+```bash
+DATA_DIR=./data DATABASE_URL=postgres://… node scripts/import-json-to-postgres.mjs
+```
+
+It copies every data file and creates Better Auth accounts with the existing bcrypt
+passwords, so everyone signs in as before. It is safe to run twice.
+
+Testing on Postgres: `TEST_DATABASE_URL=postgres://… npm test` (a schema per test file) and
+`E2E_DATABASE_URL=postgres://…/prepstack_e2e npm run test:e2e` (the database is wiped first, so
+its name must contain "test" or "e2e"). After changing `src/lib/db/schema.ts`, run
+`npx drizzle-kit generate` and commit the new migration.
+
 ## Deploying with Docker
 
 ```bash
@@ -95,7 +117,9 @@ docker compose up -d --build  # app on :3000 plus a scheduler that runs jobs eve
 - All data (including private user data) lives in the `prepstack-data` volume. Back it up,
   together with `ENCRYPTION_KEY`: without that key encrypted fields cannot be read.
 - `GET /api/health` reports whether the data folder is writable (used by the container healthcheck).
-- Run one app container only: JSON storage and rate limits are per process.
+- JSON mode: run one app container only (file storage and rate limits are per process).
+- Postgres mode: `docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d --build`
+  (set `POSTGRES_PASSWORD` in `.env`).
 - `npm run build` ends with `scripts/clean-standalone.mjs`, which strips any traced `data/` or
   `.env` files from `.next/standalone` and fails the build if private data is left.
 
