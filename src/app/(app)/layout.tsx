@@ -7,10 +7,18 @@ import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { UserMenu } from "@/components/app-shell/user-menu";
 import { ThemeToggle } from "@/components/theme";
 import { requireUser } from "@/modules/auth/service";
+import { roundHasDebrief } from "@/modules/tracker/job-deps";
+import { syncInAppNotifications } from "@/modules/tracker/jobs";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const user = await requireUser();
   const isAdmin = user.role === "admin";
+  // Computed on read so prompts and follow-ups appear even if the cron has not run.
+  try {
+    await syncInAppNotifications(user.id, new Date(), roundHasDebrief);
+  } catch (error) {
+    console.error("[notifications] on-read sync failed", error);
+  }
 
   return (
     <div className="flex min-h-full flex-1">

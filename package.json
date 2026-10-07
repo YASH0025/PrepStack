@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
-    "seed:generate": "node scripts/seed/generate.mjs"
+    "seed:generate": "node scripts/seed/generate.mjs",
+    "cron": "node --env-file-if-exists=.env.local scripts/cron.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
