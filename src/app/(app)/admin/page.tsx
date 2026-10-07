@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { listAuditEntries } from "@/modules/admin/audit";
 import { requireAdmin } from "@/modules/auth/service";
+import { getCommunityService } from "@/modules/community/service";
 import { getContentService } from "@/modules/content/service";
 
 export const metadata: Metadata = { title: "Admin" };
@@ -21,15 +22,17 @@ export const metadata: Metadata = { title: "Admin" };
 export default async function AdminOverviewPage() {
   await requireAdmin();
   const content = getContentService();
-  const [tracks, roles, topics, questions, behavioral, interviewer, audit] = await Promise.all([
-    content.tracks(),
-    content.roles(),
-    content.topics(),
-    content.questions(),
-    content.behavioralQuestions(),
-    content.interviewerQuestions(),
-    listAuditEntries(25),
-  ]);
+  const [tracks, roles, topics, questions, behavioral, interviewer, audit, moderation] =
+    await Promise.all([
+      content.tracks(),
+      content.roles(),
+      content.topics(),
+      content.questions(),
+      content.behavioralQuestions(),
+      content.interviewerQuestions(),
+      listAuditEntries(25),
+      getCommunityService().moderationQueue(),
+    ]);
 
   const stats = [
     { label: "Tracks", value: tracks.length, href: "/admin/structure" },
@@ -48,6 +51,16 @@ export default async function AdminOverviewPage() {
     },
     { label: "Behavioral & HR", value: behavioral.length, href: "/admin/behavioral" },
     { label: "Questions to ask", value: interviewer.length, href: "/admin/interviewer-questions" },
+    {
+      label: "Reports awaiting moderation",
+      value: moderation.pending.length,
+      href: "/admin/moderation",
+    },
+    {
+      label: "Flagged reports",
+      value: moderation.flagged.length,
+      href: "/admin/moderation?tab=flagged",
+    },
   ];
 
   return (

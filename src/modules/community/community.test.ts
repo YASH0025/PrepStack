@@ -107,7 +107,7 @@ describe("community module boundary", () => {
     const files = await sourceFiles(path.join(process.cwd(), "src/modules/community"));
     expect(files.length).toBeGreaterThan(3);
     const forbidden =
-      /privatePath|privateUserDir|listPrivateUserIds|@\/modules\/(tracker|profile|progress|roadmap|story-bank|review|notice-planner|revision-sheet|assessment)/;
+      /privatePath|privateUserDir|listPrivateUserIds|@\/modules\/(tracker|profile|progress|roadmap|story-bank|review|notice-planner|revision-sheet|assessment|bookmarks|notifications)/;
     for (const file of files) {
       const source = await readFile(file, "utf8");
       expect(source, path.relative(process.cwd(), file)).not.toMatch(forbidden);

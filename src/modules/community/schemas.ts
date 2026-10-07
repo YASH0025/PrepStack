@@ -97,3 +97,11 @@ export const ReportFlagSchema = recordSchema({
   resolution: z.string().max(200).nullable(),
 });
 export type ReportFlag = z.infer<typeof ReportFlagSchema>;
+
+export const FlagInputSchema = z.object({
+  reason: FlagReasonSchema,
+  note: z.string().trim().max(500, "Keep it under 500 characters"),
+});
+export type FlagInput = z.infer<typeof FlagInputSchema>;
+
+export const ModerationNoteSchema = z.string().trim().max(500);
