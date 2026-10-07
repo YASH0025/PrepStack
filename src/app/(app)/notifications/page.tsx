@@ -7,6 +7,7 @@ import {
   FileText,
   Info,
   MessageSquareText,
+  Users,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -29,6 +30,7 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   DEBRIEF_PROMPT: MessageSquareText,
   FOLLOW_UP_DUE: ClipboardCheck,
   REPORT_MODERATED: Info,
+  MOCK_INTERVIEW: Users,
   SYSTEM: Bell,
 };
 
