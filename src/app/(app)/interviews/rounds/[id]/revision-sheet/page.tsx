@@ -211,8 +211,11 @@ export default async function RevisionSheetPage({
             ) : (
               <div className="grid gap-2">
                 <p className="text-xs text-muted-foreground">
-                  Based on {sheet.community.sampleSize} reports, {sheet.community.from} to{" "}
-                  {sheet.community.to}.
+                  Based on {sheet.community.sampleSize} reports from{" "}
+                  {sheet.community.from === sheet.community.to
+                    ? sheet.community.from
+                    : `${sheet.community.from} to ${sheet.community.to}`}
+                  .
                 </p>
                 {sheet.community.topics.map((topic) => (
                   <CheckRow

@@ -12,6 +12,7 @@ import { ReportFiltersSchema, matchesFilters } from "@/modules/community/domain/
 import { getCommunityService } from "@/modules/community/service";
 import { IntelFilters } from "@/modules/community/ui/intel-filters";
 import { CommunityDisclaimer, ReportCard } from "@/modules/community/ui/report-card";
+import { TopicFrequencyPanel } from "@/modules/community/ui/topic-frequency";
 import { firstValues, intelHref } from "@/modules/community/ui/search-params";
 import { getContentService } from "@/modules/content/service";
 import { getProfile } from "@/modules/profile/service";
@@ -52,6 +53,18 @@ export default async function IntelPage({ searchParams }: PageProps<"/intel">) {
     ({ items, total, pages } = await community.search(filters, today));
   }
   const page = Math.min(filters.page, pages);
+
+  // Aggregated topics for a company and/or role search.
+  const frequencyScope = filters.company || filters.role;
+  const frequency = frequencyScope
+    ? await community.topicFrequency(
+        { company: filters.company, roleName: filters.role, band: filters.band },
+        today,
+      )
+    : null;
+  const frequencyTitle = `Topics reported${filters.company ? ` at ${filters.company}` : ""}${
+    filters.role ? ` for ${filters.role}` : ""
+  }${filters.band ? ` (${filters.band} years)` : ""}`;
   const baseParams = { ...params, page: undefined };
 
   return (
@@ -97,6 +110,16 @@ export default async function IntelPage({ searchParams }: PageProps<"/intel">) {
         saved={saved}
       />
       <CommunityDisclaimer />
+      {frequency && (
+        <TopicFrequencyPanel
+          title={frequencyTitle}
+          frequency={frequency}
+          minSample={frequency.minSample}
+          topics={
+            new Map(topics.map((topic) => [topic.id, { name: topic.name, slug: topic.slug }]))
+          }
+        />
+      )}
 
       {published.length === 0 && !saved ? (
         <EmptyState

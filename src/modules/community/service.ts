@@ -1,8 +1,10 @@
 import "server-only";
 
+import { env } from "@/lib/env";
 import { companyKey, slugify } from "@/lib/domain";
 
 import { scrubDraft } from "./domain/anonymizer";
+import { type FrequencyScope, type TopicFrequency, topicFrequency } from "./domain/frequency";
 import { type ReportFilters, searchReports } from "./domain/search";
 import { type FlagRepository, type ReportRepository, type VoteRepository } from "./repository";
 import { JsonFlagRepository, JsonReportRepository, JsonVoteRepository } from "./repository.json";
@@ -88,6 +90,20 @@ export class CommunityService {
       .filter((report) => wanted.has(report.companySlug))
       .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""))
       .slice(0, limit);
+  }
+
+  /**
+   * Topic frequency for a scope. Callers must compare `sampleSize` with
+   * `minSample` and show "Not enough data yet" below it.
+   */
+  async topicFrequency(
+    scope: FrequencyScope,
+    today: string,
+  ): Promise<TopicFrequency & { minSample: number }> {
+    return {
+      ...topicFrequency(await this.reports.list(), scope, today),
+      minSample: env.COMMUNITY_MIN_SAMPLE,
+    };
   }
 
   async toggleVote(reportId: string, userId: string): Promise<{ voted: boolean; count: number }> {

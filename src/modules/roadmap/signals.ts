@@ -1,6 +1,8 @@
 import "server-only";
 
 import { type LocalDateString } from "@/lib/local-date";
+import { rangeLabel } from "@/modules/community/domain/frequency";
+import { getCommunityService } from "@/modules/community/service";
 import { type ContentCatalog } from "@/modules/content/service";
 import { type Profile } from "@/modules/profile/schemas";
 import { noticePlannerFor } from "@/modules/notice-planner/service";
@@ -39,7 +41,7 @@ export async function collectRoadmapSignals(
   userId: string,
   profile: Profile,
   catalog: ContentCatalog,
-  _today: LocalDateString,
+  today: LocalDateString,
   now: Date = new Date(),
 ): Promise<RoadmapSignals> {
   const progress = progressServiceFor(userId);
@@ -103,10 +105,29 @@ export async function collectRoadmapSignals(
     });
   }
 
+  // Community topic frequency for the target role and experience band. The
+  // engine only applies it when the sample reaches the threshold.
+  const roleName = catalog.roles.find((role) => role.id === profile.targetRoleId)?.name;
+  const frequency = await getCommunityService().topicFrequency(
+    { roleName, band: profile.experienceBand },
+    today,
+  );
+  const community: CommunitySignal | null =
+    frequency.sampleSize === 0
+      ? null
+      : {
+          topicCounts: Object.fromEntries(
+            Object.entries(frequency.topicCounts).filter(([topicId]) => known.has(topicId)),
+          ),
+          sampleSize: frequency.sampleSize,
+          threshold: frequency.minSample,
+          rangeLabel: rangeLabel(frequency.from, frequency.to),
+        };
+
   return {
     deadlines,
     weakness,
-    community: null,
+    community,
     completedTopicIds: (await progress.completedTopicIds()).filter((id) => known.has(id)),
   };
 }

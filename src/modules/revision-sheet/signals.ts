@@ -3,6 +3,9 @@ import "server-only";
 import { formatInTimeZone } from "date-fns-tz";
 
 import { type ExperienceBand, ROUND_TYPE_LABELS } from "@/lib/domain";
+import { todayIn } from "@/lib/local-date";
+import { monthYearLabel, topTopics } from "@/modules/community/domain/frequency";
+import { getCommunityService } from "@/modules/community/service";
 import { getProfile } from "@/modules/profile/service";
 import { debriefsFor } from "@/modules/tracker/debrief-service";
 import { earlierQuestionsAtCompany } from "@/modules/tracker/domain/debriefs";
@@ -52,5 +55,19 @@ export async function collectSheetSignals(
     })),
     questions,
   );
-  return { debriefWeakness: weakness, earlierQuestions, community: null };
+  // Topics reported for this company by other candidates (any role and level).
+  const frequency = await getCommunityService().topicFrequency(
+    { company: context.application.companyName },
+    todayIn(timezone),
+  );
+  const community: SheetSignals["community"] =
+    frequency.sampleSize === 0
+      ? null
+      : {
+          topics: topTopics(frequency, 20),
+          sampleSize: frequency.sampleSize,
+          from: monthYearLabel(frequency.from ?? ""),
+          to: monthYearLabel(frequency.to ?? ""),
+        };
+  return { debriefWeakness: weakness, earlierQuestions, community };
 }
