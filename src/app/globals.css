@@ -209,3 +209,6 @@
     justify-content: center;
   }
 }
+.ps-calendar .fc .ps-marker-notice {
+  border-color: #0284c7;
+}

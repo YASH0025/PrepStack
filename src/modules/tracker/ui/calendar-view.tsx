@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import { AlertTriangle, BookOpenCheck, CalendarDays, Flag, Plus } from "lucide-react";
+import { AlertTriangle, BookOpenCheck, CalendarDays, Flag, Hourglass, Plus } from "lucide-react";
 
 import { EmptyState } from "@/components/page";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -330,6 +330,9 @@ function Legend() {
         </li>
         <li className="flex items-center gap-1">
           <BookOpenCheck className="size-3.5" aria-hidden /> Revision session
+        </li>
+        <li className="flex items-center gap-1">
+          <Hourglass className="size-3.5" aria-hidden /> Notice-period milestone
         </li>
       </ul>
     </details>

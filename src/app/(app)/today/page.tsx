@@ -22,6 +22,8 @@ import { addDays, todayIn } from "@/lib/local-date";
 import { assessmentServiceFor } from "@/modules/assessment/service";
 import { requireUser } from "@/modules/auth/service";
 import { getContentService } from "@/modules/content/service";
+import { noticePlannerFor } from "@/modules/notice-planner/service";
+import { NoticeWidget } from "@/modules/notice-planner/ui/notice-widget";
 import { requireProfile } from "@/modules/profile/service";
 import { TOPIC_STATUS_LABELS } from "@/modules/progress/schemas";
 import { progressServiceFor } from "@/modules/progress/service";
@@ -39,12 +41,13 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
 
   const content = getContentService();
   const roadmapService = roadmapServiceFor(user.id);
-  const [roadmap, topics, depths, history, flagged] = await Promise.all([
+  const [roadmap, topics, depths, history, flagged, notice] = await Promise.all([
     roadmapService.get(),
     content.topics({ trackId: profile.trackId, publishedOnly: true }),
     assessmentServiceFor(user.id).latestDepths(profile.trackId),
     assessmentServiceFor(user.id).history(),
     progressServiceFor(user.id).flaggedTopicIds(),
+    noticePlannerFor(user.id).outcome(),
   ]);
   const topicMap = new Map(topics.map((topic) => [topic.id, topic]));
 
@@ -192,6 +195,12 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
           </Card>
 
           <div className="grid content-start gap-6">
+            <NoticeWidget
+              plan={notice?.plan ?? null}
+              outcome={notice?.outcome ?? null}
+              today={today}
+            />
+
             <Card>
               <CardHeader>
                 <CardTitle>Weak topics</CardTitle>
