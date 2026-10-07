@@ -12,6 +12,8 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# public/ may be empty, and git does not keep empty folders.
+RUN mkdir -p public
 # Build-time placeholders only, so config validation passes during `next build`.
 # Real secrets are provided at runtime and validated again at server start.
 RUN SESSION_SECRET=build-time-placeholder-not-a-real-secret-000 \
