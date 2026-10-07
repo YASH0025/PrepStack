@@ -30,6 +30,8 @@ import { assessmentServiceFor } from "@/modules/assessment/service";
 import { requireUser } from "@/modules/auth/service";
 import { getCommunityService, slugForCompany } from "@/modules/community/service";
 import { RecentReportsCard } from "@/modules/community/ui/recent-reports-card";
+import { mockFor } from "@/modules/mock/service";
+import { NextMockCard } from "@/modules/mock/ui/next-mock-card";
 import { getContentService } from "@/modules/content/service";
 import { noticePlannerFor } from "@/modules/notice-planner/service";
 import { NoticeWidget } from "@/modules/notice-planner/ui/notice-widget";
@@ -69,6 +71,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
       reviewServiceFor(user.id).queue(),
       trackerToday(user.id, profile.timezone),
     ]);
+  const nextMock = await nextMockSession(user.id);
   const communityReports = await getCommunityService().recentForCompanies(
     interviews.trackedCompanies.map(slugForCompany),
     4,
@@ -227,6 +230,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
             {!interviews.next?.showSheet && (
               <NextInterviewCard next={interviews.next} timezone={profile.timezone} />
             )}
+            <NextMockCard next={nextMock} timezone={profile.timezone} />
             <PendingDebriefsCard items={interviews.pendingDebriefs} timezone={profile.timezone} />
             <FollowUpsCard items={interviews.followUps} />
 
@@ -355,4 +359,21 @@ function daysLeftLabel(endDate: string, today: string): string {
     Math.round((parseISO(endDate).getTime() - parseISO(today).getTime()) / 86_400_000) + 1,
   );
   return `${days} day${days === 1 ? "" : "s"} left`;
+}
+
+async function nextMockSession(userId: string) {
+  const now = new Date().getTime();
+  const sessions = await mockFor(userId).mySessions();
+  const next = sessions
+    .filter((view) => view.session.status === "SCHEDULED")
+    .filter((view) => Date.parse(view.session.startUtc) + 60 * 60_000 > now)
+    .sort((a, b) => a.session.startUtc.localeCompare(b.session.startUtc))[0];
+  return next
+    ? {
+        sessionId: next.session.id,
+        startUtc: next.session.startUtc,
+        partnerName: next.partner.displayName,
+        hasLink: Boolean(next.session.meetingLink),
+      }
+    : null;
 }

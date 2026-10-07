@@ -2,6 +2,8 @@ import "server-only";
 
 import { fromZonedTime } from "date-fns-tz";
 
+import { type ExperienceBand } from "@/lib/domain";
+
 import { getContentService } from "@/modules/content/service";
 
 import { findMatches } from "./domain/matching";
@@ -25,6 +27,7 @@ import {
   type MatchRequestInput,
   type MockFeedback,
   type MockProfile,
+  type MockReport,
   type MockSession,
   type MockSlot,
   type PostSlotInput,
@@ -47,7 +50,7 @@ export const MAX_OPEN_REQUESTS = 3;
 /** What one participant sees of a session. Never includes the partner's email or private data. */
 export interface SessionView {
   session: MockSession;
-  partner: { userId: string; displayName: string };
+  partner: { userId: string; displayName: string; band: ExperienceBand | null };
   /** Questions I will ask my partner (with model answers on the page). */
   questionsToAsk: string[];
   partnerTopics: string[];
@@ -396,13 +399,17 @@ export class MockService {
 
   private async toView(session: MockSession): Promise<SessionView> {
     const { partner, mine } = this.partnerOf(session);
-    const [names, feedback] = await Promise.all([
-      this.names([partner.userId]),
+    const [partnerProfile, feedback] = await Promise.all([
+      this.store.profiles.findOne((profile) => profile.userId === partner.userId),
       this.store.feedback.find((item) => item.sessionId === session.id),
     ]);
     return {
       session,
-      partner: { userId: partner.userId, displayName: names.get(partner.userId) ?? "Your partner" },
+      partner: {
+        userId: partner.userId,
+        displayName: partnerProfile?.displayName ?? "Your partner",
+        band: partnerProfile?.band ?? null,
+      },
       questionsToAsk: partner.questionIds,
       partnerTopics: partner.topics,
       myTopics: mine.topics,
@@ -658,6 +665,69 @@ export async function runMatching(
     };
   });
 }
+
+export interface ReportView {
+  id: string;
+  createdAt: string;
+  reason: MockReport["reason"];
+  note: string;
+  reporterName: string;
+  reportedUserId: string;
+  reportedName: string;
+  /** Open reports against the same person. */
+  openAgainstReported: number;
+  noShows: number;
+  suspendedUntil: string | null;
+  sessionStartUtc: string | null;
+}
+
+/** Moderator tools (callers must check the admin role and write the audit log). */
+export const mockModeration = {
+  async openReports(store: MockStore = getMockStore()): Promise<ReportView[]> {
+    const [reports, profiles, sessions] = await Promise.all([
+      store.reports.list(),
+      store.profiles.list(),
+      store.sessions.list(),
+    ]);
+    const profile = new Map(profiles.map((item) => [item.userId, item]));
+    const open = reports.filter((report) => report.status === "OPEN");
+    return open
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((report) => ({
+        id: report.id,
+        createdAt: report.createdAt,
+        reason: report.reason,
+        note: report.note,
+        reporterName: profile.get(report.reporterId)?.displayName ?? "Deleted user",
+        reportedUserId: report.reportedUserId,
+        reportedName: profile.get(report.reportedUserId)?.displayName ?? "Deleted user",
+        openAgainstReported: open.filter((r) => r.reportedUserId === report.reportedUserId).length,
+        noShows: profile.get(report.reportedUserId)?.noShows.length ?? 0,
+        suspendedUntil: profile.get(report.reportedUserId)?.suspendedUntil ?? null,
+        sessionStartUtc: sessions.find((s) => s.id === report.sessionId)?.startUtc ?? null,
+      }));
+  },
+
+  async resolve(reportId: string, resolution: string, store: MockStore = getMockStore()) {
+    const report = await store.reports.getById(reportId);
+    if (!report) throw new MockError("Report not found");
+    await store.reports.update(reportId, {
+      status: "RESOLVED",
+      resolution: resolution.slice(0, 200),
+    });
+    return report;
+  },
+
+  /** Pauses booking for a user (e.g. after abuse). Days 0 lifts a pause. */
+  async suspend(userId: string, days: number, now = new Date(), store: MockStore = getMockStore()) {
+    const profile = await store.profiles.findOne((item) => item.userId === userId);
+    if (!profile) throw new MockError("User has no mock interview profile");
+    await store.profiles.update(profile.id, {
+      suspendedUntil:
+        days > 0 ? new Date(now.getTime() + days * 24 * 60 * 60_000).toISOString() : null,
+    });
+  },
+};
 
 /** Always acts as the given (authenticated) user. */
 export function mockFor(userId: string): MockService {

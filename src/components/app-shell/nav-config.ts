@@ -12,6 +12,7 @@ import {
   Shield,
   Sparkles,
   UserRound,
+  Users,
 } from "lucide-react";
 
 export interface NavItem {
@@ -40,6 +41,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/practice/topics", label: "Topics", icon: BookOpen },
       { href: "/practice/review", label: "Review", icon: Brain },
       { href: "/practice/stories", label: "Story bank", icon: Sparkles },
+      { href: "/practice/mock", label: "Mock interviews", icon: Users },
     ],
   },
   {

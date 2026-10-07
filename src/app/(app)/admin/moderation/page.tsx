@@ -17,11 +17,20 @@ import {
 import { getCommunityService } from "@/modules/community/service";
 import { ModerationControls } from "@/modules/community/ui/moderation-controls";
 import { ReportView } from "@/modules/community/ui/report-view";
+import { REPORT_REASON_LABELS } from "@/modules/mock/schemas";
+import { mockModeration } from "@/modules/mock/service";
+import { MockReportControls } from "@/modules/mock/ui/report-controls";
 import { getContentService } from "@/modules/content/service";
 
 export const metadata: Metadata = { title: "Moderation" };
 
-const TABS = ["pending", "flagged", "hidden"] as const;
+const TABS = ["pending", "flagged", "hidden", "mock"] as const;
+const TAB_LABELS: Record<(typeof TABS)[number], string> = {
+  pending: "Pending",
+  flagged: "Flagged",
+  hidden: "Hidden",
+  mock: "Mock interviews",
+};
 type Tab = (typeof TABS)[number];
 
 function toDraft(report: InterviewReport): ReportDraft {
@@ -42,22 +51,33 @@ export default async function ModerationPage({ searchParams }: PageProps<"/admin
   await requireAdmin();
   const { tab: rawTab } = await searchParams;
   const tab: Tab = TABS.includes(rawTab as Tab) ? (rawTab as Tab) : "pending";
-  const [queue, topics, audit] = await Promise.all([
+  const [queue, topics, audit, mockReports] = await Promise.all([
     getCommunityService().moderationQueue(),
     getContentService().topics(),
     listAuditEntries(200),
+    mockModeration.openReports(),
   ]);
   const topicNames = Object.fromEntries(topics.map((topic) => [topic.id, topic.name]));
   const counts = {
     pending: queue.pending.length,
     flagged: queue.flagged.length,
     hidden: queue.hidden.length,
+    mock: mockReports.length,
   };
   const entries: { report: InterviewReport; flags: ReportFlag[] }[] =
     tab === "flagged"
       ? queue.flagged
-      : (tab === "pending" ? queue.pending : queue.hidden).map((report) => ({ report, flags: [] }));
-  const history = audit.filter((entry) => entry.entityType === "interview-report").slice(0, 20);
+      : tab === "mock"
+        ? []
+        : (tab === "pending" ? queue.pending : queue.hidden).map((report) => ({
+            report,
+            flags: [],
+          }));
+  const history = audit
+    .filter(
+      (entry) => entry.entityType === "interview-report" || entry.entityType === "mock-report",
+    )
+    .slice(0, 20);
 
   return (
     <div className="grid gap-4">
@@ -72,17 +92,49 @@ export default async function ModerationPage({ searchParams }: PageProps<"/admin
             href={`/admin/moderation?tab=${name}`}
             aria-current={tab === name ? "page" : undefined}
             className={cn(
-              "-mb-px border-b-2 px-3 py-2 text-sm capitalize",
+              "-mb-px border-b-2 px-3 py-2 text-sm",
               tab === name
                 ? "border-primary font-medium"
                 : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
-            {name} ({counts[name]})
+            {TAB_LABELS[name]} ({counts[name]})
           </Link>
         ))}
       </nav>
-      {entries.length === 0 ? (
+      {tab === "mock" ? (
+        mockReports.length === 0 ? (
+          <EmptyState icon={ShieldCheck} title="No open reports" description="Nothing to review." />
+        ) : (
+          <ul className="grid gap-3">
+            {mockReports.map((report) => (
+              <li key={report.id} className="grid gap-3 rounded-lg border p-4 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="warning">{REPORT_REASON_LABELS[report.reason]}</Badge>
+                  <span>
+                    <span className="font-medium">{report.reporterName}</span> reported{" "}
+                    <span className="font-medium">{report.reportedName}</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(report.createdAt), "d MMM yyyy")}
+                    {report.sessionStartUtc &&
+                      ` · session ${format(new Date(report.sessionStartUtc), "d MMM")}`}
+                  </span>
+                </div>
+                {report.note && <p>{report.note}</p>}
+                <p className="text-xs text-muted-foreground">
+                  {report.openAgainstReported} open report(s) against them · {report.noShows} recent
+                  no-show(s)
+                  {report.suspendedUntil &&
+                    isFuture(report.suspendedUntil) &&
+                    ` · paused until ${format(new Date(report.suspendedUntil), "d MMM")}`}
+                </p>
+                <MockReportControls reportId={report.id} />
+              </li>
+            ))}
+          </ul>
+        )
+      ) : entries.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
           title="Nothing to review"
@@ -135,4 +187,9 @@ export default async function ModerationPage({ searchParams }: PageProps<"/admin
       )}
     </div>
   );
+}
+
+/** Server-side clock check, kept out of the render body. */
+function isFuture(iso: string): boolean {
+  return Date.parse(iso) > new Date().getTime();
 }
