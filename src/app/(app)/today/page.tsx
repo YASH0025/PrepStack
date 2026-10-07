@@ -144,6 +144,11 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
           </Alert>
         )}
 
+        {/* An interview within 48 hours is the most urgent thing on the page. */}
+        {interviews.next?.showSheet && (
+          <NextInterviewCard next={interviews.next} timezone={profile.timezone} />
+        )}
+
         <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
           <Card>
             <CardHeader>
@@ -219,7 +224,9 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
           </Card>
 
           <div className="grid content-start gap-6">
-            <NextInterviewCard next={interviews.next} timezone={profile.timezone} />
+            {!interviews.next?.showSheet && (
+              <NextInterviewCard next={interviews.next} timezone={profile.timezone} />
+            )}
             <PendingDebriefsCard items={interviews.pendingDebriefs} timezone={profile.timezone} />
             <FollowUpsCard items={interviews.followUps} />
 

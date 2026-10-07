@@ -233,3 +233,24 @@
     color: inherit;
   }
 }
+
+/* Agenda list fits phone widths: titles wrap instead of widening the page. */
+.fc .fc-list-event-time {
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .fc .fc-list-event td,
+  .fc .fc-list-event-time {
+    padding-inline: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+.fc .fc-list-event-title {
+  width: 100%;
+  max-width: 0; /* lets the cell shrink; its content wraps */
+}
+.fc .fc-list-event-title *,
+.fc .fc-list-day-cushion {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
