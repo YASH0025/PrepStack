@@ -6,6 +6,7 @@ import {
   CalendarClock,
   CheckSquare,
   ExternalLink,
+  FileText,
   MapPin,
   Pencil,
   Repeat,
@@ -265,6 +266,11 @@ export function RoundDrawer({
           {/* 4. Prep (scheduled rounds) */}
           {scheduled && (
             <DrawerSection title="Prep">
+              <Button asChild size="sm" className="w-fit">
+                <Link href={`/interviews/rounds/${round.id}/revision-sheet`}>
+                  <FileText /> Open revision sheet
+                </Link>
+              </Button>
               <ChecklistEditor key={round.id} roundId={round.id} items={round.prepChecklist} />
               <div className="grid gap-2">
                 <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">

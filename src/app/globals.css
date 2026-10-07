@@ -212,3 +212,24 @@
 .ps-calendar .fc .ps-marker-notice {
   border-color: #0284c7;
 }
+
+/* Print: plain black-on-white pages (revision sheet). */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  :root,
+  .dark {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --muted-foreground: oklch(0.4 0 0);
+    --border: oklch(0.85 0 0);
+  }
+  body {
+    background: white;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}

@@ -157,6 +157,30 @@ export async function createFollowUpNotifications(userId: string, now: Date): Pr
   return created;
 }
 
+const SHEET_WINDOW_MS = 48 * 60 * 60_000;
+
+/** In-app nudge to open the revision sheet once a round is within 48 hours. */
+export async function createRevisionSheetNotifications(userId: string, now: Date): Promise<number> {
+  const { rounds, company, timezone } = await context(userId);
+  const notifications = notificationsFor(userId);
+  let created = 0;
+  for (const round of rounds) {
+    if (round.status !== "SCHEDULED") continue;
+    const until = new Date(round.startUtc).getTime() - now.getTime();
+    if (until <= 0 || until > SHEET_WINDOW_MS) continue;
+    const name = company.get(round.applicationId)?.companyName ?? "your interview";
+    const result = await notifications.notify({
+      type: "REVISION_SHEET_READY",
+      title: `Your revision sheet for ${name} is ready`,
+      body: `${roundLabel(round)} at ${formatRoundTime(round.startUtc, round.endUtc, timezone)}. One page: weak topics, questions, stories and logistics.`,
+      href: `/interviews/rounds/${round.id}/revision-sheet`,
+      dedupeKey: `revision-sheet:${round.id}:${round.startUtc}`,
+    });
+    if (result) created += 1;
+  }
+  return created;
+}
+
 /** One in-app warning per pair of overlapping upcoming rounds. */
 export async function createConflictNotifications(userId: string, now: Date): Promise<number> {
   const { rounds, company, timezone } = await context(userId);
@@ -190,6 +214,10 @@ export function interviewJobs(deps: InterviewJobDeps): ScheduledJob[] {
     },
     { name: "follow-ups", run: ({ userId, now }) => createFollowUpNotifications(userId, now) },
     { name: "conflicts", run: ({ userId, now }) => createConflictNotifications(userId, now) },
+    {
+      name: "revision-sheets",
+      run: ({ userId, now }) => createRevisionSheetNotifications(userId, now),
+    },
   ];
 }
 
@@ -205,4 +233,5 @@ export async function syncInAppNotifications(
   await createDebriefPrompts(userId, now, hasDebrief);
   await createFollowUpNotifications(userId, now);
   await createConflictNotifications(userId, now);
+  await createRevisionSheetNotifications(userId, now);
 }
