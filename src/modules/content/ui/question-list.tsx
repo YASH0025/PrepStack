@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Bookmark, BookmarkCheck, ChevronDown } from "lucide-react";
+import { Bookmark, BookmarkCheck, Brain, Check, ChevronDown } from "lucide-react";
 
 import { RichText } from "@/components/rich-text";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
 } from "@/lib/domain";
 import { cn } from "@/lib/utils";
 import { toggleSavedQuestionAction } from "@/modules/progress/actions";
+import { addQuestionToReviewAction } from "@/modules/review/actions";
 
 export interface ClientQuestion {
   id: string;
@@ -32,11 +33,14 @@ export function QuestionList({
   questions,
   defaultLevel,
   savedIds = [],
+  reviewIds = [],
   canSave = false,
 }: {
   questions: ClientQuestion[];
   defaultLevel: Level;
   savedIds?: string[];
+  /** Questions that already have a review card. */
+  reviewIds?: string[];
   canSave?: boolean;
 }) {
   const [level, setLevel] = useState<Level>(defaultLevel);
@@ -58,6 +62,7 @@ export function QuestionList({
             question={question}
             level={level}
             initiallySaved={savedIds.includes(question.id)}
+            initiallyInReview={reviewIds.includes(question.id)}
             canSave={canSave}
           />
         ))}
@@ -70,15 +75,18 @@ function QuestionCard({
   question,
   level,
   initiallySaved,
+  initiallyInReview,
   canSave,
 }: {
   question: ClientQuestion;
   level: Level;
   initiallySaved: boolean;
+  initiallyInReview: boolean;
   canSave: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(initiallySaved);
+  const [inReview, setInReview] = useState(initiallyInReview);
   const [pending, startTransition] = useTransition();
   const answer =
     question.answers.find((entry) => entry.level === level) ??
@@ -124,6 +132,22 @@ function QuestionCard({
             ? "Hide answer"
             : `Show ${LEVEL_LABELS[answer?.level ?? level].toLowerCase()} answer`}
         </Button>
+        {canSave && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={pending || inReview}
+            onClick={() =>
+              startTransition(async () => {
+                const result = await addQuestionToReviewAction(question.id);
+                if (result.ok) setInReview(true);
+              })
+            }
+          >
+            {inReview ? <Check /> : <Brain />}
+            {inReview ? "In review" : "Add to review"}
+          </Button>
+        )}
       </div>
       {open && answer && (
         <div id={answerId} className="rounded-lg bg-muted/40 p-3">

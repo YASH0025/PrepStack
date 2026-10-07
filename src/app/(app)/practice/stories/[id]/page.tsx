@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { requireUser } from "@/modules/auth/service";
 import { getContentService } from "@/modules/content/service";
+import { reviewServiceFor } from "@/modules/review/service";
+import { AddStoryToReview } from "@/modules/review/ui/add-story-to-review";
 import { matchStories } from "@/modules/story-bank/domain/coverage";
 import { storyBankFor } from "@/modules/story-bank/service";
 import { StoryStatusBadge } from "@/modules/story-bank/ui/story-bits";
@@ -27,9 +29,10 @@ export default async function StoryPage({
   if (!story) notFound();
 
   const content = getContentService();
-  const [competencies, behavioral] = await Promise.all([
+  const [competencies, behavioral, reviewStoryIds] = await Promise.all([
     content.competencies(),
     content.behavioralQuestions("BEHAVIORAL"),
+    reviewServiceFor(user.id).sourceIds("STORY"),
   ]);
   // Questions this story can answer: those whose best matches include it.
   const fits = behavioral.filter(
@@ -81,6 +84,12 @@ export default async function StoryPage({
           />
         </div>
         <div className="grid content-start gap-8">
+          <Section
+            title="Practise it"
+            description="Spaced repetition brings the story back so you can tell it fluently."
+          >
+            <AddStoryToReview storyId={story.id} inReview={reviewStoryIds.has(story.id)} />
+          </Section>
           <Section title="Questions it can answer">
             {fits.length === 0 ? (
               <p className="text-sm text-muted-foreground">

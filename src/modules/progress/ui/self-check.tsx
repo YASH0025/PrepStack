@@ -20,6 +20,7 @@ interface Outcome {
   correct: boolean;
   correctIndex: number;
   explanation: string;
+  addedToReview: boolean;
 }
 
 /** Quick multiple-choice self-check; answers are checked on the server. */
@@ -95,6 +96,13 @@ function SelfCheckItem({ question, number }: { question: SelfCheckQuestion; numb
         <div className="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm" role="status">
           <p className="font-medium">{outcome.correct ? "Correct." : "Not quite."}</p>
           {outcome.explanation && <RichText source={outcome.explanation} />}
+          {!outcome.correct && (
+            <p className="text-xs text-muted-foreground">
+              {outcome.addedToReview
+                ? "Added to your review queue so it comes back tomorrow."
+                : "This question is already in your review queue."}
+            </p>
+          )}
           <Button variant="ghost" size="sm" className="w-fit" onClick={() => setOutcome(null)}>
             Try again
           </Button>
