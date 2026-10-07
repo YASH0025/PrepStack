@@ -116,7 +116,7 @@ export function NoticeForm({
                 max={365}
                 placeholder="e.g. 60"
                 {...register("noticeDays", {
-                  setValueAs: (value) => (value === "" ? null : Number(value)),
+                  setValueAs: toNullableNumber,
                 })}
               />
             )}
@@ -194,4 +194,11 @@ export function NoticeForm({
       </div>
     </form>
   );
+}
+
+/** Empty inputs (and the initial null) stay null instead of becoming 0. */
+function toNullableNumber(value: unknown): number | null {
+  if (value === "" || value === null || value === undefined) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }

@@ -8,6 +8,8 @@ import { roadmapServiceFor } from "@/modules/roadmap/service";
 import { suggestStoriesForRound } from "@/modules/story-bank/domain/coverage";
 import { storyBankFor } from "@/modules/story-bank/service";
 
+import { type Debrief } from "./debrief-schemas";
+import { debriefsFor } from "./debrief-service";
 import { type Round } from "./schemas";
 
 export interface RoundPrep {
@@ -17,6 +19,8 @@ export interface RoundPrep {
   topicsToRevise: { slug: string; name: string; reason: string }[];
   /** For behavioral/HR/managerial/recruiter rounds: ready stories to rehearse. Null otherwise. */
   stories: { id: string; title: string; competencies: string[] }[] | null;
+  /** The round's debrief, decrypted for the owner, or null if there is none. */
+  debrief: Debrief | null;
 }
 
 /**
@@ -26,11 +30,12 @@ export interface RoundPrep {
 export async function buildRoundPrep(userId: string, round: Round): Promise<RoundPrep> {
   const content = getContentService();
   const peopleRound = PEOPLE_ROUND_TYPES.includes(round.type);
-  const [curated, profile, allStories, competencies] = await Promise.all([
+  const [curated, profile, allStories, competencies, debrief] = await Promise.all([
     content.interviewerQuestions(),
     getProfile(userId),
     peopleRound ? storyBankFor(userId).list() : Promise.resolve([]),
     peopleRound ? content.competencies() : Promise.resolve([]),
+    debriefsFor(userId).get(round.id),
   ]);
   const names = new Map(competencies.map((competency) => [competency.slug, competency.name]));
   const stories = peopleRound
@@ -44,7 +49,7 @@ export async function buildRoundPrep(userId: string, round: Round): Promise<Roun
     .filter((question) => question.roundTypes.includes(round.type))
     .map((question) => question.text);
 
-  if (!profile) return { interviewerQuestions, topicsToRevise: [], stories };
+  if (!profile) return { interviewerQuestions, topicsToRevise: [], stories, debrief };
 
   const [topics, roadmap, flagged] = await Promise.all([
     content.topics({ trackId: profile.trackId, publishedOnly: true }),
@@ -79,5 +84,5 @@ export async function buildRoundPrep(userId: string, round: Round): Promise<Roun
     });
   }
 
-  return { interviewerQuestions, topicsToRevise: topicsToRevise.slice(0, 8), stories };
+  return { interviewerQuestions, topicsToRevise: topicsToRevise.slice(0, 8), stories, debrief };
 }

@@ -38,6 +38,7 @@ import { ChecklistEditor } from "./checklist-editor";
 import { CancelRoundDialog, OutcomeDialog, RescheduleRoundDialog } from "./round-dialogs";
 import {
   Attachments,
+  DebriefSummary,
   DrawerSection,
   FollowUpForm,
   InterviewerQuestions,
@@ -99,6 +100,8 @@ export function RoundDrawer({
   const [loading, startLoading] = useTransition();
   const [now] = useState(() => new Date());
   const scheduled = round.status === "SCHEDULED";
+  const showDebrief =
+    round.status === "COMPLETED" || (scheduled && now.getTime() > new Date(round.endUtc).getTime());
   const title = `Round ${round.roundNumber} – ${round.title ?? ROUND_TYPE_LABELS[round.type]}`;
   const siblings = allRounds.filter((entry) => entry.applicationId === round.applicationId);
 
@@ -296,6 +299,17 @@ export function RoundDrawer({
                 </h4>
                 <InterviewerQuestions round={round} curated={prep?.interviewerQuestions ?? []} />
               </div>
+            </DrawerSection>
+          )}
+
+          {/* 5. Debrief: completed rounds, or scheduled rounds whose time has passed */}
+          {showDebrief && (
+            <DrawerSection title="Debrief">
+              {loading && !prep ? (
+                <Skeleton className="h-16" />
+              ) : (
+                <DebriefSummary roundId={round.id} debrief={prep?.debrief ?? null} />
+              )}
             </DrawerSection>
           )}
 

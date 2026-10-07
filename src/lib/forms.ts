@@ -57,3 +57,10 @@ export function ok<T>(data?: T): ActionResult<T | undefined> {
 export function fail(error: string, fieldErrors?: Record<string, string[]>): ActionResult<never> {
   return { ok: false, error, fieldErrors };
 }
+
+/** React Hook Form `setValueAs` for optional number inputs: "" becomes null, not 0. */
+export function toNullableNumber(value: unknown): number | null {
+  if (value === "" || value === null || value === undefined) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}

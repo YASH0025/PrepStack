@@ -7,7 +7,14 @@ import { type ActionResult, fail, fieldErrorsFrom, ok } from "@/lib/forms";
 import { requireUser } from "@/modules/auth/service";
 
 import { type StatusSuggestion, conflictingIds, suggestAfterRound } from "./domain/rounds";
-import { afterInterviewScheduleChanged, afterRoundsDeleted } from "./hooks";
+import { DebriefInputSchema } from "./debrief-schemas";
+import { debriefsFor } from "./debrief-service";
+import {
+  afterDebriefSaved,
+  afterInterviewScheduleChanged,
+  afterRoundsDeleted,
+  deleteAttachmentFiles,
+} from "./hooks";
 import {
   ApplicationInputSchema,
   ApplicationPatchSchema,
@@ -320,8 +327,37 @@ export async function removeAttachmentAction(
       Id.parse(roundId),
       Id.parse(attachmentId),
     );
-    if (storageKey) await afterRoundsDeleted(user.id, [{ id: roundId, storageKeys: [storageKey] }]);
+    if (storageKey) await deleteAttachmentFiles([storageKey]);
     done();
     return ok();
+  });
+}
+
+/** Saves the private debrief for a round and applies its effects. */
+export async function saveDebriefAction(
+  roundId: string,
+  input: unknown,
+): Promise<ActionResult<{ cardsAdded: number; created: boolean }>> {
+  const user = await requireUser();
+  const id = Id.safeParse(roundId);
+  if (!id.success) return fail("Invalid round");
+  const parsed = DebriefInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return fail("Please fix the highlighted fields", fieldErrorsFrom(parsed.error));
+  }
+  return guard(async () => {
+    const tracker = trackerFor(user.id);
+    const round = await tracker.getRound(id.data);
+    if (!round) return fail("Round not found");
+    const application = await tracker.getApplication(round.applicationId);
+    const saved = await debriefsFor(user.id).save(id.data, parsed.data);
+    const { cardsAdded } = await afterDebriefSaved(
+      user.id,
+      id.data,
+      saved,
+      application?.companyName ?? "the company",
+    );
+    done();
+    return ok({ cardsAdded, created: saved.created });
   });
 }

@@ -4,14 +4,12 @@ import { env } from "@/lib/env";
 import { getEmailService } from "@/lib/services/email";
 import { getUserRepository } from "@/modules/auth/service";
 
+import { debriefsFor } from "./debrief-service";
 import { type InterviewJobDeps } from "./jobs";
 
-/**
- * Whether a round already has a debrief. Debriefs are added in the debrief
- * step; until a round has one, prompts are shown for every finished round.
- */
-export async function roundHasDebrief(_userId: string, _roundId: string): Promise<boolean> {
-  return false;
+/** Whether a round already has a debrief (then no "How did it go?" prompt is needed). */
+export async function roundHasDebrief(userId: string, roundId: string): Promise<boolean> {
+  return (await debriefsFor(userId).roundIdsWithDebrief()).has(roundId);
 }
 
 /** Production wiring for the tracker's scheduled jobs. */
