@@ -42,3 +42,16 @@ export async function onboard(page: Page): Promise<void> {
   await page.goto("/today");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 }
+
+/**
+ * Fills a field and re-fills until the value sticks. In dev mode a page can
+ * still be hydrating after "load"; React Hook Form then resets fields typed
+ * into before it registered them.
+ */
+export async function fillStable(page: Page, selector: string, value: string): Promise<void> {
+  await expect(async () => {
+    await page.fill(selector, value);
+    await page.waitForTimeout(300);
+    expect(await page.inputValue(selector)).toBe(value);
+  }).toPass({ timeout: 30_000 });
+}

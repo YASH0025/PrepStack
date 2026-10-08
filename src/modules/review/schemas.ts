@@ -7,6 +7,7 @@ export const CARD_SOURCES = [
   "DEBRIEF_QUESTION",
   "SELF_CHECK",
   "STORY",
+  "MOCK_QUESTION",
   "MANUAL",
 ] as const;
 export const CardSourceSchema = z.enum(CARD_SOURCES);
@@ -17,6 +18,7 @@ export const CARD_SOURCE_LABELS: Record<CardSource, string> = {
   DEBRIEF_QUESTION: "From a debrief",
   SELF_CHECK: "Missed self-check",
   STORY: "Story",
+  MOCK_QUESTION: "From a mock interview",
   MANUAL: "Your card",
 };
 

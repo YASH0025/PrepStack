@@ -58,4 +58,9 @@ export const RATE_LIMITS = {
   upload: { limit: 30, windowMs: 60 * 60_000 },
   export: { limit: 20, windowMs: 60 * 60_000 },
   deleteAccount: { limit: 5, windowMs: 15 * 60_000 },
+  mockPost: { limit: 20, windowMs: 24 * 60 * 60_000 },
+  mockBook: { limit: 10, windowMs: 24 * 60 * 60_000 },
+  mockReport: { limit: 10, windowMs: 24 * 60 * 60_000 },
+  /** Session changes (meeting link, cancel, question swaps). */
+  mockChange: { limit: 60, windowMs: 60 * 60_000 },
 } as const;

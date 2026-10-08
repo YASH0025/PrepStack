@@ -8,6 +8,7 @@ import { UserMenu } from "@/components/app-shell/user-menu";
 import { ThemeToggle } from "@/components/theme";
 import { requireUser } from "@/modules/auth/service";
 import { roundHasDebrief } from "@/modules/tracker/job-deps";
+import { syncMockForUser } from "@/modules/mock/effects";
 import { syncInAppNotifications } from "@/modules/tracker/jobs";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
@@ -16,6 +17,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   // Computed on read so prompts and follow-ups appear even if the cron has not run.
   try {
     await syncInAppNotifications(user.id, new Date(), roundHasDebrief);
+    await syncMockForUser(user.id);
   } catch (error) {
     console.error("[notifications] on-read sync failed", error);
   }

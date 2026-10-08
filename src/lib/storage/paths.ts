@@ -30,6 +30,23 @@ export type CommunityFile = "reports.json" | "votes.json" | "flags.json";
 
 export type SystemFile = "users.json" | "audit-log.json";
 
+/**
+ * Data shared between mock interview partners. Holds only what users chose
+ * to share when joining (display name, role, level, topics), never their
+ * private files.
+ */
+export type MockFile =
+  | "profiles.json"
+  | "slots.json"
+  | "requests.json"
+  | "sessions.json"
+  | "feedback.json"
+  | "reports.json"
+  | "blocks.json";
+
+/** Public readiness passport snapshots and their share-link index. */
+export type PassportFile = "links.json" | "snapshots.json";
+
 export type PrivateFile =
   | "profile.json"
   | "assessments.json"
@@ -45,6 +62,7 @@ export type PrivateFile =
   | "notice-plan.json"
   | "revision-sheet-state.json"
   | "report-bookmarks.json"
+  | "passport.json"
   | "notifications.json";
 
 export function contentPath(file: ContentFile): string {
@@ -53,6 +71,14 @@ export function contentPath(file: ContentFile): string {
 
 export function communityPath(file: CommunityFile): string {
   return path.join(dataRoot(), "community", file);
+}
+
+export function mockPath(file: MockFile): string {
+  return path.join(dataRoot(), "mock", file);
+}
+
+export function passportPath(file: PassportFile): string {
+  return path.join(dataRoot(), "passport", file);
 }
 
 export function systemPath(file: SystemFile): string {

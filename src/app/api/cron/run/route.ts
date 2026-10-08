@@ -3,6 +3,9 @@ import { timingSafeEqual } from "node:crypto";
 import { env } from "@/lib/env";
 import { runScheduledJobs } from "@/lib/services/scheduler";
 import { listPrivateUserIdsForSystemJobs } from "@/lib/storage/paths";
+import { mockJobs } from "@/modules/mock/effects";
+import { runMatching } from "@/modules/mock/service";
+import { passportFor } from "@/modules/passport/service";
 import { interviewJobDeps } from "@/modules/tracker/job-deps";
 import { interviewJobs } from "@/modules/tracker/jobs";
 
@@ -17,9 +20,27 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
   const now = new Date();
+  // Pair open mock interview requests first, so new sessions get their reminders.
+  const matched = await runMatching(now).catch((error: Error) => {
+    console.error("[cron] mock matching failed:", error.message);
+    return 0;
+  });
   const userIds = await listPrivateUserIdsForSystemJobs();
-  const summary = await runScheduledJobs(interviewJobs(interviewJobDeps()), userIds, now);
-  return Response.json(summary);
+  const deps = interviewJobDeps();
+  const summary = await runScheduledJobs(
+    [
+      ...interviewJobs(deps),
+      ...mockJobs(deps),
+      {
+        name: "passport-refresh",
+        run: async ({ userId, now: at }) =>
+          (await passportFor(userId).refreshIfStale(at)) ? 1 : 0,
+      },
+    ],
+    userIds,
+    now,
+  );
+  return Response.json({ ...summary, mockMatches: matched });
 }
 
 function authorized(header: string | null): boolean {

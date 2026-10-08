@@ -6,6 +6,8 @@ import { assessmentServiceFor } from "@/modules/assessment/service";
 import { getAuth } from "@/modules/auth/service";
 import { reportBookmarksFor } from "@/modules/bookmarks/service";
 import { getCommunityService } from "@/modules/community/service";
+import { mockFor } from "@/modules/mock/service";
+import { passportFor } from "@/modules/passport/service";
 import { noticePlannerFor } from "@/modules/notice-planner/service";
 import { notificationsFor } from "@/modules/notifications/service";
 import { profileServiceFor } from "@/modules/profile/service";
@@ -115,6 +117,8 @@ export async function deleteAccount(
     }
   }
   await community.removeUserActivity(userId);
+  await mockFor(userId).removeAllMyData();
+  await passportFor(userId).removeAll();
   await deleteAttachmentFiles(
     rounds.flatMap((round) => round.attachments.map((attachment) => attachment.storageKey)),
   );

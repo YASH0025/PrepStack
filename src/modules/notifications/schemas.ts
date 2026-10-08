@@ -8,6 +8,7 @@ export const NotificationTypeSchema = z.enum([
   "DEBRIEF_PROMPT",
   "FOLLOW_UP_DUE",
   "REPORT_MODERATED",
+  "MOCK_INTERVIEW",
   "SYSTEM",
 ]);
 export type NotificationType = z.infer<typeof NotificationTypeSchema>;

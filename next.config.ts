@@ -11,6 +11,19 @@ const nextConfig: NextConfig = {
     "**": ["./data/**", "./.e2e-data/**", "./test-results/**", "./.env*"],
   },
   poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        // Private passport share links: never indexed, never cached, no referrer.
+        source: "/passport/:token*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+    ];
+  },
   reactStrictMode: true,
 };
 
