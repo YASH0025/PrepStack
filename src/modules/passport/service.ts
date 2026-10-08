@@ -3,6 +3,8 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 
 import { decryptOptional, encryptOptional } from "@/lib/services/crypto";
+import { getStorageDriver } from "@/lib/storage/driver";
+import { privatePath } from "@/lib/storage/paths";
 import { assessmentServiceFor } from "@/modules/assessment/service";
 import { getContentService } from "@/modules/content/service";
 import { publicScore } from "@/modules/mock/domain/score";
@@ -30,6 +32,14 @@ export function hashToken(token: string): string {
  */
 export class PassportService {
   constructor(private readonly userId: string) {}
+
+  /** Serializes link changes for this user (double clicks, two tabs). */
+  private async withUserLock<T>(fn: () => Promise<T>): Promise<T> {
+    return (await getStorageDriver()).withLock(
+      `${privatePath(this.userId, "passport.json")}.lock`,
+      fn,
+    );
+  }
 
   /** Fresh passport data from the owner's own records (not stored). */
   async compute(): Promise<PassportData | null> {
@@ -134,7 +144,11 @@ export class PassportService {
 
   /** Creates a new share link (revoking any previous one) and publishes a snapshot. */
   async createLink(): Promise<string> {
-    await this.disable();
+    return this.withUserLock(() => this.createLinkUnlocked());
+  }
+
+  private async createLinkUnlocked(): Promise<string> {
+    await this.revokeAll();
     const token = randomBytes(24).toString("base64url");
     const link = await passportLinks().create({
       userId: this.userId,
@@ -161,7 +175,10 @@ export class PassportService {
     const data = await this.compute();
     if (!data) return null;
     const linkId = link.id;
-    return passportSnapshots().transaction((records) => {
+    return passportSnapshots().transaction(async (records) => {
+      // Re-check inside the write: sharing may have been turned off meanwhile.
+      const current = await passportLinks().getById(linkId);
+      if (!current?.enabled) return { records, result: null };
       const existing = records.find((item) => item.linkId === linkId);
       const snapshot: PassportSnapshot = {
         id: existing?.id ?? crypto.randomUUID(),
@@ -180,14 +197,22 @@ export class PassportService {
     });
   }
 
-  /** Turns the link off and removes its public snapshot. */
+  /** Turns sharing off: every link of this user stops working and its snapshot is deleted. */
   async disable(): Promise<void> {
+    await this.withUserLock(() => this.revokeAll());
+  }
+
+  private async revokeAll(): Promise<void> {
+    const mine = await passportLinks().find((link) => link.userId === this.userId);
+    const ids = new Set(mine.map((link) => link.id));
+    if (ids.size) {
+      await passportSnapshots().deleteWhere((item) => ids.has(item.linkId));
+      // Revoked links are removed, not kept: the index holds only live hashes.
+      await passportLinks().deleteWhere((link) => ids.has(link.id));
+    }
     const settings = passportSettings(this.userId);
     const current = await settings.get();
-    if (current?.linkId) {
-      const linkId = current.linkId;
-      await passportLinks().update(linkId, { enabled: false });
-      await passportSnapshots().deleteWhere((item) => item.linkId === linkId);
+    if (current?.linkId || current?.token) {
       await settings.set({ displayName: current.displayName, linkId: null, token: null });
     }
   }

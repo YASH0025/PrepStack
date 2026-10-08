@@ -28,6 +28,7 @@ export function MockReportControls({ reportId }: { reportId: string }) {
           <option value="0">Dismiss</option>
           <option value="7">Pause booking 7 days</option>
           <option value="30">Pause booking 30 days</option>
+          <option value="-1">Lift an existing pause</option>
         </NativeSelect>
         <Input
           aria-label="Note"

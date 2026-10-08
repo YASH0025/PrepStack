@@ -74,6 +74,26 @@ Install a browser once with `npx playwright install chromium`, or point `PW_CHRO
 - Topic frequency is shown only when a company/role has at least `COMMUNITY_MIN_SAMPLE`
   reports (default 5); below that the app says "Not enough data yet".
 
+## Peer mock interviews
+
+`/practice/mock`: users join with a display name, role and level (nothing else is shared),
+then book open slots, post their own, or ask to be matched automatically. A session is 60
+minutes with turns; partners meet on their own Google Meet or Zoom link. Each interviewer gets
+questions from the topics their partner chose, with model answers; interviewees never see
+their questions in advance. Private feedback turns missed questions into review cards and
+roadmap weaknesses. No-shows pause booking for a week only when reported by two different
+partners (or after late cancellations); reports and pauses are handled in
+`/admin/moderation` → Mock interviews. Matching and the 1-hour reminder email run with
+`npm run cron`.
+
+## Readiness passport
+
+`/profile/passport`: a private, revocable share link showing preparation progress (topics at
+target depth, plan progress, review streak, diagnostic, and the opt-in peer score after 3
+sessions with 3 different partners). The public page shows a stored snapshot only, refreshed
+daily by `npm run cron` or on demand; it never shows salaries, companies, interview history or
+notes, and is sent with `X-Robots-Tag: noindex`.
+
 ## Public pages
 
 `/topics`, `/topics/[slug]`, `/reports` and `/reports/[id]` are server-rendered and indexable,

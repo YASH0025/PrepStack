@@ -5,7 +5,12 @@ import { env } from "@/lib/env";
 // Reports and topics change at runtime, so this is generated per request.
 export const dynamic = "force-dynamic";
 
-/** Only public pages are crawlable; everything signed-in is disallowed. */
+/**
+ * Only public pages are crawlable; everything signed-in is disallowed.
+ * Passport share links are not listed here on purpose: they send an
+ * X-Robots-Tag noindex header (next.config.ts), which crawlers can only see
+ * if they are allowed to fetch the page.
+ */
 export default function robots(): MetadataRoute.Robots {
   const base = env.APP_URL.replace(/\/$/, "");
   return {
@@ -23,7 +28,6 @@ export default function robots(): MetadataRoute.Robots {
         "/admin",
         "/onboarding",
         "/api",
-        "/passport",
         "/login",
         "/signup",
         "/reset-password",

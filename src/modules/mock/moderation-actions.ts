@@ -11,7 +11,10 @@ import { MockError, mockModeration } from "./service";
 
 const Id = z.uuid();
 
-/** Closes a mock interview report, optionally pausing the reported user's booking. */
+/**
+ * Closes a mock interview report. `pauseDays` > 0 pauses the reported user's
+ * booking, 0 just dismisses, -1 lifts an existing pause.
+ */
 export async function resolveMockReportAction(
   reportId: string,
   pauseDays: number,
@@ -25,10 +28,17 @@ export async function resolveMockReportAction(
     note.trim().slice(0, 200) || (days.data ? `Paused ${days.data} days` : "Dismissed");
   try {
     const report = await mockModeration.resolve(reportId, resolution);
-    if (days.data > 0) await mockModeration.suspend(report.reportedUserId, days.data);
+    if (days.data !== 0) {
+      await mockModeration.suspend(report.reportedUserId, Math.max(0, days.data));
+    }
     await audit({
       actorUserId: admin.id,
-      action: days.data > 0 ? "mock.pause-user" : "mock.dismiss-report",
+      action:
+        days.data > 0
+          ? "mock.pause-user"
+          : days.data < 0
+            ? "mock.lift-pause"
+            : "mock.dismiss-report",
       entityType: "mock-report",
       entityId: reportId,
       details: resolution,

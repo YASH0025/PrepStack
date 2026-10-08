@@ -44,6 +44,23 @@ export async function syncMockForUser(userId: string, now: Date = new Date()): P
       if (created) handled += 1;
     };
     const start = Date.parse(session.startUtc);
+    // The partner changed the meeting link: tell me, so a swapped link never goes unnoticed.
+    if (
+      session.status === "SCHEDULED" &&
+      session.meetingLinkUpdatedAt &&
+      session.meetingLinkSetBy &&
+      session.meetingLinkSetBy !== userId
+    ) {
+      await notifications.notify({
+        type: "MOCK_INTERVIEW",
+        title: `${partner.displayName} changed the meeting link`,
+        body: session.meetingLink
+          ? `New link: ${new URL(session.meetingLink).host}. Check it before joining.`
+          : "The meeting link was removed.",
+        href,
+        dedupeKey: `mock:link:${session.id}:${session.meetingLinkUpdatedAt}`,
+      });
+    }
     if (session.status === "SCHEDULED" && start > now.getTime()) {
       await notify("booked", `Mock interview with ${partner.displayName}`, when(session.startUtc));
       if (start - now.getTime() <= REMINDER_MINUTES * 60_000) {

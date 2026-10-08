@@ -77,6 +77,15 @@ describe("readiness passport", () => {
     expect(await publicPassport(second)).toBeNull();
     expect((await passport.status()).enabled).toBe(false);
 
+    // Double click / two tabs: only one link ends up live, and turning
+    // sharing off revokes everything.
+    const [x, y] = await Promise.all([passport.createLink(), passport.createLink()]);
+    const live = [await publicPassport(x), await publicPassport(y)].filter(Boolean);
+    expect(live).toHaveLength(1);
+    await passport.disable();
+    expect([await publicPassport(x), await publicPassport(y)]).toEqual([null, null]);
+    expect(await readStored(passportPath("links.json"))).not.toContain(USER);
+
     await passport.createLink();
     await passport.removeAll();
     expect(await readStored(passportPath("snapshots.json"))).not.toContain("P. Jadhav");

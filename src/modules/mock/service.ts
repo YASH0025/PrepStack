@@ -3,7 +3,8 @@ import "server-only";
 import { fromZonedTime } from "date-fns-tz";
 
 import { type ExperienceBand } from "@/lib/domain";
-
+import { getStorageDriver } from "@/lib/storage/driver";
+import { mockPath } from "@/lib/storage/paths";
 import { getContentService } from "@/modules/content/service";
 
 import { findMatches } from "./domain/matching";
@@ -14,6 +15,7 @@ import {
   canReportNoShow,
   isLateCancel,
   isSuspended,
+  laterPause,
   overlaps,
   recordNoShow,
   startsSoonEnough,
@@ -75,6 +77,57 @@ async function openQuestions() {
   return questions.filter((question) => question.format === "OPEN" && question.answers.length > 0);
 }
 
+/** Stands in for a deleted account in other people's sessions and feedback. */
+export const DELETED_USER_ID = "00000000-0000-4000-8000-000000000000";
+
+/**
+ * Booking and matching both create sessions after checking who is free. They
+ * run under one lock so a user cannot be booked twice for the same time.
+ */
+async function withBookingLock<T>(fn: () => Promise<T>): Promise<T> {
+  return (await getStorageDriver()).withLock(`${mockPath("sessions.json")}.booking`, fn);
+}
+
+/** Closes a paused user's open slots and partner requests. */
+async function closeOpenItems(store: MockStore, userId: string): Promise<void> {
+  await store.slots.transaction((slots) => ({
+    records: slots.map((slot) =>
+      slot.hostId === userId && slot.status === "OPEN"
+        ? { ...slot, status: "CANCELLED" as const }
+        : slot,
+    ),
+    result: undefined,
+  }));
+  await store.requests.transaction((requests) => ({
+    records: requests.map((request) =>
+      request.userId === userId && request.status === "OPEN"
+        ? { ...request, status: "CANCELLED" as const }
+        : request,
+    ),
+    result: undefined,
+  }));
+}
+
+/** Records a no-show and applies the pause rule; never shortens an existing pause. */
+async function applyNoShow(
+  store: MockStore,
+  userId: string,
+  now: Date,
+  source: string,
+): Promise<void> {
+  const profile = await store.profiles.findOne((item) => item.userId === userId);
+  if (!profile) return;
+  const result = recordNoShow(profile.noShows, now, source);
+  const suspendedUntil = laterPause(profile.suspendedUntil, result.suspendedUntil);
+  await store.profiles.update(profile.id, { noShows: result.noShows, suspendedUntil });
+  if (result.suspendedUntil) await closeOpenItems(store, userId);
+}
+
+async function suspendedUserIds(store: MockStore, now: Date): Promise<Set<string>> {
+  const profiles = await store.profiles.list();
+  return new Set(profiles.filter((p) => isSuspended(p.suspendedUntil, now)).map((p) => p.userId));
+}
+
 /** Whether a user already has a scheduled session or open slot overlapping a time. */
 async function busyChecker(
   store: MockStore,
@@ -106,7 +159,8 @@ function createSession(store: MockStore, input: NewSessionInput): Promise<MockSe
   const participant = (person: { userId: string; topics: string[] }) => ({
     userId: person.userId,
     topics: person.topics,
-    questionIds: pickQuestions(input.questions, person.topics, `${id}:${person.userId}`).map(
+    // Random seed: the interviewee cannot work out their questions in advance.
+    questionIds: pickQuestions(input.questions, person.topics, crypto.randomUUID()).map(
       (question) => question.id,
     ),
   });
@@ -122,6 +176,8 @@ function createSession(store: MockStore, input: NewSessionInput): Promise<MockSe
     cancelledBy: null,
     noShowUserId: null,
     remindedUserIds: [],
+    meetingLinkSetBy: input.meetingLink ? input.people[0].userId : null,
+    meetingLinkUpdatedAt: null,
   });
 }
 
@@ -196,6 +252,17 @@ export class MockService {
     if (userId === this.me) throw new MockError("You cannot block yourself");
     if ((await this.blockedIds()).has(userId)) return;
     await this.store.blocks.create({ blockerId: this.me, blockedId: userId });
+    // Upcoming sessions with them are cancelled (not counted as a no-show).
+    await this.store.sessions.transaction((sessions) => ({
+      records: sessions.map((session) =>
+        session.status === "SCHEDULED" &&
+        session.participants.some((p) => p.userId === this.me) &&
+        session.participants.some((p) => p.userId === userId)
+          ? { ...session, status: "CANCELLED" as const, cancelledBy: this.me }
+          : session,
+      ),
+      result: undefined,
+    }));
   }
 
   async unblock(userId: string): Promise<void> {
@@ -212,10 +279,12 @@ export class MockService {
   ): Promise<SlotView[]> {
     const me = await this.profile();
     const isBlocked = await this.blockPairs();
+    const suspended = await suspendedUserIds(this.store, now);
     const slots = await this.store.slots.find(
       (slot) =>
         slot.status === "OPEN" &&
         slot.hostId !== this.me &&
+        !suspended.has(slot.hostId) &&
         startsSoonEnough(slot.startUtc, now) &&
         (!filters.roleId || slot.roleId === filters.roleId) &&
         (!filters.matchMyLevel || !me || bandsCompatible(slot.band, me.band)) &&
@@ -273,47 +342,52 @@ export class MockService {
     const me = await this.requireProfile(now);
     const isBlocked = await this.blockPairs();
     const questions = await openQuestions();
-    return this.store.slots.transaction(async (slots) => {
-      const slot = slots.find((item) => item.id === slotId);
-      if (!slot || slot.status !== "OPEN") throw new MockError("This slot is no longer available");
-      if (slot.hostId === this.me) throw new MockError("You cannot book your own slot");
-      if (isBlocked(this.me, slot.hostId) || isBlocked(slot.hostId, this.me)) {
-        throw new MockError("This slot is no longer available");
-      }
-      if (!startsSoonEnough(slot.startUtc, now)) {
-        throw new MockError("This slot starts too soon to book");
-      }
-      if (!bandsCompatible(slot.band, me.band)) {
-        throw new MockError("This slot is for a different experience level");
-      }
-      if ((await this.isBusyFn())(this.me, slot.startUtc)) {
-        throw new MockError("You already have a session at that time");
-      }
-      const session = await this.createSession({
-        source: "SLOT",
-        startUtc: slot.startUtc,
-        roleId: slot.roleId,
-        meetingLink: slot.meetingLink,
-        people: [
-          { userId: slot.hostId, topics: slot.hostTopics },
-          { userId: this.me, topics },
-        ],
-        questions,
-      });
-      return {
-        records: slots.map((item) =>
-          item.id === slotId
-            ? {
-                ...item,
-                status: "BOOKED" as const,
-                sessionId: session.id,
-                updatedAt: now.toISOString(),
-              }
-            : item,
-        ),
-        result: session,
-      };
-    });
+    const suspended = await suspendedUserIds(this.store, now);
+    return withBookingLock(() =>
+      this.store.slots.transaction(async (slots) => {
+        const slot = slots.find((item) => item.id === slotId);
+        if (!slot || slot.status !== "OPEN" || suspended.has(slot.hostId)) {
+          throw new MockError("This slot is no longer available");
+        }
+        if (slot.hostId === this.me) throw new MockError("You cannot book your own slot");
+        if (isBlocked(this.me, slot.hostId) || isBlocked(slot.hostId, this.me)) {
+          throw new MockError("This slot is no longer available");
+        }
+        if (!startsSoonEnough(slot.startUtc, now)) {
+          throw new MockError("This slot starts too soon to book");
+        }
+        if (!bandsCompatible(slot.band, me.band)) {
+          throw new MockError("This slot is for a different experience level");
+        }
+        if ((await this.isBusyFn())(this.me, slot.startUtc)) {
+          throw new MockError("You already have a session at that time");
+        }
+        const session = await this.createSession({
+          source: "SLOT",
+          startUtc: slot.startUtc,
+          roleId: slot.roleId,
+          meetingLink: slot.meetingLink,
+          people: [
+            { userId: slot.hostId, topics: slot.hostTopics },
+            { userId: this.me, topics },
+          ],
+          questions,
+        });
+        return {
+          records: slots.map((item) =>
+            item.id === slotId
+              ? {
+                  ...item,
+                  status: "BOOKED" as const,
+                  sessionId: session.id,
+                  updatedAt: now.toISOString(),
+                }
+              : item,
+          ),
+          result: session,
+        };
+      }),
+    );
   }
 
   private createSession(input: NewSessionInput): Promise<MockSession> {
@@ -418,97 +492,158 @@ export class MockService {
     };
   }
 
-  async setMeetingLink(sessionId: string, link: string | null): Promise<void> {
-    const session = await this.requireParticipant(sessionId);
-    if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
-    await this.store.sessions.update(sessionId, { meetingLink: link });
+  /**
+   * Read-check-write on one session in a single transaction, so concurrent
+   * actions (feedback vs no-show, two question swaps) cannot overwrite each other.
+   */
+  private mutateSession<R>(
+    sessionId: string,
+    fn: (session: MockSession) => { patch: Partial<MockSession>; result: R },
+    now: Date = new Date(),
+  ): Promise<R> {
+    return this.store.sessions.transaction((sessions) => {
+      const session = sessions.find((item) => item.id === sessionId);
+      if (!session || !session.participants.some((p) => p.userId === this.me)) {
+        throw new MockError("Session not found");
+      }
+      const { patch, result } = fn(session);
+      return {
+        records: sessions.map((item) =>
+          item.id === sessionId ? { ...item, ...patch, updatedAt: now.toISOString() } : item,
+        ),
+        result,
+      };
+    });
+  }
+
+  async setMeetingLink(
+    sessionId: string,
+    link: string | null,
+    now: Date = new Date(),
+  ): Promise<void> {
+    await this.mutateSession(
+      sessionId,
+      (session) => {
+        if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
+        return {
+          patch: {
+            meetingLink: link,
+            meetingLinkSetBy: this.me,
+            meetingLinkUpdatedAt: now.toISOString(),
+          },
+          result: undefined,
+        };
+      },
+      now,
+    );
   }
 
   /** Cancelling within 2 hours of the start counts as a no-show for the canceller. */
   async cancelSession(sessionId: string, now: Date = new Date()): Promise<{ late: boolean }> {
-    const session = await this.requireParticipant(sessionId);
-    if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
-    if (now.getTime() >= Date.parse(session.startUtc)) {
-      throw new MockError("The session has already started");
-    }
-    const late = isLateCancel(session.startUtc, now);
-    await this.store.sessions.update(sessionId, { status: "CANCELLED", cancelledBy: this.me });
-    if (late) await this.applyNoShow(this.me, now);
+    const late = await this.mutateSession(
+      sessionId,
+      (session) => {
+        if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
+        if (now.getTime() >= Date.parse(session.startUtc)) {
+          throw new MockError("The session has already started");
+        }
+        return {
+          patch: { status: "CANCELLED", cancelledBy: this.me },
+          result: isLateCancel(session.startUtc, now),
+        };
+      },
+      now,
+    );
+    if (late) await applyNoShow(this.store, this.me, now, `self:${sessionId}`);
     return { late };
   }
 
-  /** My partner did not join. Allowed from 15 minutes after the start, for 24 hours. */
+  /**
+   * My partner did not join. Allowed from 15 minutes after the start, for 24
+   * hours, and never once they have given feedback (they clearly attended).
+   * The report also goes to moderators; a pause needs no-shows reported by
+   * two different people.
+   */
   async reportNoShow(sessionId: string, now: Date = new Date()): Promise<void> {
-    const session = await this.requireParticipant(sessionId);
-    if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
-    if (!canReportNoShow(session.startUtc, now)) {
-      throw new MockError("You can report a no-show from 15 minutes after the start");
-    }
-    const { partner } = this.partnerOf(session);
-    await this.store.sessions.update(sessionId, {
-      status: "NO_SHOW",
-      noShowUserId: partner.userId,
-    });
-    await this.applyNoShow(partner.userId, now);
-  }
-
-  private async applyNoShow(userId: string, now: Date): Promise<void> {
-    const profile = await this.store.profiles.findOne((item) => item.userId === userId);
-    if (!profile) return;
-    const result = recordNoShow(profile.noShows, now);
-    await this.store.profiles.update(profile.id, {
-      noShows: result.noShows,
-      suspendedUntil: result.suspendedUntil ?? profile.suspendedUntil,
+    const feedback = await this.store.feedback.find((item) => item.sessionId === sessionId);
+    const partnerId = await this.mutateSession(
+      sessionId,
+      (session) => {
+        if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
+        if (!canReportNoShow(session.startUtc, now)) {
+          throw new MockError("You can report a no-show from 15 minutes after the start");
+        }
+        const { partner } = this.partnerOf(session);
+        if (feedback.some((item) => item.fromUserId === partner.userId)) {
+          throw new MockError("Your partner already gave feedback for this session");
+        }
+        return {
+          patch: { status: "NO_SHOW", noShowUserId: partner.userId },
+          result: partner.userId,
+        };
+      },
+      now,
+    );
+    await applyNoShow(this.store, partnerId, now, this.me);
+    await this.store.reports.create({
+      reporterId: this.me,
+      reportedUserId: partnerId,
+      sessionId,
+      reason: "NO_SHOW",
+      note: "Reported as not joining the session.",
+      status: "OPEN",
+      resolution: null,
     });
   }
 
   /** The interviewer swaps one of the questions they will ask. */
   async swapPartnerQuestion(sessionId: string, questionId: string): Promise<string[]> {
-    const session = await this.requireParticipant(sessionId);
-    if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
-    const { partner } = this.partnerOf(session);
-    const next = swapQuestion(
-      await openQuestions(),
-      partner.questionIds,
-      questionId,
-      partner.topics,
-      `${session.id}:${partner.userId}`,
-    );
-    await this.setPartnerQuestions(session, next);
-    return next;
+    const questions = await openQuestions();
+    return this.mutateSession(sessionId, (session) => {
+      if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
+      const { partner } = this.partnerOf(session);
+      const next = swapQuestion(
+        questions,
+        partner.questionIds,
+        questionId,
+        partner.topics,
+        crypto.randomUUID(),
+      );
+      return { patch: { participants: this.withPartnerQuestions(session, next) }, result: next };
+    });
   }
 
   /** The interviewer picks a specific question (from the partner's chosen topics) instead. */
   async replacePartnerQuestion(sessionId: string, oldId: string, newId: string): Promise<string[]> {
-    const session = await this.requireParticipant(sessionId);
-    if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
-    const { partner } = this.partnerOf(session);
     const question = (await openQuestions()).find((item) => item.id === newId);
-    if (!question || !partner.topics.includes(question.topicId)) {
-      throw new MockError("Pick a question from your partner's topics");
-    }
-    if (partner.questionIds.includes(newId)) return partner.questionIds;
-    const next = partner.questionIds.includes(oldId)
-      ? partner.questionIds.map((id) => (id === oldId ? newId : id))
-      : [...partner.questionIds, newId].slice(0, 12);
-    await this.setPartnerQuestions(session, next);
-    return next;
+    return this.mutateSession(sessionId, (session) => {
+      if (session.status !== "SCHEDULED") throw new MockError("This session is closed");
+      const { partner } = this.partnerOf(session);
+      if (!question || !partner.topics.includes(question.topicId)) {
+        throw new MockError("Pick a question from your partner's topics");
+      }
+      if (partner.questionIds.includes(newId)) return { patch: {}, result: partner.questionIds };
+      const next = partner.questionIds.includes(oldId)
+        ? partner.questionIds.map((id) => (id === oldId ? newId : id))
+        : [...partner.questionIds, newId].slice(0, 12);
+      return { patch: { participants: this.withPartnerQuestions(session, next) }, result: next };
+    });
   }
 
-  private async setPartnerQuestions(session: MockSession, questionIds: string[]): Promise<void> {
-    const participants = session.participants.map((p) =>
+  private withPartnerQuestions(session: MockSession, questionIds: string[]) {
+    return session.participants.map((p) =>
       p.userId === this.me ? p : { ...p, questionIds },
     ) as MockSession["participants"];
-    await this.store.sessions.update(session.id, { participants });
   }
 
   /** Scheduler: records that I was sent the 1-hour reminder. */
   async markReminded(sessionId: string): Promise<void> {
-    const session = await this.requireParticipant(sessionId);
-    if (session.remindedUserIds.includes(this.me)) return;
-    await this.store.sessions.update(sessionId, {
-      remindedUserIds: [...session.remindedUserIds, this.me],
-    });
+    await this.mutateSession(sessionId, (session) => ({
+      patch: session.remindedUserIds.includes(this.me)
+        ? {}
+        : { remindedUserIds: [...session.remindedUserIds, this.me] },
+      result: undefined,
+    }));
   }
 
   /* ------------------------------ feedback ----------------------------- */
@@ -548,9 +683,11 @@ export class MockService {
       };
       return { records: [...records, created], result: created };
     });
-    if (session.status === "SCHEDULED") {
-      await this.store.sessions.update(sessionId, { status: "COMPLETED" });
-    }
+    // Only completes a still-scheduled session (a concurrent no-show report wins otherwise).
+    await this.mutateSession(sessionId, (current) => ({
+      patch: current.status === "SCHEDULED" ? { status: "COMPLETED" } : {},
+      result: undefined,
+    }));
     return feedback;
   }
 
@@ -590,24 +727,43 @@ export class MockService {
     });
   }
 
-  /** Account deletion: drop everything this user put into the shared mock store. */
+  /**
+   * Account deletion: remove what this user put into the shared store, and
+   * replace their id with a placeholder where partners keep a record
+   * (past sessions, feedback they gave).
+   */
   async removeAllMyData(): Promise<void> {
-    const mine = (id: string) => id === this.me;
-    await this.store.slots.deleteWhere((slot) => mine(slot.hostId));
-    await this.store.requests.deleteWhere((request) => mine(request.userId));
-    await this.store.blocks.deleteWhere((b) => mine(b.blockerId) || mine(b.blockedId));
-    await this.store.reports.deleteWhere((r) => mine(r.reporterId));
-    // Feedback I received goes; feedback I gave stays with my partner, without my name.
-    await this.store.feedback.deleteWhere((f) => mine(f.toUserId));
-    await this.store.profiles.deleteWhere((p) => mine(p.userId));
-    const sessions = await this.store.sessions.find((s) =>
-      s.participants.some((p) => mine(p.userId)),
-    );
-    for (const session of sessions) {
-      if (session.status === "SCHEDULED") {
-        await this.store.sessions.update(session.id, { status: "CANCELLED", cancelledBy: this.me });
-      }
-    }
+    const me = this.me;
+    const swap = (id: string | null) => (id === me ? DELETED_USER_ID : id);
+    await this.store.slots.deleteWhere((slot) => slot.hostId === me);
+    await this.store.requests.deleteWhere((request) => request.userId === me);
+    await this.store.blocks.deleteWhere((b) => b.blockerId === me || b.blockedId === me);
+    await this.store.reports.deleteWhere((r) => r.reporterId === me || r.reportedUserId === me);
+    await this.store.feedback.deleteWhere((f) => f.toUserId === me);
+    await this.store.feedback.transaction((records) => ({
+      records: records.map((f) =>
+        f.fromUserId === me ? { ...f, fromUserId: DELETED_USER_ID } : f,
+      ),
+      result: undefined,
+    }));
+    await this.store.profiles.deleteWhere((p) => p.userId === me);
+    await this.store.sessions.transaction((sessions) => ({
+      records: sessions.map((session) => {
+        if (!session.participants.some((p) => p.userId === me)) return session;
+        return {
+          ...session,
+          status: session.status === "SCHEDULED" ? ("CANCELLED" as const) : session.status,
+          cancelledBy: session.status === "SCHEDULED" ? DELETED_USER_ID : swap(session.cancelledBy),
+          noShowUserId: swap(session.noShowUserId),
+          meetingLinkSetBy: swap(session.meetingLinkSetBy),
+          remindedUserIds: session.remindedUserIds.filter((id) => id !== me),
+          participants: session.participants.map((p) =>
+            p.userId === me ? { ...p, userId: DELETED_USER_ID } : p,
+          ) as MockSession["participants"],
+        };
+      }),
+      result: undefined,
+    }));
   }
 }
 
@@ -617,53 +773,52 @@ export async function runMatching(
   store: MockStore = getMockStore(),
 ): Promise<number> {
   const questions = await openQuestions();
-  return store.requests.transaction(async (requests) => {
-    const open = requests.filter((request) => request.status === "OPEN");
-    if (open.length < 2) return { records: requests, result: 0 };
-    const blocks = await store.blocks.list();
-    const blocked = new Set(blocks.map((b) => `${b.blockerId}>${b.blockedId}`));
-    const isBusy = await busyChecker(store);
-    const profiles = await store.profiles.list();
-    const suspended = new Set(
-      profiles.filter((p) => isSuspended(p.suspendedUntil, now)).map((p) => p.userId),
-    );
-    const matches = findMatches(
-      open.filter((request) => !suspended.has(request.userId)),
-      { now, isBlocked: (a, b) => blocked.has(`${a}>${b}`), isBusy },
-    );
-    const updates = new Map<string, string>();
-    for (const match of matches) {
-      const a = open.find((request) => request.id === match.a.id) as MatchRequest;
-      const b = open.find((request) => request.id === match.b.id) as MatchRequest;
-      const session = await createSession(store, {
-        source: "MATCH",
-        startUtc: match.startUtc,
-        roleId: a.roleId,
-        meetingLink: a.meetingLink ?? b.meetingLink,
-        people: [
-          { userId: a.userId, topics: a.topics },
-          { userId: b.userId, topics: b.topics },
-        ],
-        questions,
-      });
-      updates.set(a.id, session.id);
-      updates.set(b.id, session.id);
-    }
-    if (updates.size === 0) return { records: requests, result: 0 };
-    return {
-      records: requests.map((request) =>
-        updates.has(request.id)
-          ? {
-              ...request,
-              status: "MATCHED" as const,
-              sessionId: updates.get(request.id) ?? null,
-              updatedAt: now.toISOString(),
-            }
-          : request,
-      ),
-      result: matches.length,
-    };
-  });
+  return withBookingLock(() =>
+    store.requests.transaction(async (requests) => {
+      const open = requests.filter((request) => request.status === "OPEN");
+      if (open.length < 2) return { records: requests, result: 0 };
+      const blocks = await store.blocks.list();
+      const blocked = new Set(blocks.map((b) => `${b.blockerId}>${b.blockedId}`));
+      const isBusy = await busyChecker(store);
+      const suspended = await suspendedUserIds(store, now);
+      const matches = findMatches(
+        open.filter((request) => !suspended.has(request.userId)),
+        { now, isBlocked: (a, b) => blocked.has(`${a}>${b}`), isBusy },
+      );
+      const updates = new Map<string, string>();
+      for (const match of matches) {
+        const a = open.find((request) => request.id === match.a.id) as MatchRequest;
+        const b = open.find((request) => request.id === match.b.id) as MatchRequest;
+        const session = await createSession(store, {
+          source: "MATCH",
+          startUtc: match.startUtc,
+          roleId: a.roleId,
+          meetingLink: a.meetingLink ?? b.meetingLink,
+          people: [
+            { userId: a.userId, topics: a.topics },
+            { userId: b.userId, topics: b.topics },
+          ],
+          questions,
+        });
+        updates.set(a.id, session.id);
+        updates.set(b.id, session.id);
+      }
+      if (updates.size === 0) return { records: requests, result: 0 };
+      return {
+        records: requests.map((request) =>
+          updates.has(request.id)
+            ? {
+                ...request,
+                status: "MATCHED" as const,
+                sessionId: updates.get(request.id) ?? null,
+                updatedAt: now.toISOString(),
+              }
+            : request,
+        ),
+        result: matches.length,
+      };
+    }),
+  );
 }
 
 export interface ReportView {
@@ -718,7 +873,7 @@ export const mockModeration = {
     return report;
   },
 
-  /** Pauses booking for a user (e.g. after abuse). Days 0 lifts a pause. */
+  /** Pauses booking for `days` days (closing their open slots and requests); 0 lifts a pause. */
   async suspend(userId: string, days: number, now = new Date(), store: MockStore = getMockStore()) {
     const profile = await store.profiles.findOne((item) => item.userId === userId);
     if (!profile) throw new MockError("User has no mock interview profile");
@@ -726,6 +881,7 @@ export const mockModeration = {
       suspendedUntil:
         days > 0 ? new Date(now.getTime() + days * 24 * 60 * 60_000).toISOString() : null,
     });
+    if (days > 0) await closeOpenItems(store, userId);
   },
 };
 

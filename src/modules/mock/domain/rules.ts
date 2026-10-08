@@ -54,23 +54,41 @@ export function overlaps(aStartUtc: string, bStartUtc: string): boolean {
   return Math.abs(Date.parse(aStartUtc) - Date.parse(bStartUtc)) < SESSION_MINUTES * MINUTE;
 }
 
+export interface NoShowEntry {
+  at: string;
+  /** Reporting partner's id, or "self:<sessionId>" for a late cancellation. */
+  source: string;
+}
+
 /**
- * After a new no-show: the updated list and, when the limit is reached within
- * the look-back window, the end of the booking pause.
+ * After a new no-show: the updated list and, when no-shows from at least two
+ * different sources fall within the look-back window, the end of the pause.
+ * Repeated reports by the same partner count once.
  */
 export function recordNoShow(
-  noShows: string[],
+  noShows: NoShowEntry[],
   now: Date,
-): { noShows: string[]; suspendedUntil: string | null } {
+  source: string,
+): { noShows: NoShowEntry[]; suspendedUntil: string | null } {
   const since = now.getTime() - NO_SHOW_LOOKBACK_DAYS * 24 * 60 * MINUTE;
-  const recent = [...noShows, now.toISOString()].filter((date) => Date.parse(date) >= since);
+  const recent = [...noShows, { at: now.toISOString(), source }].filter(
+    (entry) => Date.parse(entry.at) >= since,
+  );
+  const sources = new Set(recent.map((entry) => entry.source));
   return {
     noShows: recent.slice(-50),
     suspendedUntil:
-      recent.length >= NO_SHOW_LIMIT
+      sources.size >= NO_SHOW_LIMIT
         ? new Date(now.getTime() + SUSPENSION_DAYS * 24 * 60 * MINUTE).toISOString()
         : null,
   };
+}
+
+/** The later of two pause end dates (a new no-show never shortens an existing pause). */
+export function laterPause(a: string | null, b: string | null): string | null {
+  if (!a) return b;
+  if (!b) return a;
+  return Date.parse(a) >= Date.parse(b) ? a : b;
 }
 
 export function isSuspended(suspendedUntil: string | null, now: Date): boolean {

@@ -128,6 +128,9 @@ export async function setMeetingLinkAction(
       link: ["Paste a full link starting with https://"],
     });
   return run(async (userId) => {
+    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+      throw new MockError("Too many changes. Try again later.");
+    }
     await mockFor(userId).setMeetingLink(sessionId, parsed.data);
     refresh(sessionId);
     return undefined;
@@ -139,6 +142,9 @@ export async function cancelSessionAction(
 ): Promise<ActionResult<{ late: boolean }>> {
   if (!Id.safeParse(sessionId).success) return fail("Invalid session");
   return run(async (userId) => {
+    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+      throw new MockError("Too many changes. Try again later.");
+    }
     const result = await mockFor(userId).cancelSession(sessionId);
     refresh(sessionId);
     return result;
@@ -162,6 +168,9 @@ export async function swapQuestionAction(
     return fail("Invalid question");
   }
   return run(async (userId) => {
+    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+      throw new MockError("Too many changes. Try again later.");
+    }
     await mockFor(userId).swapPartnerQuestion(sessionId, questionId);
     refresh(sessionId);
     return undefined;
@@ -177,6 +186,9 @@ export async function replaceQuestionAction(
     return fail("Invalid question");
   }
   return run(async (userId) => {
+    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+      throw new MockError("Too many changes. Try again later.");
+    }
     await mockFor(userId).replacePartnerQuestion(sessionId, oldId, newId);
     refresh(sessionId);
     return undefined;

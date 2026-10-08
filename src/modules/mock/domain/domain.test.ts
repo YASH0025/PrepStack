@@ -7,6 +7,7 @@ import {
   canReportNoShow,
   isLateCancel,
   isSuspended,
+  laterPause,
   overlaps,
   recordNoShow,
   startsSoonEnough,
@@ -47,14 +48,27 @@ describe("rules", () => {
     expect(overlaps("2026-10-07T10:00:00Z", "2026-10-07T11:00:00Z")).toBe(false);
   });
 
-  it("pauses booking after a second no-show within 30 days", () => {
-    const first = recordNoShow([], now);
+  it("pauses booking after no-shows from two different sources within 30 days", () => {
+    const first = recordNoShow([], now, "partner-a");
     expect(first.suspendedUntil).toBeNull();
-    const second = recordNoShow(first.noShows, new Date("2026-10-20T10:00:00Z"));
+    // The same partner reporting again does not pause anyone on their own.
+    const again = recordNoShow(first.noShows, new Date("2026-10-15T10:00:00Z"), "partner-a");
+    expect(again.suspendedUntil).toBeNull();
+    const second = recordNoShow(again.noShows, new Date("2026-10-20T10:00:00Z"), "self:s9");
     expect(second.suspendedUntil).toBe("2026-10-27T10:00:00.000Z");
     expect(isSuspended(second.suspendedUntil, new Date("2026-10-21T00:00:00Z"))).toBe(true);
     // An old no-show outside the window does not count.
-    expect(recordNoShow(["2026-08-01T00:00:00.000Z"], now).suspendedUntil).toBeNull();
+    expect(
+      recordNoShow([{ at: "2026-08-01T00:00:00.000Z", source: "x" }], now, "y").suspendedUntil,
+    ).toBeNull();
+  });
+
+  it("never lets a new pause shorten an existing one", () => {
+    expect(laterPause("2026-12-01T00:00:00.000Z", "2026-10-20T00:00:00.000Z")).toBe(
+      "2026-12-01T00:00:00.000Z",
+    );
+    expect(laterPause(null, "2026-10-20T00:00:00.000Z")).toBe("2026-10-20T00:00:00.000Z");
+    expect(laterPause("2026-10-20T00:00:00.000Z", null)).toBe("2026-10-20T00:00:00.000Z");
   });
 });
 
@@ -90,6 +104,14 @@ describe("findMatches", () => {
     const soon = request({ startTimes: ["2026-10-07T11:00:00.000Z"] });
     const soon2 = request({ startTimes: ["2026-10-07T11:00:00.000Z"] });
     expect(findMatches([soon, soon2], open)).toEqual([]);
+  });
+
+  it("does not pair one user twice at overlapping times in the same run", () => {
+    const a = request({ userId: "busy", startTimes: ["2026-10-08T13:00:00.000Z"] });
+    const b = request({ startTimes: ["2026-10-08T13:00:00.000Z"] });
+    const c = request({ userId: "busy", startTimes: ["2026-10-08T13:30:00.000Z"] });
+    const d = request({ startTimes: ["2026-10-08T13:30:00.000Z"] });
+    expect(findMatches([a, b, c, d], open)).toHaveLength(1);
   });
 
   it("does not double-book a user matched earlier in the same run", () => {
@@ -129,8 +151,9 @@ describe("questions", () => {
 });
 
 describe("peer score", () => {
-  const fb = (sessionId: string, value: number) => ({
+  const fb = (sessionId: string, value: number, fromUserId = `p-${sessionId}`) => ({
     sessionId,
+    fromUserId,
     ratings: {
       communication: value,
       problemSolving: value,
@@ -145,6 +168,10 @@ describe("peer score", () => {
     expect(publicScore(score, true)).toEqual(score);
     expect(publicScore(score, false)).toBeNull();
     expect(publicScore(peerScore([fb("s1", 5), fb("s2", 5)]), true)).toBeNull();
+    // Three sessions with the same friend are not enough.
+    const sameFriend = peerScore([fb("s1", 5, "f"), fb("s2", 5, "f"), fb("s3", 5, "f")]);
+    expect([sameFriend.sessions, sameFriend.partners]).toEqual([3, 1]);
+    expect(publicScore(sameFriend, true)).toBeNull();
     expect(peerScore([]).overall).toBeNull();
   });
 });

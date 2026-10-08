@@ -5,7 +5,7 @@
  */
 import { type ExperienceBand } from "@/lib/domain";
 
-import { bandsCompatible, startsSoonEnough } from "./rules";
+import { bandsCompatible, overlaps, startsSoonEnough } from "./rules";
 
 export interface MatchCandidate {
   id: string;
@@ -35,7 +35,7 @@ export function findMatches(requests: MatchCandidate[], context: MatchContext): 
   const booked: { userId: string; startUtc: string }[] = [];
   const busy = (userId: string, startUtc: string) =>
     context.isBusy(userId, startUtc) ||
-    booked.some((entry) => entry.userId === userId && entry.startUtc === startUtc);
+    booked.some((entry) => entry.userId === userId && overlaps(entry.startUtc, startUtc));
 
   const matches: Match[] = [];
   for (const a of queue) {

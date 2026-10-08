@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { getContentService } from "@/modules/content/service";
 import { seedContentIfMissing } from "@/seed";
 
-import { MockError, mockFor, runMatching } from "./service";
+import { DELETED_USER_ID, MockError, mockFor, mockModeration, runMatching } from "./service";
 
 const A = "a1a1a1a1-0000-4000-8000-000000000001";
 const B = "b2b2b2b2-0000-4000-8000-000000000002";
@@ -241,5 +241,76 @@ describe("no-shows, late cancels and reports", () => {
     await mockFor(C).removeAllMyData();
     expect(await mockFor(C).profile()).toBeNull();
     expect((await mockFor(A).openSlots({}, now)).some((slot) => slot.hostId === C)).toBe(false);
+  });
+});
+
+describe("abuse protections from the privacy review", () => {
+  const D = "d7d7d7d7-0000-4000-8000-000000000007";
+  const E = "e8e8e8e8-0000-4000-8000-000000000008";
+  const base = new Date("2026-11-01T04:30:00Z");
+  const post = async (host: string, date: string, time = "19:00") =>
+    mockFor(host).postSlot(
+      { date, time, topics: [topics[0] as string], meetingLink: null, note: "" },
+      base,
+    );
+
+  it("cannot mark a partner absent after they gave feedback; one reporter alone never pauses", async () => {
+    await join(D, "Divya");
+    await join(E, "Eshan");
+    const s1 = await mockFor(E).bookSlot((await post(D, "2026-11-03")).id, topics, base);
+    // E attended and gave feedback: D cannot report E as a no-show.
+    const during = new Date("2026-11-03T13:50:00Z");
+    await mockFor(E).submitFeedback(
+      s1.id,
+      {
+        ratings: { communication: 4, problemSolving: 4, technicalDepth: 4, structure: 4 },
+        questions: [],
+        strengths: "",
+        improvements: "",
+      },
+      during,
+    );
+    await expect(mockFor(D).reportNoShow(s1.id, during)).rejects.toThrow(/closed|already gave/);
+
+    // D reports E twice in two sessions: still not paused (same reporter).
+    for (const date of ["2026-11-05", "2026-11-07"]) {
+      const s = await mockFor(E).bookSlot((await post(D, date)).id, topics, base);
+      await mockFor(D).reportNoShow(s.id, new Date(`${date}T13:50:00Z`));
+    }
+    const e = await mockFor(E).profile();
+    expect(e?.noShows).toHaveLength(2);
+    expect(e?.suspendedUntil).toBeNull();
+    // Each no-show report also reaches moderators.
+    const reports = await mockModeration.openReports();
+    expect(
+      reports.filter((r) => r.reason === "NO_SHOW" && r.reportedName === "Eshan"),
+    ).toHaveLength(2);
+  });
+
+  it("never shortens an admin pause and hides and closes a paused host's slots", async () => {
+    const slot = await post(D, "2026-11-20");
+    await mockModeration.suspend(D, 60, base);
+    const paused = (await mockFor(D).profile())?.suspendedUntil;
+    expect(await mockFor(E).openSlots({}, base)).toEqual([]);
+    await expect(mockFor(E).bookSlot(slot.id, topics, base)).rejects.toThrow(/no longer available/);
+    // A late self-cancel later does not cut the 60-day pause down to 7 days.
+    await mockModeration.suspend(D, 0, base);
+    const s = await mockFor(E).bookSlot((await post(D, "2026-11-22")).id, topics, base);
+    await mockModeration.suspend(D, 60, base);
+    await mockFor(D).cancelSession(s.id, new Date("2026-11-22T13:00:00Z"));
+    expect((await mockFor(D).profile())?.suspendedUntil).toBe(paused);
+    await mockModeration.suspend(D, 0, base);
+  });
+
+  it("blocking cancels upcoming sessions; deletion leaves only a placeholder id", async () => {
+    const s = await mockFor(E).bookSlot((await post(D, "2026-11-25")).id, topics, base);
+    await mockFor(E).block(D);
+    expect((await mockFor(D).session(s.id))?.session.status).toBe("CANCELLED");
+    await mockFor(E).unblock(D);
+
+    await mockFor(E).removeAllMyData();
+    const view = await mockFor(D).session(s.id);
+    expect(view?.session.participants.map((p) => p.userId)).toContain(DELETED_USER_ID);
+    expect(JSON.stringify(await mockFor(D).mySessions())).not.toContain(E);
   });
 });

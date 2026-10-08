@@ -19,11 +19,25 @@ export const MockProfileSchema = recordSchema({
   timezone: z.string().min(1).max(64),
   /** Opt-in: show the peer score on the readiness passport (after 3+ sessions). */
   showScore: z.boolean(),
-  /** Dates of no-shows, for the booking pause. */
-  noShows: z.array(IsoDateTimeSchema).max(50),
+  /**
+   * Recent no-shows. `source` is the reporting partner's id, or
+   * "self:<sessionId>" for a late cancellation. Reports from the same partner
+   * count once, so nobody can get a partner paused on their own.
+   */
+  noShows: z.preprocess(
+    // v1 stored plain dates; each becomes its own source.
+    (value) =>
+      Array.isArray(value)
+        ? value.map((item, index) =>
+            typeof item === "string" ? { at: item, source: `legacy:${index}` } : item,
+          )
+        : value,
+    z.array(z.object({ at: IsoDateTimeSchema, source: z.string().min(1).max(80) })).max(50),
+  ),
   suspendedUntil: IsoDateTimeSchema.nullable(),
 });
 export type MockProfile = z.infer<typeof MockProfileSchema>;
+export type NoShow = MockProfile["noShows"][number];
 
 export const SlotStatusSchema = z.enum(["OPEN", "BOOKED", "CANCELLED"]);
 
@@ -75,6 +89,9 @@ export const MockSessionSchema = recordSchema({
   noShowUserId: IdSchema.nullable(),
   /** Participants already emailed the 1-hour reminder (scheduler idempotency). */
   remindedUserIds: z.array(IdSchema).max(2),
+  /** Who last set the meeting link and when (the partner is notified of changes). */
+  meetingLinkSetBy: IdSchema.nullable().default(null),
+  meetingLinkUpdatedAt: IsoDateTimeSchema.nullable().default(null),
 });
 export type MockSession = z.infer<typeof MockSessionSchema>;
 

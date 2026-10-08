@@ -35,6 +35,9 @@ export async function refreshPassportAction(): Promise<ActionResult<undefined>> 
 
 export async function disablePassportAction(): Promise<ActionResult<undefined>> {
   const user = await requireUser();
+  if (!rateLimit(`passport:${user.id}`, RATE_LIMITS.export).ok) {
+    return fail("Too many changes. Try again later.");
+  }
   await passportFor(user.id).disable();
   refresh();
   return ok();
@@ -44,6 +47,9 @@ export async function setPassportNameAction(input: unknown): Promise<ActionResul
   const user = await requireUser();
   const parsed = PassportNameInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
+  if (!rateLimit(`passport:${user.id}`, RATE_LIMITS.export).ok) {
+    return fail("Too many changes. Try again later.");
+  }
   await passportFor(user.id).setDisplayName(parsed.data.displayName);
   refresh();
   return ok();
