@@ -1,4 +1,4 @@
-import { boolean, index, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 /**
  * Envelope storage: one row per logical data file ("private/<userId>/rounds.json",
@@ -9,6 +9,16 @@ export const storageFiles = pgTable("storage_files", {
   key: text("key").primaryKey(),
   data: jsonb("data").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Fixed-window rate-limit counters, shared by every app instance. The key is a
+ * sha256 hash, so IP addresses and emails are never stored.
+ */
+export const rateLimits = pgTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
 });
 
 /* -----------------------------------------------------------------------------

@@ -35,7 +35,8 @@ export interface StorageService {
   deleteAllForOwner(ownerId: string): Promise<void>;
 }
 
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+/** 4 MB: Vercel rejects request bodies over 4.5 MB, so larger files could never arrive. */
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 export const ALLOWED_UPLOAD_TYPES: Record<UploadKind, readonly string[]> = {
   avatar: ["image/png", "image/jpeg", "image/webp"],
@@ -65,7 +66,7 @@ export function validateUpload(
     return "This file type is not allowed";
   }
   if (input.data.length === 0) return "The file is empty";
-  if (input.data.length > MAX_UPLOAD_BYTES) return "Files must be 10 MB or smaller";
+  if (input.data.length > MAX_UPLOAD_BYTES) return "Files must be 4 MB or smaller";
   return null;
 }
 

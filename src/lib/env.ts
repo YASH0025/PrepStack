@@ -30,6 +30,8 @@ const EnvSchema = z
     STORAGE_DRIVER: z.enum(["json", "postgres"]).default("json"),
     /** PostgreSQL connection string. Required when STORAGE_DRIVER=postgres. */
     DATABASE_URL: optionalString,
+    /** Set to "1" by Vercel. Serverless hosts have no persistent disk. */
+    VERCEL: optionalString,
 
     /** OAuth sign-in (Postgres mode only). Set both values of a pair to enable it. */
     GOOGLE_CLIENT_ID: optionalString,
@@ -67,6 +69,13 @@ const EnvSchema = z
     COMMUNITY_MIN_SAMPLE: z.coerce.number().int().min(1).default(5),
   })
   .superRefine((value, ctx) => {
+    if (value.VERCEL && value.STORAGE_DRIVER !== "postgres") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["STORAGE_DRIVER"],
+        message: "must be postgres on Vercel (JSON files would be lost between requests)",
+      });
+    }
     if (value.STORAGE_DRIVER === "postgres" && !value.DATABASE_URL) {
       ctx.addIssue({
         code: "custom",

@@ -18,7 +18,7 @@ export async function toggleVoteAction(
 ): Promise<ActionResult<{ voted: boolean; count: number }>> {
   const user = await requireUser();
   if (!Id.safeParse(reportId).success) return fail("Invalid report");
-  if (!rateLimit(`vote:${user.id}`, RATE_LIMITS.vote).ok) {
+  if (!(await rateLimit(`vote:${user.id}`, RATE_LIMITS.vote)).ok) {
     return fail("Too many votes. Try again later.");
   }
   try {
@@ -40,7 +40,7 @@ export async function flagReportAction(
   if (!Id.safeParse(reportId).success) return fail("Invalid report");
   const parsed = FlagInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
-  if (!rateLimit(`flag:${user.id}`, RATE_LIMITS.flag).ok) {
+  if (!(await rateLimit(`flag:${user.id}`, RATE_LIMITS.flag)).ok) {
     return fail("You have reported a lot today. Try again tomorrow.");
   }
   try {

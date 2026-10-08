@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { env } from "@/lib/env";
+import { rateLimit } from "@/lib/rate-limit";
 import { getEmailService } from "@/lib/services/email";
 
 import { type AccountInfo, type AuthBackend, type SocialProvider } from "./backend";
@@ -47,6 +48,19 @@ function createAuth() {
       encryptOAuthTokens: true,
     },
     session: { expiresIn: 60 * 60 * 24 * 30 },
+    rateLimit: {
+      // Direct calls to /api/auth/* share the app's database-backed counters,
+      // so limits hold across serverless instances (and keys are hashed).
+      customStorage: {
+        consume: async (key, rule) => {
+          const result = await rateLimit(`auth:${key}`, {
+            limit: rule.max,
+            windowMs: rule.window * 1000,
+          });
+          return { allowed: result.ok, retryAfter: result.ok ? null : result.retryAfterSeconds };
+        },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       autoSignIn: false,

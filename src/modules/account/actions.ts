@@ -14,7 +14,7 @@ export async function deleteAccountAction(input: DeleteAccountInput): Promise<Ac
   const user = await requireUser();
   const parsed = DeleteAccountInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
-  if (!rateLimit(`delete-account:${user.id}`, RATE_LIMITS.deleteAccount).ok) {
+  if (!(await rateLimit(`delete-account:${user.id}`, RATE_LIMITS.deleteAccount)).ok) {
     return fail("Too many attempts. Try again in a few minutes.");
   }
   const auth = await getAuth();

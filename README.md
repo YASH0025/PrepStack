@@ -143,13 +143,58 @@ docker compose up -d --build  # app on :3000 plus a scheduler that runs jobs eve
 - `npm run build` ends with `scripts/clean-standalone.mjs`, which strips any traced `data/` or
   `.env` files from `.next/standalone` and fails the build if private data is left.
 
+## Deploying to Vercel + Neon (free)
+
+Vercel has no persistent disk, so it runs in Postgres mode. Neither service needs a card.
+
+1. **Neon** (https://neon.tech): create a project in **AWS Asia Pacific (Singapore)** (the
+   app's functions run in Vercel's `sin1` region, see `vercel.json`). Copy the **pooled**
+   connection string (host contains `-pooler`) and the direct one.
+2. **Vercel** (https://vercel.com): "Add New → Project", import this GitHub repository and
+   keep the defaults (it runs `npm run vercel-build`). Before the first deploy, add these
+   Environment Variables:
+
+   | Variable                                          | Value                                                                |
+   | ------------------------------------------------- | -------------------------------------------------------------------- |
+   | `STORAGE_DRIVER`                                  | `postgres`                                                           |
+   | `DATABASE_URL`                                    | Neon pooled connection string                                        |
+   | `DATABASE_URL_UNPOOLED`                           | Neon direct connection string (used for migrations during the build) |
+   | `APP_URL`                                         | `https://<your-project>.vercel.app` (fix it after the first deploy)  |
+   | `SESSION_SECRET`, `ENCRYPTION_KEY`, `CRON_SECRET` | `openssl rand -base64 32` each; back up `ENCRYPTION_KEY`             |
+   | `ADMIN_EMAILS`                                    | your email, before you sign up                                       |
+   | `RESEND_API_KEY`, `EMAIL_FROM`                    | optional (see below)                                                 |
+   | `CLOUDINARY_*`                                    | optional, enables attachments and avatars                            |
+   | `GOOGLE_CLIENT_*`, `GITHUB_CLIENT_*`              | optional, enables social sign-in                                     |
+
+3. Deploy. Production builds apply the database migrations before `next build`; preview
+   deployments skip them so a pull request never changes the production schema.
+4. **Scheduled jobs**: Vercel's free plan only allows daily cron jobs, so
+   `.github/workflows/cron.yml` calls `/api/cron/run` every 30 minutes instead. In GitHub →
+   Settings → Secrets and variables → Actions, add the variable `APP_URL` and the secret
+   `CRON_SECRET` (same value as on Vercel). Test it with "Run workflow" in the Actions tab.
+   Every 30 minutes keeps Neon inside its free compute hours; GitHub can start runs a few
+   minutes late and pauses schedules after 60 days without commits.
+
+Notes:
+
+- The app never sleeps on Vercel. Neon pauses the database after 5 idle minutes and wakes
+  on the next request (under a second).
+- Rate limits are stored in the `rate_limits` table (hashed keys), so they hold across
+  serverless instances, including direct calls to `/api/auth/*`.
+- Uploads are limited to 4 MB (Vercel rejects larger request bodies) and need Cloudinary.
+- Resend's `onboarding@resend.dev` sender only delivers to your own Resend account email;
+  verify a domain in Resend to email other users.
+- With `VERCEL` set the app refuses to start unless `STORAGE_DRIVER=postgres`.
+- `npm run db:migrate` applies migrations by hand (reads `.env.local`).
+
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on every push to `main` and on pull requests: `npm run check`,
-the Playwright end-to-end suite, and a Docker image build.
+the Playwright end-to-end suite, and a Docker image build. `.github/workflows/cron.yml` runs
+the scheduled jobs against the deployed app (see Deploying to Vercel).
 
 ## Data
 
-In the current phase all data is stored as JSON files under `DATA_DIR` (default `./data`).
-That folder holds private user data and is git-ignored. Do not deploy to serverless hosts
-with a non-persistent filesystem, and run a single Node process.
+In JSON mode all data is stored as JSON files under `DATA_DIR` (default `./data`). That
+folder holds private user data and is git-ignored. JSON mode needs a persistent disk and a
+single Node process; use Postgres mode on serverless hosts such as Vercel.

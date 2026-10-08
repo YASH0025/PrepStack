@@ -307,7 +307,7 @@ export function Attachments({ round, uploadsEnabled }: { round: Round; uploadsEn
             </label>
           </Button>
           <span className="text-xs text-muted-foreground">
-            PDF, image, text or Word, up to 10 MB
+            PDF, image, text or Word, up to 4 MB
           </span>
         </div>
       ) : (

@@ -39,8 +39,8 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
   }
 }
 
-function limited(key: string, rule: { limit: number; windowMs: number }): boolean {
-  return !rateLimit(key, rule).ok;
+async function limited(key: string, rule: { limit: number; windowMs: number }): Promise<boolean> {
+  return !(await rateLimit(key, rule)).ok;
 }
 
 export async function joinMockAction(input: unknown): Promise<ActionResult<undefined>> {
@@ -58,7 +58,7 @@ export async function postSlotAction(input: unknown): Promise<ActionResult<{ slo
   const parsed = PostSlotInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
   return run(async (userId) => {
-    if (limited(`mock-post:${userId}`, RATE_LIMITS.mockPost)) {
+    if (await limited(`mock-post:${userId}`, RATE_LIMITS.mockPost)) {
       throw new MockError("You have posted a lot today. Try again tomorrow.");
     }
     const slot = await mockFor(userId).postSlot(parsed.data);
@@ -84,7 +84,7 @@ export async function bookSlotAction(
   const parsed = BookSlotInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
   return run(async (userId) => {
-    if (limited(`mock-book:${userId}`, RATE_LIMITS.mockBook)) {
+    if (await limited(`mock-book:${userId}`, RATE_LIMITS.mockBook)) {
       throw new MockError("You have booked a lot today. Try again tomorrow.");
     }
     const session = await mockFor(userId).bookSlot(slotId, parsed.data.topics);
@@ -99,7 +99,7 @@ export async function requestMatchAction(
   const parsed = MatchRequestInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
   return run(async (userId) => {
-    if (limited(`mock-post:${userId}`, RATE_LIMITS.mockPost)) {
+    if (await limited(`mock-post:${userId}`, RATE_LIMITS.mockPost)) {
       throw new MockError("You have posted a lot today. Try again tomorrow.");
     }
     const { session } = await mockFor(userId).requestMatch(parsed.data);
@@ -128,7 +128,7 @@ export async function setMeetingLinkAction(
       link: ["Paste a full link starting with https://"],
     });
   return run(async (userId) => {
-    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+    if (await limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
       throw new MockError("Too many changes. Try again later.");
     }
     await mockFor(userId).setMeetingLink(sessionId, parsed.data);
@@ -142,7 +142,7 @@ export async function cancelSessionAction(
 ): Promise<ActionResult<{ late: boolean }>> {
   if (!Id.safeParse(sessionId).success) return fail("Invalid session");
   return run(async (userId) => {
-    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+    if (await limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
       throw new MockError("Too many changes. Try again later.");
     }
     const result = await mockFor(userId).cancelSession(sessionId);
@@ -168,7 +168,7 @@ export async function swapQuestionAction(
     return fail("Invalid question");
   }
   return run(async (userId) => {
-    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+    if (await limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
       throw new MockError("Too many changes. Try again later.");
     }
     await mockFor(userId).swapPartnerQuestion(sessionId, questionId);
@@ -186,7 +186,7 @@ export async function replaceQuestionAction(
     return fail("Invalid question");
   }
   return run(async (userId) => {
-    if (limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
+    if (await limited(`mock-change:${userId}`, RATE_LIMITS.mockChange)) {
       throw new MockError("Too many changes. Try again later.");
     }
     await mockFor(userId).replacePartnerQuestion(sessionId, oldId, newId);
@@ -218,7 +218,7 @@ export async function reportPartnerAction(
   const parsed = ReportInputSchema.safeParse(input);
   if (!parsed.success) return fail("Check the form", fieldErrorsFrom(parsed.error));
   return run(async (userId) => {
-    if (limited(`mock-report:${userId}`, RATE_LIMITS.mockReport)) {
+    if (await limited(`mock-report:${userId}`, RATE_LIMITS.mockReport)) {
       throw new MockError("You have sent a lot of reports today. Try again tomorrow.");
     }
     const mock = mockFor(userId);

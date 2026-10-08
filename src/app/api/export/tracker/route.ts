@@ -24,7 +24,7 @@ import { trackerFor } from "@/modules/tracker/service";
 export async function GET(request: NextRequest) {
   const user = await getUserForApi();
   if (!user) return new Response("Unauthorized", { status: 401 });
-  if (!rateLimit(`export:${user.id}`, RATE_LIMITS.export).ok) {
+  if (!(await rateLimit(`export:${user.id}`, RATE_LIMITS.export)).ok) {
     return new Response("Too many exports. Try again later.", { status: 429 });
   }
 

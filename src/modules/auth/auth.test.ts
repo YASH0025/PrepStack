@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { type EmailMessage, type EmailService } from "@/lib/services/email";
-import { rateLimit, resetRateLimitsForTests } from "@/lib/rate-limit";
+import { pruneRateLimits, rateLimit, resetRateLimitsForTests } from "@/lib/rate-limit";
 
 import { AuthCore } from "./core";
 import { signSessionToken, verifySessionToken } from "./crypto";
@@ -185,14 +185,24 @@ describe("input validation", () => {
 
 describe("rateLimit", () => {
   beforeEach(() => resetRateLimitsForTests());
+  const t0 = 1_700_000_000_000;
 
-  it("blocks after the limit until the window resets", () => {
+  it("blocks after the limit until the window resets", async () => {
     const options = { limit: 2, windowMs: 1000 };
-    expect(rateLimit("k", options, 0).ok).toBe(true);
-    expect(rateLimit("k", options, 10).ok).toBe(true);
-    const blocked = rateLimit("k", options, 20);
+    expect((await rateLimit("k", options, t0)).ok).toBe(true);
+    expect((await rateLimit("k", options, t0 + 10)).ok).toBe(true);
+    const blocked = await rateLimit("k", options, t0 + 20);
     expect(blocked).toEqual({ ok: false, retryAfterSeconds: 1 });
-    expect(rateLimit("k", options, 1001).ok).toBe(true);
-    expect(rateLimit("other", options, 20).ok).toBe(true);
+    expect((await rateLimit("k", options, t0 + 1001)).ok).toBe(true);
+    expect((await rateLimit("other", options, t0 + 20)).ok).toBe(true);
+  });
+
+  it("prunes expired windows without resetting live ones", async () => {
+    const options = { limit: 1, windowMs: 1000 };
+    await rateLimit("old", options, t0);
+    await rateLimit("live", options, t0 + 900);
+    await pruneRateLimits(t0 + 1500);
+    expect((await rateLimit("live", options, t0 + 1500)).ok).toBe(false);
+    expect((await rateLimit("old", options, t0 + 1500)).ok).toBe(true);
   });
 });

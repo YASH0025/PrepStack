@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 
 import { env } from "@/lib/env";
+import { pruneRateLimits } from "@/lib/rate-limit";
 import { runScheduledJobs } from "@/lib/services/scheduler";
 import { listPrivateUserIdsForSystemJobs } from "@/lib/storage/paths";
 import { mockJobs } from "@/modules/mock/effects";
@@ -13,8 +14,11 @@ import { interviewJobs } from "@/modules/tracker/jobs";
  * POST /api/cron/run
  * Processes due reminders (emails + in-app), debrief prompts, follow-ups and
  * conflict warnings for every user. Protected by `Authorization: Bearer
- * <CRON_SECRET>`. Triggered by `npm run cron` or an OS scheduler.
+ * <CRON_SECRET>`. Triggered by `npm run cron`, an OS scheduler, or (on Vercel)
+ * the GitHub Actions workflow in .github/workflows/cron.yml.
  */
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   if (!authorized(request.headers.get("authorization"))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,7 +44,11 @@ export async function POST(request: Request) {
     userIds,
     now,
   );
-  return Response.json({ ...summary, mockMatches: matched });
+  const prunedRateLimits = await pruneRateLimits(now.getTime()).catch((error: Error) => {
+    console.error("[cron] rate-limit pruning failed:", error.message);
+    return 0;
+  });
+  return Response.json({ ...summary, mockMatches: matched, prunedRateLimits });
 }
 
 function authorized(header: string | null): boolean {
