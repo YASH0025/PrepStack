@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Download } from "lucide-react";
 
 import { PageHeader, Section } from "@/components/page";
@@ -60,6 +61,15 @@ export default async function ProfilePage() {
               You sign in with Google or GitHub, so there is no PrepStack password to change.
             </p>
           )}
+        </Section>
+        <Separator />
+        <Section
+          title="Readiness passport"
+          description="A private link that shows your preparation progress to recruiters or referrers."
+        >
+          <Button asChild variant="outline" className="w-fit">
+            <Link href="/profile/passport">Manage passport</Link>
+          </Button>
         </Section>
         <Separator />
         <Section

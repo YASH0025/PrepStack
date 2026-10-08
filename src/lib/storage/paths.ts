@@ -62,6 +62,7 @@ export type PrivateFile =
   | "notice-plan.json"
   | "revision-sheet-state.json"
   | "report-bookmarks.json"
+  | "passport.json"
   | "notifications.json";
 
 export function contentPath(file: ContentFile): string {

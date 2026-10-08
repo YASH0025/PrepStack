@@ -5,6 +5,7 @@ import { runScheduledJobs } from "@/lib/services/scheduler";
 import { listPrivateUserIdsForSystemJobs } from "@/lib/storage/paths";
 import { mockJobs } from "@/modules/mock/effects";
 import { runMatching } from "@/modules/mock/service";
+import { passportFor } from "@/modules/passport/service";
 import { interviewJobDeps } from "@/modules/tracker/job-deps";
 import { interviewJobs } from "@/modules/tracker/jobs";
 
@@ -26,7 +27,19 @@ export async function POST(request: Request) {
   });
   const userIds = await listPrivateUserIdsForSystemJobs();
   const deps = interviewJobDeps();
-  const summary = await runScheduledJobs([...interviewJobs(deps), ...mockJobs(deps)], userIds, now);
+  const summary = await runScheduledJobs(
+    [
+      ...interviewJobs(deps),
+      ...mockJobs(deps),
+      {
+        name: "passport-refresh",
+        run: async ({ userId, now: at }) =>
+          (await passportFor(userId).refreshIfStale(at)) ? 1 : 0,
+      },
+    ],
+    userIds,
+    now,
+  );
   return Response.json({ ...summary, mockMatches: matched });
 }
 
