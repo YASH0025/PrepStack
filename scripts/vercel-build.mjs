@@ -5,7 +5,7 @@
  *    deployments skip them, so a pull request can never change the production
  *    schema; give Preview its own DATABASE_URL (e.g. a Neon branch) and set
  *    MIGRATE_ON_PREVIEW=1 if previews need new tables.
- * 2. Runs `next build`.
+ * 2. Copies the browser runtimes into public/vendor and runs `next build`.
  */
 import { spawnSync } from "node:child_process";
 
@@ -20,4 +20,5 @@ if (production || process.env.MIGRATE_ON_PREVIEW === "1") {
 } else {
   console.info(`[vercel-build] skipping migrations (VERCEL_ENV=${process.env.VERCEL_ENV})`);
 }
+run("node", ["scripts/copy-vendor.mjs"]);
 run("npx", ["next", "build"]);

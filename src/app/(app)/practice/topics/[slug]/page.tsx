@@ -4,8 +4,10 @@ import { notFound } from "next/navigation";
 
 import { PageHeader, Section } from "@/components/page";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DEPTH_LABELS, levelForBand } from "@/lib/domain";
 import { requireUser } from "@/modules/auth/service";
+import { practiceLinkForTopic } from "@/modules/coding/links";
 import { getContentService } from "@/modules/content/service";
 import { QuestionList } from "@/modules/content/ui/question-list";
 import { TopicArticle } from "@/modules/content/ui/topic-article";
@@ -54,6 +56,7 @@ export default async function TopicPage({ params }: PageProps<"/practice/topics/
   const required = topic.depthByBand[profile.experienceBand];
   const openQuestions = questions.filter((question) => question.format === "OPEN");
   const selfCheck = questions.filter((question) => question.format === "MCQ" && question.selfCheck);
+  const practice = practiceLinkForTopic(topic.slug);
 
   return (
     <>
@@ -68,6 +71,11 @@ export default async function TopicPage({ params }: PageProps<"/practice/topics/
           Your target: {DEPTH_LABELS[required.depth].label} ({DEPTH_LABELS[required.depth].meaning})
         </Badge>
         <Badge variant="muted">~{required.hours}h</Badge>
+        {practice && (
+          <Button asChild size="sm" className="ml-auto">
+            <Link href={practice.href}>{practice.label}</Link>
+          </Button>
+        )}
       </div>
 
       {(prerequisites.length > 0 || unlocks.length > 0) && (

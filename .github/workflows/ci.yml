@@ -21,6 +21,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      # Every coding problem's Python reference must agree with the JS one
+      # (in real Pyodide), and problems.json must be regenerated after edits.
+      - run: npm run coding:generate -- --check
+      - run: git diff --exit-code src/modules/coding/content/problems.json
 
   postgres:
     name: Unit tests and e2e on PostgreSQL + Better Auth

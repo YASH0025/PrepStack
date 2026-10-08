@@ -65,6 +65,9 @@ const EnvSchema = z
     CLOUDINARY_API_KEY: optionalString,
     CLOUDINARY_API_SECRET: optionalString,
 
+    /** ScaleLab (system design practice), opened from /practice/system-design. */
+    SCALELAB_URL: z.url().default("https://scale-lab-pi.vercel.app"),
+
     /** Minimum number of community reports before aggregates are shown or used. */
     COMMUNITY_MIN_SAMPLE: z.coerce.number().int().min(1).default(5),
   })

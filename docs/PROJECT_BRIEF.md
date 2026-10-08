@@ -100,9 +100,13 @@ The core value must never depend on the community already existing.
 
 ### OUT OF SCOPE (do not build yet; keep the architecture open for them)
 
-Peer mock interviews, video calls, collaborative code editor, reputation points, badges,
-leaderboards, forum, coding battles, code execution engine, readiness passport, trend alerts,
-offer comparison, referral board, browser extension, payments, and mobile apps.
+Video calls, collaborative code editor, reputation points, badges, leaderboards, forum,
+coding battles, server-side code execution, trend alerts, offer comparison, referral board,
+browser extension, payments, and mobile apps.
+
+Added after the MVP at the owner's request: peer mock interviews, the readiness passport,
+coding practice with an in-browser runner (JavaScript and Python via Pyodide; original
+problem statements with links to LeetCode), and system design practice linked to ScaleLab.
 
 ---
 

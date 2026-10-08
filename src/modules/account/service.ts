@@ -5,6 +5,7 @@ import { deletePrivateUserDir } from "@/lib/storage/paths";
 import { assessmentServiceFor } from "@/modules/assessment/service";
 import { getAuth } from "@/modules/auth/service";
 import { reportBookmarksFor } from "@/modules/bookmarks/service";
+import { codingFor } from "@/modules/coding/service";
 import { getCommunityService } from "@/modules/community/service";
 import { mockFor } from "@/modules/mock/service";
 import { passportFor } from "@/modules/passport/service";
@@ -47,6 +48,8 @@ export async function buildAccountExport(userId: string) {
     sheetState,
     bookmarks,
     notifications,
+    coding,
+    systemDesign,
   ] = await Promise.all([
     profileServiceFor(userId).get(),
     assessmentServiceFor(userId).history(),
@@ -63,6 +66,8 @@ export async function buildAccountExport(userId: string) {
     revisionSheetFor(userId).listState(),
     reportBookmarksFor(userId).list(),
     notificationsFor(userId).list(),
+    codingFor(userId).list(),
+    codingFor(userId).listDesign(),
   ]);
   const sharedIds = debriefList.flatMap((debrief) => debrief.publishedReportIds);
   const sharedReports = await getCommunityService().getMany(sharedIds);
@@ -93,6 +98,8 @@ export async function buildAccountExport(userId: string) {
     revisionSheetChecks: sheetState,
     bookmarkedReportIds: bookmarks,
     notifications,
+    codingProgress: coding,
+    systemDesignPractice: systemDesign,
     sharedReports,
   };
 }

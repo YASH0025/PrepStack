@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copy-vendor.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copy-vendor.mjs",
     "build": "next build",
     "postbuild": "node scripts/clean-standalone.mjs",
     "start": "next start",
@@ -18,6 +20,7 @@
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
     "seed:generate": "node scripts/seed/generate.mjs",
+    "coding:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/coding/generate.mjs",
     "cron": "node --env-file-if-exists=.env.local scripts/cron.mjs"
   },
   "dependencies": {
@@ -31,6 +34,7 @@
     "@fullcalendar/react": "^6.1.21",
     "@fullcalendar/timegrid": "^6.1.21",
     "@hookform/resolvers": "^5.9.1",
+    "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-table": "^8.21.3",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.7.7",
@@ -43,8 +47,10 @@
     "drizzle-orm": "^0.45.3",
     "jose": "^6.2.12",
     "lucide-react": "^1.52.0",
+    "monaco-editor": "^0.56.0",
     "next": "16.3.8",
     "pg": "^8.23.1",
+    "pyodide": "^314.0.7",
     "radix-ui": "^1.7.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",

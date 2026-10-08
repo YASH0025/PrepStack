@@ -86,6 +86,32 @@ partners (or after late cancellations); reports and pauses are handled in
 `/admin/moderation` → Mock interviews. Matching and the 1-hour reminder email run with
 `npm run cron`.
 
+## Coding practice
+
+`/practice/coding`: 73 problems across 16 topics (arrays to dynamic programming), solved in
+JavaScript or Python with the Monaco editor. Code runs **in the user's browser** inside a Web
+Worker (Python via Pyodide), so there is no server to sandbox; a runaway loop is stopped by
+terminating the worker. Run checks the examples; Submit also runs the hidden tests and saves
+the verdict and code to the user's private `coding.json` (self-reported, so it is never used
+for anything public or ranked). The list shows a daily set (3 easy, 2 medium, 1 hard,
+unfinished ones first), per-topic progress and "needs work" topics; roadmap items for the DSA
+topics link straight to it.
+
+- Problems are written in our own words in `scripts/coding/problems/*.mjs` (format in the
+  README there), each with a JavaScript and an independent Python reference solution.
+  `npm run coding:generate -- --check` computes expected outputs from the JS solution, checks
+  the Python one agrees in real Pyodide, and writes `src/modules/coding/content/problems.json`
+  (bundled with the app; CI fails if it is stale). Each problem links to LeetCode's version.
+- Pyodide, Monaco and the runner workers are served from `public/vendor`, prepared by
+  `scripts/copy-vendor.mjs` before dev and build (the workers are built from
+  `src/modules/coding/runner/*.ts` by stripping types; rerun it after editing them).
+
+## System design practice
+
+`/practice/system-design` lists ScaleLab's interview problems and opens each one in ScaleLab
+(`SCALELAB_URL`, default https://scale-lab-pi.vercel.app) on `/play?interview=<id>`. Users mark
+problems done to track them; the system design roadmap topic links here.
+
 ## Readiness passport
 
 `/profile/passport`: a private, revocable share link showing preparation progress (topics at

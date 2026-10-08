@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { BookOpen, ClipboardCheck, HelpCircle, RotateCcw } from "lucide-react";
+import { BookOpen, ClipboardCheck, HelpCircle, Play, RotateCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/misc";
 import { DEPTHS, DEPTH_LABELS } from "@/lib/domain";
 import { cn } from "@/lib/utils";
+import { practiceLinkForTopic } from "@/modules/coding/links";
 import { type Topic } from "@/modules/content/schemas";
 
 import { type RoadmapItem } from "../schemas";
@@ -43,6 +44,7 @@ export function RoadmapItemRow({
   const title = roadmapItemTitle(item, topics);
   const done = item.status === "DONE";
   const target = depthName(item.requiredDepth);
+  const practice = topic && item.kind !== "SELF_CHECK" ? practiceLinkForTopic(topic.slug) : null;
 
   return (
     <div className={cn("flex items-start gap-3 py-2", done && "opacity-60")}>
@@ -64,6 +66,14 @@ export function RoadmapItemRow({
           <Badge variant={kind.variant}>
             <Icon aria-hidden /> {kind.label}
           </Badge>
+          {practice && !done && (
+            <Link
+              href={practice.href}
+              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              <Play className="size-3" aria-hidden /> {practice.label}
+            </Link>
+          )}
         </div>
         {!compact && (
           <p className="text-xs text-muted-foreground">

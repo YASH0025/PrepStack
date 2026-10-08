@@ -39,7 +39,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `rm -rf .e2e-data && node scripts/e2e-reset-db.mjs && next dev -p ${PORT}`,
+    command: `rm -rf .e2e-data && node scripts/e2e-reset-db.mjs && node scripts/copy-vendor.mjs && next dev -p ${PORT}`,
     url: `${BASE_URL}/login`,
     timeout: 180_000,
     reuseExistingServer: false,

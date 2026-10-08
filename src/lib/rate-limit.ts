@@ -131,4 +131,6 @@ export const RATE_LIMITS = {
   mockReport: { limit: 10, windowMs: 24 * 60 * 60_000 },
   /** Session changes (meeting link, cancel, question swaps). */
   mockChange: { limit: 60, windowMs: 60 * 60_000 },
+  /** Coding submissions and system design "done" marks. */
+  codingSubmit: { limit: 300, windowMs: 60 * 60_000 },
 } as const satisfies Record<string, RateLimitRule>;
