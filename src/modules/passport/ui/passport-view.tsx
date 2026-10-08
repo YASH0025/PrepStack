@@ -32,9 +32,9 @@ function Stat({
 }) {
   return (
     <section className="grid content-start gap-2 rounded-lg border p-4">
-      <h2 className="flex items-center gap-2 text-sm font-semibold">
+      <h3 className="flex items-center gap-2 text-sm font-semibold">
         <Icon className="size-4 text-primary" aria-hidden /> {title}
-      </h2>
+      </h3>
       {children}
     </section>
   );
@@ -44,10 +44,14 @@ function Stat({
 export function PassportView({
   data,
   generatedAt,
+  headingLevel = 1,
 }: {
   data: PassportData;
   generatedAt: string | null;
+  /** 2 when shown inside another page (the owner's preview). */
+  headingLevel?: 1 | 2;
 }) {
+  const Heading = headingLevel === 1 ? "h1" : "h2";
   const topicsPct = data.topics.total
     ? Math.round((data.topics.atTarget / data.topics.total) * 100)
     : 0;
@@ -55,7 +59,7 @@ export function PassportView({
     <article className="grid gap-4" aria-label={`Readiness passport of ${data.displayName}`}>
       <header className="grid gap-1">
         <p className="text-xs tracking-wide text-muted-foreground uppercase">Readiness passport</p>
-        <h1 className="text-2xl font-semibold tracking-tight">{data.displayName}</h1>
+        <Heading className="text-2xl font-semibold tracking-tight">{data.displayName}</Heading>
         <p className="text-sm text-muted-foreground">
           Preparing for {data.roleName} · {BAND_LABELS[data.band]}
           {data.trackName && ` · ${data.trackName}`}

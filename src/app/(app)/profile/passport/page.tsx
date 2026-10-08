@@ -48,9 +48,13 @@ export default async function PassportSettingsPage() {
       >
         <div className="rounded-xl border bg-muted/30 p-4">
           {status.enabled && status.snapshot ? (
-            <PassportView data={status.snapshot.data} generatedAt={status.snapshot.generatedAt} />
+            <PassportView
+              data={status.snapshot.data}
+              generatedAt={status.snapshot.generatedAt}
+              headingLevel={2}
+            />
           ) : preview ? (
-            <PassportView data={preview} generatedAt={null} />
+            <PassportView data={preview} generatedAt={null} headingLevel={2} />
           ) : null}
         </div>
       </Section>
