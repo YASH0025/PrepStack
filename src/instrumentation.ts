@@ -2,13 +2,15 @@
  * Runs once when the Next.js server starts.
  * 1. Importing the env module validates configuration, so a bad value fails
  *    fast at boot instead of on the first request that reads it.
- * 2. In Postgres mode, pending SQL migrations (./drizzle) are applied.
+ * 2. In Postgres mode, pending SQL migrations (./drizzle) are applied, except
+ *    on Vercel, where functions cannot read ./drizzle and migrations run
+ *    during the build instead (scripts/vercel-build.mjs).
  * 3. Seed content is copied into storage on first run (never overwritten).
  */
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { env } = await import("./lib/env");
-    if (env.STORAGE_DRIVER === "postgres") {
+    if (env.STORAGE_DRIVER === "postgres" && !env.VERCEL) {
       const { runMigrations } = await import("./lib/db/client");
       await runMigrations();
       console.info("[db] migrations applied");

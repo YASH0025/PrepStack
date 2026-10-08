@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const user = await getUserForApi();
   if (!user) return NextResponse.json({ error: "Sign in first" }, { status: 401 });
-  if (!rateLimit(`export:${user.id}`, RATE_LIMITS.export).ok) {
+  if (!(await rateLimit(`export:${user.id}`, RATE_LIMITS.export)).ok) {
     return NextResponse.json({ error: "Too many exports. Try again later." }, { status: 429 });
   }
   const data = await buildAccountExport(user.id);

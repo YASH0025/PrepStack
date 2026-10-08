@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const user = await getUserForApi();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const limit = rateLimit(`upload:${user.id}`, RATE_LIMITS.upload);
+  const limit = await rateLimit(`upload:${user.id}`, RATE_LIMITS.upload);
   if (!limit.ok)
     return Response.json({ error: "Too many uploads. Try again later." }, { status: 429 });
 

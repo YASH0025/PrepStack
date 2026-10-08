@@ -80,7 +80,7 @@ export async function publishShareAction(
     if (findings.length > 0 || !isDeepStrictEqual(draft, parsed.data)) {
       return fail("We found more personal details. Review the preview again before publishing.");
     }
-    const limit = rateLimit(`publish:${user.id}`, RATE_LIMITS.publish);
+    const limit = await rateLimit(`publish:${user.id}`, RATE_LIMITS.publish);
     if (!limit.ok) return fail("You have published a lot today. Try again tomorrow.");
 
     const report = await getCommunityService().submit(draft);

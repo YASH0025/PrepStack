@@ -7,6 +7,8 @@
     "build": "next build",
     "postbuild": "node scripts/clean-standalone.mjs",
     "start": "next start",
+    "vercel-build": "node scripts/vercel-build.mjs",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",

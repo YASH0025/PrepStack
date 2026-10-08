@@ -24,7 +24,7 @@ export async function signupAction(_prev: FormState, formData: FormData): Promis
   const parsed = SignupInputSchema.safeParse(formDataToObject(formData));
   if (!parsed.success) return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
 
-  const limit = rateLimit(`signup:${await clientIp()}`, RATE_LIMITS.signup);
+  const limit = await rateLimit(`signup:${await clientIp()}`, RATE_LIMITS.signup);
   if (!limit.ok) return { values, ...tooMany(limit.retryAfterSeconds) };
 
   const auth = await getAuth();
@@ -42,7 +42,10 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   const parsed = LoginInputSchema.safeParse(raw);
   if (!parsed.success) return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
 
-  const limit = rateLimit(`login:${await clientIp()}:${parsed.data.email}`, RATE_LIMITS.login);
+  const limit = await rateLimit(
+    `login:${await clientIp()}:${parsed.data.email}`,
+    RATE_LIMITS.login,
+  );
   if (!limit.ok) return { values, ...tooMany(limit.retryAfterSeconds) };
 
   const user = await (await getAuth()).signIn(parsed.data);
@@ -63,7 +66,7 @@ export async function requestPasswordResetAction(
   const parsed = RequestResetInputSchema.safeParse(formDataToObject(formData));
   if (!parsed.success) return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
 
-  const limit = rateLimit(
+  const limit = await rateLimit(
     `reset:${await clientIp()}:${parsed.data.email}`,
     RATE_LIMITS.passwordReset,
   );
@@ -83,7 +86,7 @@ export async function resetPasswordAction(
   const parsed = ResetPasswordInputSchema.safeParse(formDataToObject(formData));
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
 
-  const limit = rateLimit(`reset-confirm:${await clientIp()}`, RATE_LIMITS.passwordReset);
+  const limit = await rateLimit(`reset-confirm:${await clientIp()}`, RATE_LIMITS.passwordReset);
   if (!limit.ok) return tooMany(limit.retryAfterSeconds);
 
   const done = await (await getAuth()).resetPassword(parsed.data);
@@ -115,7 +118,7 @@ export async function socialSignInAction(formData: FormData): Promise<void> {
   const auth = await getAuth();
   if (provider !== "google" && provider !== "github") redirect("/login");
   if (!auth.socialProviders().includes(provider as SocialProvider)) redirect("/login");
-  const limit = rateLimit(`social:${await clientIp()}`, RATE_LIMITS.login);
+  const limit = await rateLimit(`social:${await clientIp()}`, RATE_LIMITS.login);
   if (!limit.ok) redirect("/login");
   const url = await auth.socialSignInUrl(
     provider as SocialProvider,

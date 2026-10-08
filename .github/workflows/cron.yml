@@ -1,0 +1,45 @@
+name: Scheduled jobs
+
+# Calls POST /api/cron/run on the deployed app every 30 minutes (reminder
+# emails, mock interview matching, passport refresh). Needed on Vercel, whose
+# free plan only allows daily cron jobs.
+#
+# Setup (repository Settings → Secrets and variables → Actions):
+#   - Variable APP_URL:    the public URL, e.g. https://prepstack.vercel.app
+#   - Secret   CRON_SECRET: the same value as CRON_SECRET on Vercel
+# The job is skipped until APP_URL is set.
+#
+# GitHub may start scheduled runs a few minutes late, and pauses them after
+# 60 days without commits to the repository (re-enable from the Actions tab).
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: scheduled-jobs
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: Run scheduled jobs
+    if: ${{ vars.APP_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/cron.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # One retry: the first request may wake a sleeping database.
+      - run: node scripts/cron.mjs || (sleep 20 && node scripts/cron.mjs)
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
