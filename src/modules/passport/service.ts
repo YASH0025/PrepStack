@@ -66,7 +66,11 @@ export class PassportService {
     const items = roadmap?.items ?? [];
     const visibleScore = mockProfile ? publicScore(score, mockProfile.showScore) : null;
     return buildPassport({
-      displayName: settings?.displayName || profile.displayName || "PrepStack user",
+      displayName:
+        settings?.displayName ||
+        profile.displayName ||
+        mockProfile?.displayName ||
+        "PrepStack user",
       roleName: roles.find((role) => role.id === profile.targetRoleId)?.name ?? "Developer",
       trackName: tracks.find((track) => track.id === profile.trackId)?.name ?? "",
       band: profile.experienceBand,
